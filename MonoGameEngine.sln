@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwiftEngine", "SwiftEngine\SwiftEngine.csproj", "{1364642B-89D0-48AC-BF70-79997B7FC312}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoGameEngine", "MonoGameEngine\MonoGameEngine.csproj", "{1364642B-89D0-48AC-BF70-79997B7FC312}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jitter", "Jitter Physics 0.1.7.0\Jitter\Jitter.csproj", "{AA03EF1A-94F7-4D30-AB14-2092863FF923}"
 EndProject
