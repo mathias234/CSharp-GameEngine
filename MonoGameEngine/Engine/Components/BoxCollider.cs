@@ -9,7 +9,7 @@ using Jitter.Dynamics;
 using Jitter.LinearMath;
 using Microsoft.Xna.Framework;
 
-namespace SwiftEngine.Engine.Components {
+namespace MonoGameEngine.Engine.Components {
     public class BoxCollider : Collider {
         public float Width { get; set; }
         public float Height { get; set; }

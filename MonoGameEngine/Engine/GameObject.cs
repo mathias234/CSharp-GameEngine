@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using SwiftEngine.Components;
-using SwiftEngine.Engine.Components;
+using MonoGameEngine.Components;
+using MonoGameEngine.Engine.Components;
 
-namespace SwiftEngine {
+namespace MonoGameEngine {
     public class GameObject {
         public List<Component> _components = new List<Component>();
         public GameObject parent;

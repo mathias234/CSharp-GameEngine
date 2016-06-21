@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace SwiftEngine.Engine.UI {
+namespace MonoGameEngine.Engine.UI {
     public class UIElement {
         public Rectangle Rect;
         public Color Color;

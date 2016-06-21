@@ -4,11 +4,11 @@ using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using SwiftEngine.Components;
-using SwiftEngine.Engine;
-using SwiftEngine.Engine.UI;
+using MonoGameEngine.Components;
+using MonoGameEngine.Engine;
+using MonoGameEngine.Engine.UI;
 
-namespace SwiftEngine {
+namespace MonoGameEngine {
     /// <summary>
     /// This is the main type for your game.
     /// </summary>

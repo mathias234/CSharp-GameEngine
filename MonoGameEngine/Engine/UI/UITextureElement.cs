@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace SwiftEngine.Engine.UI {
+namespace MonoGameEngine.Engine.UI {
     public class UITextureElement : UIElement {
         public Texture2D Texture2D;
 

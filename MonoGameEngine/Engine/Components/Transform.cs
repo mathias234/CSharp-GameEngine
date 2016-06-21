@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
-using SwiftEngine.Engine;
-using SwiftEngine.Engine.Components;
+using MonoGameEngine.Engine;
+using MonoGameEngine.Engine.Components;
 
-namespace SwiftEngine.Components {
+namespace MonoGameEngine.Components {
     public class Transform : Component {
         public Vector3 Position { get; set; }
 

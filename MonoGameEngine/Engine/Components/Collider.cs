@@ -1,7 +1,7 @@
 ﻿using Jitter.Dynamics;
-using SwiftEngine.Components;
+using MonoGameEngine.Components;
 
-namespace SwiftEngine.Engine.Components {
+namespace MonoGameEngine.Engine.Components {
     public class Collider : Component {
         public float Mass { get; set; }
         protected RigidBody RigidBody;

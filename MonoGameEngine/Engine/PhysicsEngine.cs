@@ -9,10 +9,10 @@ using Jitter.LinearMath;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
-using SwiftEngine.Components;
-using SwiftEngine.Engine.Components;
+using MonoGameEngine.Components;
+using MonoGameEngine.Engine.Components;
 
-namespace SwiftEngine.Engine {
+namespace MonoGameEngine.Engine {
     public class PhysicsEngine {
         private World world;
 

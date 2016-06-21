@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
-using SwiftEngine.Components;
 using Microsoft.Xna.Framework;
-using SwiftEngine.Engine.Components;
+using MonoGameEngine.Components;
+using MonoGameEngine.Engine.Components;
 
-namespace SwiftEngine.Engine {
+namespace MonoGameEngine.Engine {
     public static class SceneManager {
         public static void LoadScene(string name) {
             XmlSerializer serializer = new XmlSerializer(typeof(List<GameObject>));

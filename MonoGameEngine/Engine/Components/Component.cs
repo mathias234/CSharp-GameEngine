@@ -2,9 +2,9 @@
 using System.Diagnostics;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
-using SwiftEngine.Engine.Components;
+using MonoGameEngine.Engine.Components;
 
-namespace SwiftEngine.Components {
+namespace MonoGameEngine.Components {
     [XmlInclude(typeof(Camera))]
     [XmlInclude(typeof(Transform))]
     [XmlInclude(typeof(MeshRenderer))]

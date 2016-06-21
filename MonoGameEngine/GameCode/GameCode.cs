@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using SwiftEngine.Components;
-using SwiftEngine.Engine;
+using MonoGameEngine.Components;
+using MonoGameEngine.Engine;
 
-namespace SwiftEngine.GameCode {
+namespace MonoGameEngine.GameCode {
     // here you can place code that you do not want on a gameobject (sorta disconnected from the whole gameobject stuff)
     // or you can build your scene from here if you dont want to use the editor( or if i have not implemented and editor yet)
     public class GameCode : BaseGameCode {

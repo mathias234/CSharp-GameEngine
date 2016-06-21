@@ -1,7 +1,7 @@
 ﻿using System;
-using SwiftEngine.Engine;
+using MonoGameEngine.Engine;
 
-namespace SwiftEngine.GameCode {
+namespace MonoGameEngine.GameCode {
 #if Editor || WINDOWS || LINUX
     /// <summary>
     /// The main class.
@@ -19,7 +19,7 @@ namespace SwiftEngine.GameCode {
             var baseGameCode = new GameCode();
 #endif
 
-            using (var game = new CoreEngine("SwiftEngine", baseGameCode))
+            using (var game = new CoreEngine("MonoGameEngine", baseGameCode))
                 game.Run();
         }
     }

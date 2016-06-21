@@ -2,9 +2,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using SwiftEngine.Engine;
+using MonoGameEngine.Engine;
 
-namespace SwiftEngine {
+namespace MonoGameEngine {
     public static class Primitives {
         public static Mesh CreateIcosahedron() {
             // A temporary array, with 12 items in it, because

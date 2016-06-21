@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace SwiftEngine.Engine.UI {
+namespace MonoGameEngine.Engine.UI {
     public class UISystem {
         public List<UIElement> UIElements = new List<UIElement>();
         private SpriteBatch _spriteBatch;

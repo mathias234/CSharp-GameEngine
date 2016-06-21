@@ -9,7 +9,7 @@ using Jitter.Dynamics;
 using Jitter.LinearMath;
 using Microsoft.Xna.Framework;
 
-namespace SwiftEngine.Engine.Components {
+namespace MonoGameEngine.Engine.Components {
     public class SphereCollider : Collider {
         public float Radius { get; set; }
         public bool IsStatic { get; set; }

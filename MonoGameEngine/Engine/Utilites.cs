@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Matrix = Microsoft.Xna.Framework.Matrix;
 
-namespace SwiftEngine.Engine {
+namespace MonoGameEngine.Engine {
    public static class Utilities {
   
     }

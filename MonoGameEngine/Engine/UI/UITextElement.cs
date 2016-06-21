@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace SwiftEngine.Engine.UI {
+namespace MonoGameEngine.Engine.UI {
     public class UITextElement : UIElement {
         public string Text;
         public Color BackGroundColor;

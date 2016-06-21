@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using SwiftEngine.Components;
-using SwiftEngine.Engine.Components;
-using SwiftEngine.Engine.UI;
+using MonoGameEngine.Components;
+using MonoGameEngine.Engine.Components;
+using MonoGameEngine.Engine.UI;
 
-namespace SwiftEngine.Engine {
+namespace MonoGameEngine.Engine {
     public class EditorCode : BaseGameCode {
         private Texture2D checkerboard;
         private Vector2 _lastMousePos;

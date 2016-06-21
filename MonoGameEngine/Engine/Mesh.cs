@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace SwiftEngine.Engine {
+namespace MonoGameEngine.Engine {
     public class Mesh {
         public VertexPositionNormalTexture[] Vertices;
         public short[] Indices;

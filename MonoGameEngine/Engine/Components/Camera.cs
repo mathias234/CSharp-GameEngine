@@ -3,7 +3,7 @@ using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-namespace SwiftEngine.Components {
+namespace MonoGameEngine.Components {
     public class Camera : Component {
         public static Camera Main => GameObject.FindGameObjectOfType<Camera>();
 

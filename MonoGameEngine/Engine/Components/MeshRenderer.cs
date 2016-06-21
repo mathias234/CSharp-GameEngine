@@ -4,9 +4,9 @@ using System.IO;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using SwiftEngine.Engine;
+using MonoGameEngine.Engine;
 
-namespace SwiftEngine.Components {
+namespace MonoGameEngine.Components {
     public class MeshRenderer : Component, IDisposable {
         private Mesh _mesh;
 
