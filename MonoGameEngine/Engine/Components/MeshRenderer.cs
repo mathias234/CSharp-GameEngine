@@ -67,7 +67,7 @@ namespace MonoGameEngine.Components {
         /// Should only be called by the renderer
         /// </summary>
         /// <param name="graphicsDevice"></param>
-        public void Draw(GraphicsDevice graphicsDevice) {
+        public override void Draw(GraphicsDevice graphicsDevice) {
             if (Mesh == null) {
                 Debug.WriteLine("No Camera");
                 return;

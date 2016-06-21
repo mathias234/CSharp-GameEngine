@@ -114,10 +114,10 @@
     <Compile Include="Engine\EditorCode.cs" />
     <Compile Include="Engine\ExtensionMethods.cs" />
     <Compile Include="Engine\PhysicsEngine.cs" />
-    <Compile Include="Engine\UI\UIElement.cs" />
+    <Compile Include="Engine\UI\UIComponent.cs" />
     <Compile Include="Engine\UI\UISystem.cs" />
-    <Compile Include="Engine\UI\UITextElement.cs" />
-    <Compile Include="Engine\UI\UITextureElement.cs" />
+    <Compile Include="Engine\UI\UiTextComponent.cs" />
+    <Compile Include="Engine\UI\UiTextureComponent.cs" />
     <Compile Include="Engine\Utilites.cs" />
     <Compile Include="Engine\Mesh.cs" />
     <Compile Include="Engine\Primitives.cs" />

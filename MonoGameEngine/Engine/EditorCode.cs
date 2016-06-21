@@ -22,7 +22,7 @@ namespace MonoGameEngine.Engine {
         private int _selectedGameObject;
 
         public override void Initialize() {
-            SceneManager.LoadScene("scene1.scene");
+            SceneManager.CreateNewScene("scene1.scene");
             checkerboard = CoreEngine.instance.Content.Load<Texture2D>("checkerboard");
             SetupEditorView();
         }
@@ -30,15 +30,16 @@ namespace MonoGameEngine.Engine {
         public override void Update(float deltaTime) {
             UpdateEditorCam(deltaTime);
 
-            int x = 0;
-            foreach (var gameObject in CoreEngine.instance.GameObjects) {
-                var x1 = x;
-                UISystem.CreateUI(new UITextElement(new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width - 65, 30 * x, 0, 0), gameObject.name, Color.LightGray, new Color(0, 0, 0, 0), true,
-                    () => {
-                        _selectedGameObject = x1;
-                    }));
-                x++;
-            }
+            /*          int x = 0;
+                      foreach (var gameObject in CoreEngine.instance.GameObjects) {
+                          var x1 = x;
+                          UISystem.CreateUI(new UiTextComponent(new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width - 65, 30 * x, 0, 0), gameObject.name, Color.LightGray, new Color(0, 0, 0, 0), true,
+                              () => {
+                                  _selectedGameObject = x1;
+                              }));
+                          x++;
+                      }
+                      */
 
             UpdateSelectedGameObject();
         }
@@ -59,7 +60,7 @@ namespace MonoGameEngine.Engine {
             if (Camera.Main == null)
                 return;
             GameObject camera = Camera.Main.GameObject;
-            
+
 
             if (Keyboard.GetState().IsKeyDown(Keys.W)) {
                 camera.Transform.Position -= camera.Transform.Forward();
@@ -90,11 +91,21 @@ namespace MonoGameEngine.Engine {
         }
 
         private void SetupEditorView() {
-            UISystem.CreateUI(new UITextureElement(new Rectangle(0, 0, 70, CoreEngine.instance.GraphicsDevice.Viewport.Height), null, Color.DimGray));
-            UISystem.CreateUI(new UITextureElement(new Rectangle(10, 60, 50, 50), checkerboard, Color.White, false, () => {
-                var camPos = Camera.Main.GameObject.Transform.Position;
+            GameObject EditorUI = new GameObject(Vector3.Zero);
+
+
+            var leftBox = new UiTextureComponent(
+                new Rectangle(0, 0, 70, CoreEngine.instance.GraphicsDevice.Viewport.Height), null, Color.DimGray);
+
+            EditorUI.AddComponent(leftBox);
+
+            var createStandardCube = new UiTextureComponent(new Rectangle(10, 60, 50, 50), checkerboard, Color.White, false,
+                () => {
+                    var camPos = Camera.Main.GameObject.Transform.Position;
                     // place the cube infront of the player
-                    var sampleCube = new GameObject(new Vector3(camPos.X, camPos.Y, camPos.Z) + (-Camera.Main.GameObject.Transform.Forward() * 10));
+                    var sampleCube =
+                        new GameObject(new Vector3(camPos.X, camPos.Y, camPos.Z) +
+                                       (-Camera.Main.GameObject.Transform.Forward()*10));
                     sampleCube.AddComponent<MeshRenderer>();
                     sampleCube.GetComponent<MeshRenderer>().Mesh = Primitives.CreateCube();
                     sampleCube.GetComponent<MeshRenderer>().Color = Color.LightGray;
@@ -105,21 +116,27 @@ namespace MonoGameEngine.Engine {
                     sampleCube.GetComponent<BoxCollider>().IsStatic = false;
                     sampleCube.name = "cube";
                     sampleCube.Instantiate();
-            }));
+                });
 
-            UISystem.CreateUI(new UITextElement(new Rectangle(0, 0, 30, 30), "Save", Color.LightGray, Color.Gray, false,
+            EditorUI.AddComponent(createStandardCube);
+
+            /*
+            UISystem.CreateUI(new UiTextComponent(new Rectangle(0, 0, 30, 30), "Save", Color.LightGray, Color.Gray, false,
                 () => {
                     SceneManager.SaveScene("scene1.scene");
                 }));
 
 
-            UISystem.CreateUI(new UITextElement(new Rectangle(0, 33, 30, 30), "New", Color.LightGray, Color.Gray, false,
+            UISystem.CreateUI(new UiTextComponent(new Rectangle(0, 33, 30, 30), "New", Color.LightGray, Color.Gray, false,
                 () => {
                     SceneManager.CreateNewScene("scene1.scene");
                 }));
 
 
-            UISystem.CreateUI(new UITextureElement(new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width - 70, 0, 70, 200), null, Color.DimGray));
+            UISystem.CreateUI(new UiTextureComponent(new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width - 70, 0, 70, 200), null, Color.DimGray));
+   */
+
+            EditorUI.Instantiate();
         }
     }
 }

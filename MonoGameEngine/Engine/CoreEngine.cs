@@ -83,14 +83,19 @@ namespace MonoGameEngine {
         protected override void Draw(GameTime gameTime) {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
+            // later on this will be sorted with a draw order list
+            var components = new List<Component>();
+
             foreach (var gameObject in instance.GameObjects) {
-                if (gameObject.GetComponent<MeshRenderer>() == null)
-                    continue;
-                MeshRenderer mr = gameObject.GetComponent<MeshRenderer>();
-                mr.Draw(GraphicsDevice);
+                foreach (var component in gameObject._components) {
+                    components.Add(component);
+                }
             }
 
-            _uiSystem.Draw();
+            foreach (var component in components) {
+                component.Draw(GraphicsDevice);
+                GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            }
 
             base.Draw(gameTime);
         }

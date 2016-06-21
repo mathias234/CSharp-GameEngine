@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using MonoGameEngine.Components;
 using MonoGameEngine.Engine.Components;
 
@@ -44,8 +45,7 @@ namespace MonoGameEngine {
             return _components[_components.Count - 1];
         }
 
-        public Component AddComponent(Type type) {
-            Component component = Activator.CreateInstance(type) as Component;
+        public Component AddComponent(Component component) {
             _components.Add(component);
             _components[_components.Count - 1].GameObject = this;
             return _components[_components.Count - 1];
@@ -79,6 +79,13 @@ namespace MonoGameEngine {
             }
         }
 
+        public void Draw(GraphicsDevice graphicsDevice) {
+            foreach (var component in _components) {
+                component.Draw(graphicsDevice);
+                CoreEngine.instance.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            }
+        }
+
         public override string ToString() {
             string components = "";
             foreach (var component in _components) {
@@ -87,5 +94,7 @@ namespace MonoGameEngine {
             return " Postion : " + Transform.Position + " Components " + components;
 
         }
+
+
     }
 }
