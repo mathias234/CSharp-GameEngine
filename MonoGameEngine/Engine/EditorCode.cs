@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using MonoGameEngine.Components;
 using MonoGameEngine.Engine.Components;
+using MonoGameEngine.Engine.Physics;
 using MonoGameEngine.Engine.UI;
 
 namespace MonoGameEngine.Engine {
@@ -18,10 +18,12 @@ namespace MonoGameEngine.Engine {
         private Vector2 _lastMousePos;
         private Vector2 _currMousePos;
 
-        // the position of the selected gameobject in the GameObjects List
-        private int _selectedGameObject;
+        private GameObject _editorUi = new GameObject(Vector3.Zero);
+        private GameObject _gameObjectHierarchyParent;
 
         public override void Initialize() {
+            _gameObjectHierarchyParent = new GameObject(new Vector3(0));
+            _gameObjectHierarchyParent.Instantiate();
             SceneManager.CreateNewScene("scene1.scene");
             checkerboard = CoreEngine.instance.Content.Load<Texture2D>("checkerboard");
             SetupEditorView();
@@ -29,32 +31,32 @@ namespace MonoGameEngine.Engine {
 
         public override void Update(float deltaTime) {
             UpdateEditorCam(deltaTime);
-
-            /*          int x = 0;
-                      foreach (var gameObject in CoreEngine.instance.GameObjects) {
-                          var x1 = x;
-                          UISystem.CreateUI(new UiTextComponent(new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width - 65, 30 * x, 0, 0), gameObject.name, Color.LightGray, new Color(0, 0, 0, 0), true,
-                              () => {
-                                  _selectedGameObject = x1;
-                              }));
-                          x++;
-                      }
-                      */
-
-            UpdateSelectedGameObject();
+            UpdateGameObjectHierarchy();
         }
 
+        public void UpdateGameObjectHierarchy() {
+            // TODO: i need to be able to add / remove components after instantiate
+            _gameObjectHierarchyParent.ClearAllComponents();
+            CoreEngine.instance.DestoryGameObject(_gameObjectHierarchyParent);
+            _gameObjectHierarchyParent = new GameObject(new Vector3(0));
 
-        private int lastSelectedObject;
+            var x = 0;
+            foreach (var gameObject in CoreEngine.instance.GameObjects) {
+                var text =
+                    new UiTextComponent(
+                        new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width - 65, 30 * x, 0, 0),
+                        gameObject.name, Color.LightGray, new Color(0, 0, 0, 0), true,
+                        () => {
+                            Debug.WriteLine("Selected an object");
+                        });
 
-        private void UpdateSelectedGameObject() {
-            if (lastSelectedObject != _selectedGameObject) {
-                if (CoreEngine.instance.GameObjects[lastSelectedObject] != null && CoreEngine.instance.GameObjects[lastSelectedObject].GetComponent<MeshRenderer>() != null)
-                    CoreEngine.instance.GameObjects[lastSelectedObject].GetComponent<MeshRenderer>().Color = Color.White;
+                _gameObjectHierarchyParent.AddComponent(text);
+                x++;
             }
 
-            lastSelectedObject = _selectedGameObject;
+            _gameObjectHierarchyParent.Instantiate();
         }
+
 
         private void UpdateEditorCam(float deltaTime) {
             if (Camera.Main == null)
@@ -105,7 +107,7 @@ namespace MonoGameEngine.Engine {
                     // place the cube infront of the player
                     var sampleCube =
                         new GameObject(new Vector3(camPos.X, camPos.Y, camPos.Z) +
-                                       (-Camera.Main.GameObject.Transform.Forward()*10));
+                                       (-Camera.Main.GameObject.Transform.Forward() * 10));
                     sampleCube.AddComponent<MeshRenderer>();
                     sampleCube.GetComponent<MeshRenderer>().Mesh = Primitives.CreateCube();
                     sampleCube.GetComponent<MeshRenderer>().Color = Color.LightGray;
@@ -120,21 +122,29 @@ namespace MonoGameEngine.Engine {
 
             EditorUI.AddComponent(createStandardCube);
 
-            /*
-            UISystem.CreateUI(new UiTextComponent(new Rectangle(0, 0, 30, 30), "Save", Color.LightGray, Color.Gray, false,
+            var save = new UiTextComponent(new Rectangle(0, 0, 30, 30), "Save", Color.LightGray, Color.Gray, false,
                 () => {
                     SceneManager.SaveScene("scene1.scene");
-                }));
+                });
+
+            EditorUI.AddComponent(save);
 
 
-            UISystem.CreateUI(new UiTextComponent(new Rectangle(0, 33, 30, 30), "New", Color.LightGray, Color.Gray, false,
+            var newScene = new UiTextComponent(new Rectangle(0, 33, 30, 30), "New", Color.LightGray, Color.Gray, false,
                 () => {
                     SceneManager.CreateNewScene("scene1.scene");
-                }));
+                });
+            EditorUI.AddComponent(newScene);
 
 
-            UISystem.CreateUI(new UiTextureComponent(new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width - 70, 0, 70, 200), null, Color.DimGray));
-   */
+            var gameObjectHierarchyBackground =
+                new UiTextureComponent(
+                    new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width - 70, 0, 70, 200), null,
+                    Color.DimGray);
+
+            EditorUI.AddComponent(gameObjectHierarchyBackground);
+
+
 
             EditorUI.Instantiate();
         }

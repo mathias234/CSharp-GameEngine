@@ -4,8 +4,8 @@ using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using MonoGameEngine.Components;
 using MonoGameEngine.Engine;
+using MonoGameEngine.Engine.Components;
 using MonoGameEngine.Engine.UI;
 
 namespace MonoGameEngine {
@@ -77,6 +77,10 @@ namespace MonoGameEngine {
         public GameObject AddGameObject(GameObject gameObject) {
             GameObjects.Add(gameObject);
             return GameObjects[GameObjects.Count - 1];
+        }
+
+        public void DestoryGameObject(GameObject obj) {
+            GameObjects.Remove(obj);
         }
 
 

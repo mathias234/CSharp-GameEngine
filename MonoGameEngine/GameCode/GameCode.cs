@@ -6,8 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using MonoGameEngine.Components;
 using MonoGameEngine.Engine;
+using MonoGameEngine.Engine.Components;
 
 namespace MonoGameEngine.GameCode {
     // here you can place code that you do not want on a gameobject (sorta disconnected from the whole gameobject stuff)

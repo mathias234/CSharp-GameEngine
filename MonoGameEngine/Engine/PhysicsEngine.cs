@@ -9,8 +9,6 @@ using Jitter.LinearMath;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
-using MonoGameEngine.Components;
-using MonoGameEngine.Engine.Components;
 
 namespace MonoGameEngine.Engine {
     public class PhysicsEngine {

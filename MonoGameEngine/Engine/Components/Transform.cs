@@ -1,10 +1,7 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Microsoft.Xna.Framework;
-using MonoGameEngine.Engine;
-using MonoGameEngine.Engine.Components;
 
-namespace MonoGameEngine.Components {
+namespace MonoGameEngine.Engine.Components {
     public class Transform : Component {
         public Vector3 Position { get; set; }
 

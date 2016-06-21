@@ -9,7 +9,7 @@ using Jitter.Dynamics;
 using Jitter.LinearMath;
 using Microsoft.Xna.Framework;
 
-namespace MonoGameEngine.Engine.Components {
+namespace MonoGameEngine.Engine.Physics {
     public class SphereCollider : Collider {
         public float Radius { get; set; }
         public bool IsStatic { get; set; }
@@ -22,6 +22,8 @@ namespace MonoGameEngine.Engine.Components {
         }
 
         public override void Init() {
+            base.Init();
+
             RigidBody = new RigidBody(new SphereShape(Radius)) {
                 Tag = GameObject.name,
                 Position =

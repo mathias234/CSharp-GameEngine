@@ -26,6 +26,8 @@ namespace MonoGameEngine.Engine.UI {
         }
 
         public override void Draw(GraphicsDevice graphicsDevice) {
+            if (Text == null)
+                Text = "Unnamed GameOject";
             CoreEngine.instance.GetSpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend);
             CoreEngine.instance.GetSpriteBatch.Draw(UISystem.GetDefaultBackground, new Rectangle(Rect.X, Rect.Y, 50, 20), BackGroundColor);
             CoreEngine.instance.GetSpriteBatch.DrawString(UISystem.GetDefaultFont, Text, new Vector2(Rect.X, Rect.Y), Color);

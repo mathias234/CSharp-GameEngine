@@ -1,7 +1,7 @@
 ﻿using Jitter.Dynamics;
-using MonoGameEngine.Components;
+using MonoGameEngine.Engine.Components;
 
-namespace MonoGameEngine.Engine.Components {
+namespace MonoGameEngine.Engine.Physics {
     public class Collider : Component {
         public float Mass { get; set; }
         protected RigidBody RigidBody;

@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGameEngine.Engine;
 
-namespace MonoGameEngine.Components {
+namespace MonoGameEngine.Engine.Components {
     public class MeshRenderer : Component, IDisposable {
         private Mesh _mesh;
 
@@ -51,6 +49,7 @@ namespace MonoGameEngine.Components {
         public MeshRenderer() { }
 
         public override void Init() {
+            base.Init();
             _basicEffect = new BasicEffect(CoreEngine.instance.GraphicsDevice);
             _basicEffect.Alpha = 1f;
 

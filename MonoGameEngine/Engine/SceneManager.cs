@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
-using MonoGameEngine.Components;
 using MonoGameEngine.Engine.Components;
+using MonoGameEngine.Engine.Physics;
 
 namespace MonoGameEngine.Engine {
     public static class SceneManager {

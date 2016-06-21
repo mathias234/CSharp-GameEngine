@@ -4,11 +4,11 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGameEngine.Components;
 using MonoGameEngine.Engine.Components;
 
 namespace MonoGameEngine {
     public class GameObject {
+        // TODO: Make private
         public List<Component> _components = new List<Component>();
         public GameObject parent;
 
@@ -25,7 +25,8 @@ namespace MonoGameEngine {
         public void Instantiate() {
             foreach (var component in _components) {
                 component.GameObject = this;
-                component.Init();
+                if (component.IsInitialized == false)
+                    component.Init();
             }
             CoreEngine.instance.AddGameObject(this);
 
@@ -51,6 +52,9 @@ namespace MonoGameEngine {
             return _components[_components.Count - 1];
         }
 
+        public void ClearAllComponents() {
+            _components.Clear();
+        }
 
         public T GetComponent<T>() where T : Component {
             return _components.Where(component1 => component1.GetType() == typeof(T)).Cast<T>().FirstOrDefault();

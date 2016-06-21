@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using MonoGameEngine.Components;
+using MonoGameEngine.Engine.Components;
 
 namespace MonoGameEngine.Engine.UI {
     public class UIComponent : Component {
@@ -15,6 +10,10 @@ namespace MonoGameEngine.Engine.UI {
         [XmlIgnore]
         public Action OnClicked;
         public bool DestoryNextUpdate;
+
+        public override void Init() {
+            base.Init();
+        }
 
         public UIComponent() {}
 

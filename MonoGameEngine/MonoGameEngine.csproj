@@ -9,8 +9,8 @@
     <ProjectGuid>{1364642B-89D0-48AC-BF70-79997B7FC312}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SwiftEngine</RootNamespace>
-    <AssemblyName>SwiftEngine</AssemblyName>
+    <RootNamespace>MonoGameEngine</RootNamespace>
+    <AssemblyName>MonoGameEngine</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MonoGamePlatform>Windows</MonoGamePlatform>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
@@ -104,20 +104,20 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Engine\BaseGameCode.cs" />
-    <Compile Include="Engine\Components\SphereCollider.cs" />
-    <Compile Include="Engine\Components\BoxCollider.cs" />
+    <Compile Include="Engine\Components\Physics\SphereCollider.cs" />
+    <Compile Include="Engine\Components\Physics\BoxCollider.cs" />
     <Compile Include="Engine\Components\Camera.cs" />
-    <Compile Include="Engine\Components\Collider.cs" />
+    <Compile Include="Engine\Components\Physics\Collider.cs" />
     <Compile Include="Engine\Components\Component.cs" />
     <Compile Include="Engine\Components\MeshRenderer.cs" />
     <Compile Include="Engine\Components\Transform.cs" />
     <Compile Include="Engine\EditorCode.cs" />
     <Compile Include="Engine\ExtensionMethods.cs" />
     <Compile Include="Engine\PhysicsEngine.cs" />
-    <Compile Include="Engine\UI\UIComponent.cs" />
-    <Compile Include="Engine\UI\UISystem.cs" />
-    <Compile Include="Engine\UI\UiTextComponent.cs" />
-    <Compile Include="Engine\UI\UiTextureComponent.cs" />
+    <Compile Include="Engine\Components\UI\UIComponent.cs" />
+    <Compile Include="Engine\Components\UI\UISystem.cs" />
+    <Compile Include="Engine\Components\UI\UiTextComponent.cs" />
+    <Compile Include="Engine\Components\UI\UiTextureComponent.cs" />
     <Compile Include="Engine\Utilites.cs" />
     <Compile Include="Engine\Mesh.cs" />
     <Compile Include="Engine\Primitives.cs" />

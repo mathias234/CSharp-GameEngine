@@ -1,9 +1,7 @@
-﻿using System;
-using System.Diagnostics;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-namespace MonoGameEngine.Components {
+namespace MonoGameEngine.Engine.Components {
     public class Camera : Component {
         public static Camera Main => GameObject.FindGameObjectOfType<Camera>();
 

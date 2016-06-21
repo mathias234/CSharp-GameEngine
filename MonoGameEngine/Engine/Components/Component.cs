@@ -1,12 +1,9 @@
-﻿using System;
-using System.Diagnostics;
-using System.Xml.Serialization;
-using Microsoft.Xna.Framework;
+﻿using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGameEngine.Engine.Components;
+using MonoGameEngine.Engine.Physics;
 using MonoGameEngine.Engine.UI;
 
-namespace MonoGameEngine.Components {
+namespace MonoGameEngine.Engine.Components {
     [XmlInclude(typeof(Camera))]
     [XmlInclude(typeof(Transform))]
     [XmlInclude(typeof(MeshRenderer))]
@@ -23,9 +20,13 @@ namespace MonoGameEngine.Components {
         [XmlIgnore]
         public Transform Transform => GameObject.Transform;
 
+        public bool IsInitialized;
+
         public virtual void Update(float deltaTime) { }
         public virtual void Draw(GraphicsDevice graphicsDevice) { }
 
-        public virtual void Init() { }
+        public virtual void Init() {
+            IsInitialized = true;
+        }
     }
 }

@@ -9,7 +9,7 @@ using Jitter.Dynamics;
 using Jitter.LinearMath;
 using Microsoft.Xna.Framework;
 
-namespace MonoGameEngine.Engine.Components {
+namespace MonoGameEngine.Engine.Physics {
     public class BoxCollider : Collider {
         public float Width { get; set; }
         public float Height { get; set; }
@@ -28,6 +28,7 @@ namespace MonoGameEngine.Engine.Components {
         }
 
         public override void Init() {
+            base.Init();
             RigidBody = new RigidBody(new BoxShape(Length, Height, Width)) {
                 Tag = GameObject.name,
                 Position =
