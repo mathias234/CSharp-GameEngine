@@ -13,18 +13,24 @@ namespace MonoGameEngine.Engine {
         private Vector2 _lastMousePos;
         private Vector2 _currMousePos;
 
-        private GameObject _editorUi;
         private GameObject _gameObjectHierarchyParent;
+        private GameObject _gameObjectInspectorParent;
+        private GameObject _editorUi;
+
+        // can be an int as it should never change type
+        private int _selectedGameObject;
 
         public override void Initialize() {
             SceneManager.CreateNewScene("scene1.scene");
 
 
-            _editorUi = new GameObject(new Vector3(0));
             _gameObjectHierarchyParent = new GameObject(new Vector3(0));
+            _gameObjectInspectorParent = new GameObject(new Vector3(0));
+            _editorUi = new GameObject(new Vector3(0));
 
-            _editorUi.Instantiate();
             _gameObjectHierarchyParent.Instantiate();
+            _gameObjectInspectorParent.Instantiate();
+            _editorUi.Instantiate();
 
             checkerboard = CoreEngine.instance.Content.Load<Texture2D>("checkerboard");
             SetupEditorView();
@@ -33,34 +39,105 @@ namespace MonoGameEngine.Engine {
         public override void Update(float deltaTime) {
             UpdateEditorCam(deltaTime);
             UpdateGameObjectHierarchy();
+            UpdateGameObjectInspector();
         }
 
         public void UpdateGameObjectHierarchy() {
+            // VERY NOT OPTIMIZED: TODO: NEEDS OPTIMIZATION SOON!
             _gameObjectHierarchyParent.ClearAllComponents();
 
             var gameObjectHierarchyBackground = _gameObjectHierarchyParent.AddComponent<UiTextureComponent>();
-            gameObjectHierarchyBackground.Rect = new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width - 200, 0, 200, CoreEngine.instance.GraphicsDevice.Viewport.Height);
+            gameObjectHierarchyBackground.Rect = new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width - 200, 0, 200, CoreEngine.instance.GraphicsDevice.Viewport.Height / 2);
             gameObjectHierarchyBackground.Color = Color.DimGray;
 
             var gameObjectHierarchyMask = _gameObjectHierarchyParent.AddComponent<UIMask>();
-            gameObjectHierarchyMask.Rect = new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width - 200, 0, 200, CoreEngine.instance.GraphicsDevice.Viewport.Height);
+            gameObjectHierarchyMask.Rect = new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width - 200, 0, 200, CoreEngine.instance.GraphicsDevice.Viewport.Height / 2);
             gameObjectHierarchyMask.Color = Color.DimGray;
+
+            var gameObjectInspectorHierarchySplitter = _editorUi.AddComponent<UiTextureComponent>();
+            gameObjectInspectorHierarchySplitter.Rect = new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width - 200, CoreEngine.instance.GraphicsDevice.Viewport.Height / 2 - 30, 200, 12);
+            gameObjectInspectorHierarchySplitter.Color = Color.DarkGray;
+
+
 
             var x = 0;
             foreach (var gameObject in CoreEngine.instance.GameObjects) {
                 var text = _gameObjectHierarchyParent.AddComponent<UiTextComponent>();
-                text.Rect = new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width - 195, 30 * x, 0, 0);
+                text.Rect = new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width - 195, 30 * x, 30, 30);
                 text.Text = gameObject.name;
                 text.Color = Color.LightGray;
                 text.BackGroundColor = new Color(0, 0, 0, 0);
+                var x1 = x;
                 text.OnClicked = () => {
                     Debug.WriteLine("Selected an object");
+                    _selectedGameObject = x1;
                 };
 
                 x++;
             }
         }
 
+        public void UpdateGameObjectInspector() {
+            _gameObjectInspectorParent.ClearAllComponents();
+
+            var gameObjectInspectorBackground = _gameObjectInspectorParent.AddComponent<UiTextureComponent>();
+            gameObjectInspectorBackground.Rect = new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width - 200,
+                CoreEngine.instance.GraphicsDevice.Viewport.Height/2, 200,
+                CoreEngine.instance.GraphicsDevice.Viewport.Height/2);
+            gameObjectInspectorBackground.Color = Color.DimGray;
+
+            var gameObjectInspectorMask = _gameObjectInspectorParent.AddComponent<UIMask>();
+            gameObjectInspectorMask.Rect = new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width - 200,
+                CoreEngine.instance.GraphicsDevice.Viewport.Height/2, 200,
+                CoreEngine.instance.GraphicsDevice.Viewport.Height/2);
+            gameObjectInspectorMask.Color = Color.DimGray;
+
+            var selectedObjectTemp = CoreEngine.instance.GameObjects[_selectedGameObject];
+
+            if (selectedObjectTemp == null)
+                return;
+
+            int x = 0;
+            foreach (var component in selectedObjectTemp._components) {
+                var componentTitle = _gameObjectInspectorParent.AddComponent<UiTextComponent>();
+                componentTitle.Rect = new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width - 200,
+                                        CoreEngine.instance.GraphicsDevice.Viewport.Height / 2 + (x*30), 200,
+                                        20 );
+
+
+                componentTitle.Text = component.GetType().Name;
+                componentTitle.Color = Color.LightGray;
+                componentTitle.BackGroundColor = Color.Gray;
+
+                x++;
+
+                foreach (var fieldInfo in component.GetType().GetFields()) {
+                    var field = _gameObjectInspectorParent.AddComponent<UiTextComponent>();
+                    field.Rect = new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width - 200 + 5,
+                                            CoreEngine.instance.GraphicsDevice.Viewport.Height / 2 + (x * 30), 200,
+                                            20);
+
+
+                    field.Text = fieldInfo.Name + " (type: " + fieldInfo.FieldType.Name + ")";
+                    field.Color = Color.LightGray;
+                    field.BackGroundColor = Color.Gray;
+                    x++;
+                    var fieldData = _gameObjectInspectorParent.AddComponent<UiTextComponent>();
+                    fieldData.Rect = new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width - 200 + 5,
+                                            CoreEngine.instance.GraphicsDevice.Viewport.Height / 2 + (x * 30), 200,
+                                            20);
+
+
+                    fieldData.Text = fieldInfo.GetValue(component).ToString();
+                    fieldData.Color = Color.LightGray;
+                    fieldData.BackGroundColor = new Color(0,0,0,0);
+                    x++;
+                }
+            }
+
+            Debug.WriteLine(selectedObjectTemp.name);
+
+        }
 
         private void UpdateEditorCam(float deltaTime) {
             if (Camera.Main == null)
