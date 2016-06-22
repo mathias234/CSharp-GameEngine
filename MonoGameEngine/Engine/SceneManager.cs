@@ -13,7 +13,7 @@ namespace MonoGameEngine.Engine {
             FileStream fs = null;
             try {
                 fs = new FileStream(@"Scenes\" + name, FileMode.OpenOrCreate);
-                CoreEngine.instance.GameObjects = (List<GameObject>) serializer.Deserialize(fs);
+                CoreEngine.instance.GameObjects = (List<GameObject>)serializer.Deserialize(fs);
                 fs.Dispose();
             }
             catch (DirectoryNotFoundException) {
@@ -61,10 +61,10 @@ namespace MonoGameEngine.Engine {
             sampleCube.AddComponent<MeshRenderer>();
             sampleCube.GetComponent<MeshRenderer>().Mesh = Primitives.CreateCube();
             sampleCube.GetComponent<MeshRenderer>().Color = Color.LightGray;
-            sampleCube.AddComponent<SphereCollider>();
-            sampleCube.GetComponent<SphereCollider>().Radius = 2;
-            sampleCube.GetComponent<SphereCollider>().Mass = 10;
-            sampleCube.GetComponent<SphereCollider>().IsStatic = false;
+            var sphereCollider = sampleCube.AddComponent<SphereCollider>();
+            sphereCollider.Radius = 2;
+            sphereCollider.Mass = 10;
+            sphereCollider.IsStatic = false;
             sampleCube.name = "cube";
             sampleCube.Instantiate();
 
@@ -73,12 +73,12 @@ namespace MonoGameEngine.Engine {
             ground.GetComponent<MeshRenderer>().Mesh = Primitives.CreateCube();
             ground.GetComponent<MeshRenderer>().Color = Color.LightGray;
             ground.Transform.Scale = new Vector3(200, 1, 200);
-            ground.AddComponent<BoxCollider>();
-            ground.GetComponent<BoxCollider>().Height = 2f;
-            ground.GetComponent<BoxCollider>().Width = 200 * 2f;
-            ground.GetComponent<BoxCollider>().Length = 200 * 2f;
-            ground.GetComponent<BoxCollider>().Mass = 0;
-            ground.GetComponent<BoxCollider>().IsStatic = true;
+            var boxCollider = ground.AddComponent<BoxCollider>();
+            boxCollider.Height = 2f;
+            boxCollider.Width = 200 * 2f;
+            boxCollider.Length = 200 * 2f;
+            boxCollider.Mass = 0;
+            boxCollider.IsStatic = true;
             ground.name = "ground";
             ground.Instantiate();
         }

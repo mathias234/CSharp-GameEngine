@@ -34,16 +34,25 @@ namespace MonoGameEngine {
 
         public Transform Transform
         {
-            get { return (Transform)_components[0]; }
+            get {
+                foreach (var component in _components) {
+                    if (component is Transform)
+                        return (Transform)component;
+                }
+
+                Debug.WriteLine("Every Gameobject should have a 'Transform' component");
+
+                return null;
+            }
             set { _components[0] = value; }
 
         }
 
-        public Component AddComponent<T>() where T : Component {
+        public T AddComponent<T>() where T : Component {
             Component component = Activator.CreateInstance<T>();
             _components.Add(component);
             _components[_components.Count - 1].GameObject = this;
-            return _components[_components.Count - 1];
+            return (T)_components[_components.Count - 1];
         }
 
         public Component AddComponent(Component component) {
