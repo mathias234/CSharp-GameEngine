@@ -111,6 +111,7 @@
     <Compile Include="Engine\Components\Component.cs" />
     <Compile Include="Engine\Components\MeshRenderer.cs" />
     <Compile Include="Engine\Components\Transform.cs" />
+    <Compile Include="Engine\Components\UI\UIMask.cs" />
     <Compile Include="Engine\EditorCode.cs" />
     <Compile Include="Engine\ExtensionMethods.cs" />
     <Compile Include="Engine\PhysicsEngine.cs" />

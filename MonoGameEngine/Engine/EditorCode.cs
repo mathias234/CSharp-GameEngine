@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGameEngine.Engine.Components;
+using MonoGameEngine.Engine.Components.UI;
 using MonoGameEngine.Engine.Physics;
 using MonoGameEngine.Engine.UI;
 
@@ -38,16 +39,20 @@ namespace MonoGameEngine.Engine {
             _gameObjectHierarchyParent.ClearAllComponents();
 
             var gameObjectHierarchyBackground = _gameObjectHierarchyParent.AddComponent<UiTextureComponent>();
-            gameObjectHierarchyBackground.Rect = new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width - 70, 0, 70, 200);
+            gameObjectHierarchyBackground.Rect = new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width - 200, 0, 200, CoreEngine.instance.GraphicsDevice.Viewport.Height);
             gameObjectHierarchyBackground.Color = Color.DimGray;
+
+            var gameObjectHierarchyMask = _gameObjectHierarchyParent.AddComponent<UIMask>();
+            gameObjectHierarchyMask.Rect = new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width - 200, 0, 200, CoreEngine.instance.GraphicsDevice.Viewport.Height);
+            gameObjectHierarchyMask.Color = Color.DimGray;
 
             var x = 0;
             foreach (var gameObject in CoreEngine.instance.GameObjects) {
                 var text = _gameObjectHierarchyParent.AddComponent<UiTextComponent>();
-                text.Rect = new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width - 65, 30 * x, 0, 0);
+                text.Rect = new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width - 195, 30 * x, 0, 0);
                 text.Text = gameObject.name;
                 text.Color = Color.LightGray;
-                text.BackGroundColor = new Color(0,0,0,0);
+                text.BackGroundColor = new Color(0, 0, 0, 0);
                 text.OnClicked = () => {
                     Debug.WriteLine("Selected an object");
                 };
@@ -105,7 +110,7 @@ namespace MonoGameEngine.Engine {
                 // place the cube infront of the player
                 var sampleCube =
                     new GameObject(new Vector3(camPos.X, camPos.Y, camPos.Z) +
-                                   (-Camera.Main.GameObject.Transform.Forward()*10));
+                                   (-Camera.Main.GameObject.Transform.Forward() * 10));
                 sampleCube.AddComponent<MeshRenderer>();
                 sampleCube.GetComponent<MeshRenderer>().Mesh = Primitives.CreateCube();
                 sampleCube.GetComponent<MeshRenderer>().Color = Color.LightGray;

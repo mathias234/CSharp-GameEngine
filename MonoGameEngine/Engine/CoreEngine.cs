@@ -44,6 +44,7 @@ namespace MonoGameEngine {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _uiSystem = new UISystem();
             _physicsEngine = new PhysicsEngine();
+            _graphics.ApplyChanges();
 
             _baseGameCode.Initialize();
         }
@@ -85,6 +86,7 @@ namespace MonoGameEngine {
 
 
         protected override void Draw(GameTime gameTime) {
+
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // later on this will be sorted with a draw order list
@@ -98,7 +100,6 @@ namespace MonoGameEngine {
 
             foreach (var component in components) {
                 component.Draw(GraphicsDevice);
-                GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             }
 
             base.Draw(gameTime);
