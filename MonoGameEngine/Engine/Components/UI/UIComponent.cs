@@ -6,6 +6,7 @@ using MonoGameEngine.Engine.Components;
 namespace MonoGameEngine.Engine.UI {
     public class UIComponent : Component {
         public Rectangle Rect;
+        public Rectangle ClickZone;
         public Color Color;
         [XmlIgnore]
         public Action OnClicked;

@@ -21,8 +21,8 @@ namespace MonoGameEngine.Engine.UI {
             _spriteBatch = CoreEngine.instance.GetSpriteBatch;
             _lastMouseState = Mouse.GetState();
             _currentMouseState = Mouse.GetState();
-            _defaultFont = CoreEngine.instance.Content.Load<SpriteFont>("DefaultFont");
-            _defaultBackground = CoreEngine.instance.Content.Load<Texture2D>("Whitebg");
+        //    _defaultFont = CoreEngine.instance.Content.Load<SpriteFont>("DefaultFont");
+          //  _defaultBackground = CoreEngine.instance.Content.Load<Texture2D>("Whitebg");
         }
 
         public void Update() {
@@ -44,7 +44,7 @@ namespace MonoGameEngine.Engine.UI {
                     if (uiElement.OnClicked == null)
                         continue;
 
-                    if (uiElement.Rect.Contains(_currentMouseState.X, _currentMouseState.Y)) {
+                    if (uiElement.ClickZone.Contains(_currentMouseState.X, _currentMouseState.Y)) {
                         uiElement.OnClicked();
                         // dont trigger the ui element beneth
                         return;

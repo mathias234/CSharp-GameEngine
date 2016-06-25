@@ -11,6 +11,7 @@ namespace MonoGameEngine {
         // TODO: Make private
         public List<Component> _components = new List<Component>();
         public GameObject parent;
+        private static Action<GameObject> _onGameObjectInstantated;
 
         public string name;
 
@@ -22,6 +23,12 @@ namespace MonoGameEngine {
             Transform.Position = position;
         }
 
+        public GameObject(string name) {
+            AddComponent<Transform>();
+            Transform.Position = new Vector3(0,0,0);
+            this.name = name;
+        }
+
         public void Instantiate() {
             foreach (var component in _components) {
                 component.GameObject = this;
@@ -30,7 +37,13 @@ namespace MonoGameEngine {
             }
             CoreEngine.instance.AddGameObject(this);
 
+            _onGameObjectInstantated?.Invoke(this);
         }
+
+        public static void SubscribeToOnGameObjectInstantiated(Action<GameObject> action) {
+            _onGameObjectInstantated += action;
+        }
+
 
         public Transform Transform
         {

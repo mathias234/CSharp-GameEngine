@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -10,7 +11,6 @@ namespace MonoGameEngine.Engine.UI {
         public Texture2D Texture2D;
 
         public override void Draw(GraphicsDevice graphicsDevice) {
-
             if (GameObject.GetComponent<UIMask>() != null) {
                 CoreEngine.instance.GetSpriteBatch.GraphicsDevice.ScissorRectangle =
                     GameObject.GetComponent<UIMask>().Rect;
@@ -23,6 +23,7 @@ namespace MonoGameEngine.Engine.UI {
             }
 
             CoreEngine.instance.GetSpriteBatch.Draw(Texture2D ?? UISystem.GetDefaultBackground, Rect, Color);
+
             CoreEngine.instance.GetSpriteBatch.End();
 
             CoreEngine.instance.GetSpriteBatch.GraphicsDevice.RasterizerState = new RasterizerState {

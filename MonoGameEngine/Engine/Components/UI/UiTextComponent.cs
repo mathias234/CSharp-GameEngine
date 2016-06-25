@@ -8,8 +8,6 @@ namespace MonoGameEngine.Engine.UI {
         public string Text;
         public Color BackGroundColor;
 
-        public UiTextComponent() { }
-
         public override void Init() {
             base.Init();
         }
@@ -17,7 +15,6 @@ namespace MonoGameEngine.Engine.UI {
         public override void Draw(GraphicsDevice graphicsDevice) {
             if (Text == null)
                 return;
-
 
             if (GameObject.GetComponent<UIMask>() != null) {
                 CoreEngine.instance.GetSpriteBatch.GraphicsDevice.ScissorRectangle =

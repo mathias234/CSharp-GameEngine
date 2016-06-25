@@ -7,7 +7,7 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{1364642B-89D0-48AC-BF70-79997B7FC312}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MonoGameEngine</RootNamespace>
     <AssemblyName>MonoGameEngine</AssemblyName>
@@ -112,6 +112,8 @@
     <Compile Include="Engine\Components\MeshRenderer.cs" />
     <Compile Include="Engine\Components\Transform.cs" />
     <Compile Include="Engine\Components\UI\UIMask.cs" />
+    <Compile Include="Engine\Components\UI\UIScrollBar.cs" />
+    <Compile Include="Engine\Components\UI\UIScrollRect.cs" />
     <Compile Include="Engine\EditorCode.cs" />
     <Compile Include="Engine\ExtensionMethods.cs" />
     <Compile Include="Engine\PhysicsEngine.cs" />
@@ -125,8 +127,7 @@
     <Compile Include="Engine\CoreEngine.cs" />
     <Compile Include="Engine\GameObject.cs" />
     <Compile Include="Engine\SceneManager.cs" />
-    <Compile Include="GameCode\GameCode.cs" />
-    <Compile Include="GameCode\Program.cs" />
+    <Compile Include="GameCode\Engine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

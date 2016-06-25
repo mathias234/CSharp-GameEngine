@@ -23,6 +23,7 @@ namespace MonoGameEngine.Engine {
         public override void Initialize() {
             SceneManager.CreateNewScene("scene1.scene");
 
+            GameObject.SubscribeToOnGameObjectInstantiated(OnGameObjectInstantiated);
 
             _gameObjectHierarchyParent = new GameObject(new Vector3(0));
             _gameObjectInspectorParent = new GameObject(new Vector3(0));
@@ -32,14 +33,18 @@ namespace MonoGameEngine.Engine {
             _gameObjectInspectorParent.Instantiate();
             _editorUi.Instantiate();
 
+
             checkerboard = CoreEngine.instance.Content.Load<Texture2D>("checkerboard");
             SetupEditorView();
         }
 
         public override void Update(float deltaTime) {
             UpdateEditorCam(deltaTime);
-            UpdateGameObjectHierarchy();
-            UpdateGameObjectInspector();
+        }
+
+        public void OnGameObjectInstantiated(GameObject gObj) {
+          // UpdateGameObjectHierarchy();
+          //  UpdateGameObjectInspector();
         }
 
         public void UpdateGameObjectHierarchy() {
@@ -64,7 +69,7 @@ namespace MonoGameEngine.Engine {
             foreach (var gameObject in CoreEngine.instance.GameObjects) {
                 var text = _gameObjectHierarchyParent.AddComponent<UiTextComponent>();
                 text.Rect = new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width - 195, 30 * x, 30, 30);
-                text.Text = gameObject.name;
+                text.Text = gameObject.name ?? "No Name";
                 text.Color = Color.LightGray;
                 text.BackGroundColor = new Color(0, 0, 0, 0);
                 var x1 = x;
@@ -174,7 +179,7 @@ namespace MonoGameEngine.Engine {
         }
 
         private void SetupEditorView() {
-            var leftBox = _editorUi.AddComponent<UiTextureComponent>();
+          /*  var leftBox = _editorUi.AddComponent<UiTextureComponent>();
             leftBox.Rect = new Rectangle(0, 0, 70, CoreEngine.instance.GraphicsDevice.Viewport.Height);
             leftBox.Color = Color.DimGray;
 
@@ -218,8 +223,26 @@ namespace MonoGameEngine.Engine {
             newScene.OnClicked = () => {
                 SceneManager.CreateNewScene("scene1.scene");
             };
+            */
 
+            var scrollBar = _editorUi.AddComponent<UIScrollBar>();
+            var screenHeight = CoreEngine.instance.GraphicsDevice.Viewport.Height;
+            var screenWidth = CoreEngine.instance.GraphicsDevice.Viewport.Width;
+            scrollBar.Rect = new Rectangle(screenWidth / 2 - 30/2, 90, 30, 300);
+            scrollBar.value = 0.5f;
+            scrollBar.Color = Color.DimGray;
 
+            var contentPanel = new GameObject("Content Panel");
+            var contentPanelUI = contentPanel.AddComponent<UiTextureComponent>();
+            contentPanelUI.Rect = new Rectangle(screenWidth/2 - 330, 90, 300, 300);
+            contentPanelUI.Color = Color.Green;
+
+                var scrollRect = contentPanel.AddComponent<UIScrollRect>();
+            scrollRect.Scrollbar = scrollBar;
+            scrollRect.ScrollRect = contentPanelUI;
+            scrollRect.ScrollAmount = 20;
+
+            contentPanel.Instantiate();
         }
     }
 }

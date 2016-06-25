@@ -105,6 +105,8 @@ namespace MonoGameEngine {
             base.Draw(gameTime);
         }
 
+
+
         public static void Quit() {
             instance.Exit();
         }

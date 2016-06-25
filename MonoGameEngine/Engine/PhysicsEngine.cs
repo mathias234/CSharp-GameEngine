@@ -24,7 +24,7 @@ namespace MonoGameEngine.Engine {
 
         public void Update(GameTime gameTime) {
             float step = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            world.Step(step, true);
+            world.Step(step, false);
         }
 
         public static void AddPhysicsObject(RigidBody rigidBody) {
