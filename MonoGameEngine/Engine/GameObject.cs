@@ -25,7 +25,7 @@ namespace MonoGameEngine {
 
         public GameObject(string name) {
             AddComponent<Transform>();
-            Transform.Position = new Vector3(0,0,0);
+            Transform.Position = new Vector3(0, 0, 0);
             this.name = name;
         }
 
@@ -47,7 +47,8 @@ namespace MonoGameEngine {
 
         public Transform Transform
         {
-            get {
+            get
+            {
                 foreach (var component in _components) {
                     if (component is Transform)
                         return (Transform)component;
@@ -83,9 +84,9 @@ namespace MonoGameEngine {
         }
 
         public static T FindGameObjectOfType<T>() where T : Component {
-            foreach (var gameObject in CoreEngine.instance.GameObjects) {
-                if (gameObject.GetComponent<T>() != null)
-                    return gameObject.GetComponent<T>();
+            for (int i = 0; i < CoreEngine.instance.GameObjects.Count; i++) {
+                if (CoreEngine.instance.GameObjects[i].GetComponent<T>() != null)
+                    return CoreEngine.instance.GameObjects[i].GetComponent<T>();
             }
 
             return null;

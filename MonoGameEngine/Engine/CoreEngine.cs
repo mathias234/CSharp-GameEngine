@@ -60,8 +60,9 @@ namespace MonoGameEngine {
             _physicsEngine.Update(gameTime);
             _baseGameCode.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
 
-            foreach (var gameObject in GameObjects) {
-                gameObject.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+            for (int i = 0; i < GameObjects.Count; i++) {
+
+                GameObjects[i].Update((float)gameTime.ElapsedGameTime.TotalSeconds);
             }
         }
 
@@ -92,9 +93,9 @@ namespace MonoGameEngine {
             // later on this will be sorted with a draw order list
             var components = new List<Component>();
 
-            foreach (var gameObject in instance.GameObjects) {
-                foreach (var component in gameObject._components) {
-                    components.Add(component);
+            for (int i = 0; i < GameObjects.Count; i++) {
+                for (int j = 0; j < GameObjects[i]._components.Count; j++) {
+                    components.Add(GameObjects[i]._components[j]);
                 }
             }
 

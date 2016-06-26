@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -13,7 +15,7 @@ namespace MinecraftClone {
     public class GameCode : BaseGameCode {
         private Vector2 _lastMousePos;
         private Vector2 _currMousePos;
-        private const int InitialChunkAmount = 32;
+        private const int InitialChunkAmount = 90;
 
         public Vector3 ChunkSize = new Vector3(16, 256, 15);
 
@@ -22,25 +24,34 @@ namespace MinecraftClone {
         public const float NoiseScale = 0.62f;
         public const int Seed = 12040;
 
+        public List<RenderChunk> renderChunks = new List<RenderChunk>();
+
+        public bool hasGeneratedChunks = false;
+
+        public Texture2D Texture;
+
         public override void Initialize() {
-            var texture = Texture2D.FromStream(CoreEngine.instance.GraphicsDevice, File.Open(@"c:/master.png", FileMode.Open));
+            Texture = Texture2D.FromStream(CoreEngine.instance.GraphicsDevice, File.Open(@"c:/master.png", FileMode.Open));
 
             var camera = new GameObject(new Vector3(0, 20, -100));
             camera.AddComponent<Camera>();
             camera.name = "Camera";
             camera.Instantiate();
 
-            int x, y;
-            int length = 50;
-            float angle = 0.0f;
+            Thread thread = new Thread(StartWorldGen);
+            thread.Start();
 
+            Debug.WriteLine("init done");
+        }
 
+        public void StartWorldGen() {
             for (int x = 0; x < InitialChunkAmount; x++) {
                 for (int z = 0; z < InitialChunkAmount; z++) {
                     GameObject chunk1 = new GameObject("chunk { X:" + x + " Z:" + z + " }");
                     chunk1.Transform.Position = new Vector3(x * ChunkSize.X, 0, z * ChunkSize.Z);
+                    chunk1.Instantiate();
                     RenderChunk rChunk1 = chunk1.AddComponent<RenderChunk>();
-                    rChunk1.mainTexture = texture;
+                    rChunk1.mainTexture = Texture;
                     rChunk1.ChunkPostion = new Vector3(x, 0, z);
                     rChunk1.scale = ChunkSize;
                     rChunk1.heightFactor = Height;
@@ -48,13 +59,18 @@ namespace MinecraftClone {
                     rChunk1.noiseScale = NoiseScale;
                     rChunk1.seed = Seed;
                     rChunk1.StartChunkGeneration();
-                    chunk1.Instantiate();
+                    renderChunks.Add(rChunk1);
                 }
             }
+
         }
 
         public override void Update(float deltaTime) {
             UpdateEditorCam(deltaTime);
+
+            for (int i = 0; i < renderChunks.Count; i++) {
+                renderChunks[i].CheckIfMeshUpdatedIsRequired();
+            }
         }
 
         private void UpdateEditorCam(float deltaTime) {

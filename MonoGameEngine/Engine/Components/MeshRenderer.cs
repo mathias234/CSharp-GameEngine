@@ -114,7 +114,6 @@ namespace MonoGameEngine.Engine.Components {
                 return;
             }
 
-
             _basicEffect.Projection = Camera.Main.ProjectionMatrix;
 
             _basicEffect.View = GameObject.FindGameObjectOfType<Camera>().ViewMatrix;

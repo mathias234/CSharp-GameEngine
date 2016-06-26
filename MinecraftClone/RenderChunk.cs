@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Data.Voxel.Map;
 using Microsoft.Xna.Framework;
@@ -11,7 +13,7 @@ using MonoGameEngine.Engine;
 using MonoGameEngine.Engine.Components;
 
 namespace MinecraftClone {
-    class RenderChunk : Component {
+    public class RenderChunk : Component {
         private List<Vector3> vertices = new List<Vector3>();
         private List<Vector3> normals = new List<Vector3>();
         private List<short> indices = new List<short>();
@@ -46,11 +48,11 @@ namespace MinecraftClone {
 
         public Texture2D mainTexture;
 
+        private bool hasGeneratedMesh = false;
+        private bool meshReady = false;
 
         public void StartChunkGeneration() {
             map = new Map(seed, ChunkPostion, (int)scale.X, (int)scale.Y, (int)scale.Z, heightFactor, digDepth, noiseScale);
-
-
             for (var x = 0; x < (int)scale.X; x++) {
                 for (var y = 0; y < (int)scale.Y; y++) {
                     for (var z = 0; z < (int)scale.Z; z++) {
@@ -92,8 +94,9 @@ namespace MinecraftClone {
                     }
                 }
             }
-            UpdateMesh();
+            meshReady = true;
         }
+
         void SetTop(int x, int y, int z, byte type) {
             vertices.Add(new Vector3(x, y, z + 1));
             vertices.Add(new Vector3(x + 1, y, z + 1));
@@ -240,10 +243,6 @@ namespace MinecraftClone {
             faceCount++; // Add this line
         }
 
-        void OnDrawGizmosSelected() {
-
-        }
-
         void UpdateMesh() {
             MeshRenderer mr = GameObject.AddComponent<MeshRenderer>();
             mesh = new Mesh();
@@ -258,6 +257,15 @@ namespace MinecraftClone {
             vertices.Clear();
             indices.Clear();
             faceCount = 0;
+            hasGeneratedMesh = true;
+        }
+
+        public void CheckIfMeshUpdatedIsRequired() {
+            if (hasGeneratedMesh == false && meshReady) {
+                UpdateMesh();
+                MeshRenderer mr = GameObject.GetComponent<MeshRenderer>();
+                mr.Init();
+            }
         }
     }
 }
