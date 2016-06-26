@@ -1,5 +1,6 @@
 ﻿using System.Collections;
-using Data.PerlinNoise;
+using System.Diagnostics;
+using LibNoise;
 using Microsoft.Xna.Framework;
 
 namespace Data.Voxel.Map {
@@ -8,7 +9,7 @@ namespace Data.Voxel.Map {
         private int _width;
         private int _height;
         private int _depth;
-        private float _scale = 1f / 8;
+        private float _scale;
 
         // this will always be the zero position of the world
         private int _digDepth = 0;
@@ -33,7 +34,7 @@ namespace Data.Voxel.Map {
                         // generate the chunk in layers to get more flexability
                         GenerateBaseTerrain(x, y, z);
                         GenerateLakes(x, y, z);
-                        GenerateUnderground(x, y, z);
+                        GenerateCaves(x, y, z);
                     }
                 }
             }
@@ -42,14 +43,16 @@ namespace Data.Voxel.Map {
         public void GenerateBaseTerrain(int x, int y, int z) {
             // generate base terrain
 
-            _voxels[x, y, z] =0;
+            _voxels[x, y, z] = 0;
 
-            float xCoord = (_chunkPosition.X + _seed + x / (float)_width) / _scale;
-            float yCoord = (_chunkPosition.Y + y / (float)_height) / _scale;
-            float zCoord = (_chunkPosition.Z + _seed + z / (float)_depth) / _scale;
+            float xCoord = ((_chunkPosition.X + _seed + x / (float)_width) / _scale) - _width;
+            float yCoord = ((_chunkPosition.Y + _seed + y / (float)_height) / _scale) - _height;
+            float zCoord = ((_chunkPosition.Z + _seed + z / (float)_depth) / _scale) - _depth;
 
-            int curHeight = (int)(Noise.GetOctaveNoise(xCoord, yCoord, zCoord, 1) * _heightFactor) +_digDepth;
-
+            Perlin perlin = new Perlin();
+            perlin.NoiseQuality = NoiseQuality.Low;
+            perlin.Frequency = 0.1f;
+            int curHeight = (int)(perlin.GetValue(xCoord, yCoord, zCoord) * _heightFactor) + _digDepth;
 
             int yPos = y;
 
@@ -63,13 +66,15 @@ namespace Data.Voxel.Map {
         }
 
         public void GenerateLakes(int x, int y, int z) {
-            if (y <= _digDepth+2 && y >= _digDepth && GetVoxel(x,y,z) == 0) {
+            if (y <= _digDepth && y >= _digDepth-10 && GetVoxel(x, y, z) == 0) {
                 _voxels[x, y, z] = 3;
             }
+
         }
 
-        public void GenerateUnderground(int x, int y, int z) {
+        public void GenerateCaves(int x, int y, int z) {
 
+       
         }
 
         public void SetVoxel(int x, int y, int z, byte value) {

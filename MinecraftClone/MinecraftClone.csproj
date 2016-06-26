@@ -53,8 +53,25 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GameCode.cs" />
+    <Compile Include="LibNoise\Billow.cs" />
+    <Compile Include="LibNoise\Checkerboard.cs" />
+    <Compile Include="LibNoise\Constant.cs" />
+    <Compile Include="LibNoise\Cylinders.cs" />
+    <Compile Include="LibNoise\FastBillow.cs" />
+    <Compile Include="LibNoise\FastNoise.cs" />
+    <Compile Include="LibNoise\FastNoiseBasis.cs" />
+    <Compile Include="LibNoise\FastRidgedMultifractal.cs" />
+    <Compile Include="LibNoise\FastTurbulence.cs" />
+    <Compile Include="LibNoise\GradientNoiseBasis.cs" />
+    <Compile Include="LibNoise\IModule.cs" />
+    <Compile Include="LibNoise\Math.cs" />
+    <Compile Include="LibNoise\Perlin.cs" />
+    <Compile Include="LibNoise\RidgedMultifractal.cs" />
+    <Compile Include="LibNoise\Spheres.cs" />
+    <Compile Include="LibNoise\Turbulence.cs" />
+    <Compile Include="LibNoise\ValueNoiseBasis.cs" />
+    <Compile Include="LibNoise\Voronoi.cs" />
     <Compile Include="Map.cs" />
-    <Compile Include="Noise.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RenderChunk.cs" />

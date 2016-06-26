@@ -28,6 +28,8 @@ namespace MonoGameEngine.Engine.Components {
 
                     vpntTemp[i] = (new VertexPositionNormalTexture(_mesh.Vertices[i], _mesh.Normals[i], _mesh.Uvs[i]));
                 }
+                if(vpntTemp.Length == 0)
+                    return;
 
                 //Vert buffer
                 _vertexBuffer = new VertexBuffer(CoreEngine.instance.GraphicsDevice, typeof(VertexPositionNormalTexture), vpntTemp.Length, BufferUsage.WriteOnly);
@@ -111,6 +113,10 @@ namespace MonoGameEngine.Engine.Components {
             }
             if (GameObject.FindGameObjectOfType<Camera>() == null) {
                 Debug.WriteLine("No Camera");
+                return;
+            }
+            if (Mesh.Vertices.Length == 0) {
+                Debug.WriteLine("NO VERTICES TO RENDER!!");
                 return;
             }
 
