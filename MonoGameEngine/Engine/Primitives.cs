@@ -9,21 +9,21 @@ namespace MonoGameEngine {
         public static Mesh CreateIcosahedron() {
             // A temporary array, with 12 items in it, because
             // the icosahedron has 12 distinct vertices
-            var vertices = new VertexPositionNormalTexture[12];
+            var vertices = new Vector3[12];
 
             // vertex position and color information for icosahedron
-            vertices[0] = new VertexPositionNormalTexture(new Vector3(-0.26286500f, 0.0000000f, 0.42532500f), Vector3.Up, Vector2.One);
-            vertices[1] = new VertexPositionNormalTexture(new Vector3(0.26286500f, 0.0000000f, 0.42532500f), Vector3.Up, Vector2.One);
-            vertices[2] = new VertexPositionNormalTexture(new Vector3(-0.26286500f, 0.0000000f, -0.42532500f), Vector3.Up, Vector2.One);
-            vertices[3] = new VertexPositionNormalTexture(new Vector3(0.26286500f, 0.0000000f, -0.42532500f), Vector3.Up, Vector2.One);
-            vertices[4] = new VertexPositionNormalTexture(new Vector3(0.0000000f, 0.42532500f, 0.26286500f), Vector3.Up, Vector2.One);
-            vertices[5] = new VertexPositionNormalTexture(new Vector3(0.0000000f, 0.42532500f, -0.26286500f), Vector3.Up, Vector2.One);
-            vertices[6] = new VertexPositionNormalTexture(new Vector3(0.0000000f, -0.42532500f, 0.26286500f), Vector3.Up, Vector2.One);
-            vertices[7] = new VertexPositionNormalTexture(new Vector3(0.0000000f, -0.42532500f, -0.26286500f), Vector3.Up, Vector2.One);
-            vertices[8] = new VertexPositionNormalTexture(new Vector3(0.42532500f, 0.26286500f, 0.0000000f), Vector3.Up, Vector2.One);
-            vertices[9] = new VertexPositionNormalTexture(new Vector3(-0.42532500f, 0.26286500f, 0.0000000f), Vector3.Up, Vector2.One);
-            vertices[10] = new VertexPositionNormalTexture(new Vector3(0.42532500f, -0.26286500f, 0.0000000f), Vector3.Up, Vector2.One);
-            vertices[11] = new VertexPositionNormalTexture(new Vector3(-0.42532500f, -0.26286500f, 0.0000000f), Vector3.Up, Vector2.One);
+            vertices[0] = new Vector3(-0.26286500f, 0.0000000f, 0.42532500f);
+            vertices[1] = new Vector3(0.26286500f, 0.0000000f, 0.42532500f);
+            vertices[2] = new Vector3(-0.26286500f, 0.0000000f, -0.42532500f);
+            vertices[3] = new Vector3(0.26286500f, 0.0000000f, -0.42532500f);
+            vertices[4] = new Vector3(0.0000000f, 0.42532500f, 0.26286500f);
+            vertices[5] = new Vector3(0.0000000f, 0.42532500f, -0.26286500f);
+            vertices[6] = new Vector3(0.0000000f, -0.42532500f, 0.26286500f);
+            vertices[7] = new Vector3(0.0000000f, -0.42532500f, -0.26286500f);
+            vertices[8] = new Vector3(0.42532500f, 0.26286500f, 0.0000000f);
+            vertices[9] = new Vector3(-0.42532500f, 0.26286500f, 0.0000000f);
+            vertices[10] = new Vector3(0.42532500f, -0.26286500f, 0.0000000f);
+            vertices[11] = new Vector3(-0.42532500f, -0.26286500f, 0.0000000f);
 
             var indices = new short[60];
             indices[0] = 0; indices[1] = 6; indices[2] = 1;
@@ -55,12 +55,18 @@ namespace MonoGameEngine {
         }
 
         public static Mesh CreatePlane() {
-            var vertices = new VertexPositionNormalTexture[4];
+            var vertices = new Vector3[4];
 
-            vertices[0] = new VertexPositionNormalTexture(new Vector3(-1.0f, 0, -1.0f), Vector3.Up, Vector2.Zero);
-            vertices[1] = new VertexPositionNormalTexture(new Vector3(1.0f, 0, -1.0f), Vector3.Up, new Vector2(1,0));
-            vertices[2] = new VertexPositionNormalTexture(new Vector3(1.0f, 0, 1.0f), Vector3.Up, new Vector2(1, 1));
-            vertices[3] = new VertexPositionNormalTexture(new Vector3(-1.0f, 0, 1.0f), Vector3.Up, new Vector2(0, 1));
+            vertices[0] = new Vector3(-1.0f, 0, -1.0f);
+            vertices[1] = new Vector3(1.0f, 0, -1.0f);
+            vertices[2] = new Vector3(1.0f, 0, 1.0f);
+            vertices[3] = new Vector3(-1.0f, 0, 1.0f);
+
+            var normals = new Vector3[4];
+            normals[0] = Vector3.Up;
+            normals[1] = Vector3.Up;
+            normals[2] = Vector3.Up;
+            normals[3] = Vector3.Up;
 
             var indices = new short[] {
                 0, 1, 2, 2, 3, 0,
@@ -77,18 +83,28 @@ namespace MonoGameEngine {
         }
 
         public static Mesh CreateCube() {
-            var vertices = new VertexPositionNormalTexture[8];
+            var vertices = new Vector3[8];
             var indices = new short[18];
 
-            vertices[0] = new VertexPositionNormalTexture(new Vector3(-1.0f, -1.0f, 1.0f), new Vector3(-1.0f, -1.0f, -1.0f), Vector2.Zero);
-            vertices[3] = new VertexPositionNormalTexture(new Vector3(-1.0f, 1.0f, 1.0f), new Vector3(-1.0f, 1.0f, 1.0f), Vector2.Zero);
-            vertices[4] = new VertexPositionNormalTexture(new Vector3(-1.0f, -1.0f, -1.0f), new Vector3(-1.0f, -1.0f, -1.0f), Vector2.Zero);
-            vertices[7] = new VertexPositionNormalTexture(new Vector3(-1.0f, 1.0f, -1.0f), new Vector3(-1.0f, 1.0f, -1.0f), Vector2.Zero);
+            vertices[0] = new Vector3(-1.0f, -1.0f, 1.0f);
+            vertices[3] = new Vector3(-1.0f, 1.0f, 1.0f);
+            vertices[4] = new Vector3(-1.0f, -1.0f, -1.0f);
+            vertices[7] = new Vector3(-1.0f, 1.0f, -1.0f);
 
-            vertices[1] = new VertexPositionNormalTexture(new Vector3(1.0f, -1.0f, 1.0f), new Vector3(1.0f, -1.0f, 1.0f), Vector2.Zero);
-            vertices[6] = new VertexPositionNormalTexture(new Vector3(1.0f, 1.0f, -1.0f), new Vector3(1.0f, 1.0f, -1.0f), Vector2.Zero);
-            vertices[2] = new VertexPositionNormalTexture(new Vector3(1.0f, 1.0f, 1.0f), new Vector3(1.0f, 1.0f, 1.0f), Vector2.Zero);
-            vertices[5] = new VertexPositionNormalTexture(new Vector3(1.0f, -1.0f, -1.0f), new Vector3(1.0f, -1.0f, -1.0f), Vector2.Zero);
+            vertices[1] = new Vector3(1.0f, -1.0f, 1.0f);
+            vertices[6] = new Vector3(1.0f, 1.0f, -1.0f);
+            vertices[2] = new Vector3(1.0f, 1.0f, 1.0f);
+            vertices[5] = new Vector3(1.0f, -1.0f, -1.0f);
+
+            var normals = new Vector3[8];
+            normals[0] = Vector3.Up;
+            normals[1] = Vector3.Up;
+            normals[2] = Vector3.Up;
+            normals[3] = Vector3.Up;
+            normals[4] = Vector3.Up;
+            normals[5] = Vector3.Up;
+            normals[6] = Vector3.Up;
+            normals[7] = Vector3.Up;
 
 
             indices = new short[] {
@@ -109,7 +125,8 @@ namespace MonoGameEngine {
 
             var m = new Mesh {
                 Indices = indices,
-                Vertices = vertices
+                Vertices = vertices,
+                Normals = normals,
             };
             m.CalculateBoundingBox();
 

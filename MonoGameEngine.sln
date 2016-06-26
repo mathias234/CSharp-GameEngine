@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoGameEngine", "MonoGameE
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jitter", "Jitter Physics 0.1.7.0\Jitter\Jitter.csproj", "{AA03EF1A-94F7-4D30-AB14-2092863FF923}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoGameEngine", "WindowsFormsApplication1\MinecraftClone.csproj", "{9D0AFB89-D88E-4EA9-ACED-7A5F002848A2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinecraftClone", "MinecraftClone\MinecraftClone.csproj", "{9D0AFB89-D88E-4EA9-ACED-7A5F002848A2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,4 +1,8 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGameEngine;
 using MonoGameEngine.Engine;
@@ -6,62 +10,43 @@ using MonoGameEngine.Engine.Components;
 using MonoGameEngine.Engine.Physics;
 
 namespace MinecraftClone {
-    // here you can place code that you do not want on a gameobject (sorta disconnected from the whole gameobject stuff)
-    // or you can build your scene from here if you dont want to use the editor( or if i have not implemented and editor yet)
     public class GameCode : BaseGameCode {
         private Vector2 _lastMousePos;
         private Vector2 _currMousePos;
-        private int _initialChunkAmount = 30;
+        private const int InitialChunkAmount = 32;
 
-        public Vector3 chunkSize = new Vector3(32, 200, 32);
+        public Vector3 ChunkSize = new Vector3(16, 256, 15);
 
-        public int height = 10;
-        public int digDepth = 5;
-        public float noiseScale = 0.62f;
-        public int seed = 12040;
+        private const int Height = 10;
+        private const int DigDepth = 5;
+        public const float NoiseScale = 0.62f;
+        public const int Seed = 12040;
 
         public override void Initialize() {
+            var texture = Texture2D.FromStream(CoreEngine.instance.GraphicsDevice, File.Open(@"c:/master.png", FileMode.Open));
+
             var camera = new GameObject(new Vector3(0, 20, -100));
             camera.AddComponent<Camera>();
             camera.name = "Camera";
             camera.Instantiate();
 
-            var sampleCube = new GameObject(new Vector3(0, 30, 0));
-            sampleCube.AddComponent<MeshRenderer>();
-            sampleCube.GetComponent<MeshRenderer>().Mesh = Primitives.CreateCube();
-            sampleCube.GetComponent<MeshRenderer>().Color = Color.LightGray;
-            var sphereCollider = sampleCube.AddComponent<SphereCollider>();
-            sphereCollider.Radius = 2;
-            sphereCollider.Mass = 10;
-            sphereCollider.IsStatic = false;
-            sampleCube.name = "cube";
-            sampleCube.Instantiate();
+            int x, y;
+            int length = 50;
+            float angle = 0.0f;
 
-            var ground = new GameObject(new Vector3(0, 0, 0));
-            ground.AddComponent<MeshRenderer>();
-            ground.GetComponent<MeshRenderer>().Mesh = Primitives.CreateCube();
-            ground.GetComponent<MeshRenderer>().Color = Color.LightGray;
-            ground.Transform.Scale = new Vector3(200, 1, 200);
-            var boxCollider = ground.AddComponent<BoxCollider>();
-            boxCollider.Height = 2f;
-            boxCollider.Width = 200 * 2f;
-            boxCollider.Length = 200 * 2f;
-            boxCollider.Mass = 0;
-            boxCollider.IsStatic = true;
-            ground.name = "ground";
-            ground.Instantiate();
 
-            for (int x = 0; x < _initialChunkAmount; x++) {
-                for (int z = 0; z < _initialChunkAmount; z++) {
+            for (int x = 0; x < InitialChunkAmount; x++) {
+                for (int z = 0; z < InitialChunkAmount; z++) {
                     GameObject chunk1 = new GameObject("chunk { X:" + x + " Z:" + z + " }");
-                    chunk1.Transform.Position = new Vector3(x * chunkSize.X, 0, z * chunkSize.Z);
+                    chunk1.Transform.Position = new Vector3(x * ChunkSize.X, 0, z * ChunkSize.Z);
                     RenderChunk rChunk1 = chunk1.AddComponent<RenderChunk>();
+                    rChunk1.mainTexture = texture;
                     rChunk1.ChunkPostion = new Vector3(x, 0, z);
-                    rChunk1.scale = chunkSize;
-                    rChunk1.heightFactor = height;
-                    rChunk1.digDepth = digDepth;
-                    rChunk1.noiseScale = noiseScale;
-                    rChunk1.seed = seed;
+                    rChunk1.scale = ChunkSize;
+                    rChunk1.heightFactor = Height;
+                    rChunk1.digDepth = DigDepth;
+                    rChunk1.noiseScale = NoiseScale;
+                    rChunk1.seed = Seed;
                     rChunk1.StartChunkGeneration();
                     chunk1.Instantiate();
                 }

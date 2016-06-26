@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -13,9 +15,23 @@ namespace MonoGameEngine.Engine.Components {
             set
             {
                 _mesh = value;
+                VertexPositionNormalTexture[] vpntTemp = new VertexPositionNormalTexture[_mesh.Vertices.Length];
+                for (int i = 0; i < _mesh.Vertices.Length; i++) {
+                    if (_mesh.Normals == null || _mesh.Normals.Length < _mesh.Vertices.Length) {
+                        _mesh.Normals = new Vector3[_mesh.Vertices.Length];
+                    }
+
+                    if (_mesh.Uvs == null || _mesh.Uvs.Length < _mesh.Vertices.Length) {
+                        _mesh.Uvs = new Vector2[_mesh.Vertices.Length];
+                    }
+
+
+                    vpntTemp[i] = (new VertexPositionNormalTexture(_mesh.Vertices[i], _mesh.Normals[i], _mesh.Uvs[i]));
+                }
+
                 //Vert buffer
-                _vertexBuffer = new VertexBuffer(CoreEngine.instance.GraphicsDevice, typeof(VertexPositionNormalTexture), _mesh.Vertices.Length, BufferUsage.WriteOnly);
-                _vertexBuffer.SetData(_mesh.Vertices);
+                _vertexBuffer = new VertexBuffer(CoreEngine.instance.GraphicsDevice, typeof(VertexPositionNormalTexture), vpntTemp.Length, BufferUsage.WriteOnly);
+                _vertexBuffer.SetData(vpntTemp);
 
                 //Vert buffer
                 _indexBuffer = new IndexBuffer(CoreEngine.instance.GraphicsDevice, typeof(short), _mesh.Indices.Length, BufferUsage.WriteOnly);
@@ -39,6 +55,24 @@ namespace MonoGameEngine.Engine.Components {
 
         }
 
+        public Texture2D _texture;
+
+        public Texture2D Texture
+        {
+            set
+            {
+                _texture = value;
+                if (_basicEffect != null) {
+                    if (value != null) {
+                        _basicEffect.TextureEnabled = true;
+                        _basicEffect.Texture = value;
+                    }
+                }
+            }
+            get { return _texture; }
+
+        }
+
         [XmlIgnore]
         private BasicEffect _basicEffect;
 
@@ -56,6 +90,10 @@ namespace MonoGameEngine.Engine.Components {
             _basicEffect.EnableDefaultLighting();
             _basicEffect.DiffuseColor = new Vector3((float)Color.R / 255, (float)Color.G / 255, (float)Color.B / 255);
 
+            if (Texture != null) {
+                _basicEffect.TextureEnabled = true;
+                _basicEffect.Texture = Texture;
+            }
             if (GameObject.FindGameObjectOfType<Camera>() == null) {
                 Debug.WriteLine("No Camera");
                 return;
@@ -86,7 +124,10 @@ namespace MonoGameEngine.Engine.Components {
             CoreEngine.instance.GraphicsDevice.Indices = _indexBuffer;
 
             foreach (var pass in _basicEffect.CurrentTechnique.Passes) {
+                CoreEngine.instance.GraphicsDevice.SamplerStates[0] = SamplerState.PointWrap;
+
                 pass.Apply();
+
                 CoreEngine.instance.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, Mesh.Vertices.Length * 2);
             }
         }

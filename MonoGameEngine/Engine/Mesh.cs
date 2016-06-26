@@ -4,9 +4,11 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace MonoGameEngine.Engine {
     public class Mesh {
-        public VertexPositionNormalTexture[] Vertices;
+        public Vector3[] Vertices;
         public short[] Indices;
         public BoundingBox BoundingBox;
+        public Vector2[] Uvs { get; set; }
+        public Vector3[] Normals { get; set; }
 
         public void CalculateBoundingBox() {
             // not beautiful but might work, slow on really big objects so maybe not run this runtime
@@ -21,13 +23,7 @@ namespace MonoGameEngine.Engine {
             float minPosZ = 0;
             float maxPosZ = 0;
 
-            List<Vector3> vertices = new List<Vector3>();
-
-            foreach (var vertexPositionNormalTexture in Vertices) {
-                vertices.Add(vertexPositionNormalTexture.Position);
-            }
-
-            BoundingBox = BoundingBox.CreateFromPoints(vertices);
+            BoundingBox = BoundingBox.CreateFromPoints(Vertices);
             /*
                 foreach (var vertexPositionNormalTexture in Vertices) {
                     if (vertexPositionNormalTexture.Position.X < minPosX)

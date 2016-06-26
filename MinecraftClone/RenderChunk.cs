@@ -12,7 +12,8 @@ using MonoGameEngine.Engine.Components;
 
 namespace MinecraftClone {
     class RenderChunk : Component {
-        private List<VertexPositionNormalTexture> vertices = new List<VertexPositionNormalTexture>();
+        private List<Vector3> vertices = new List<Vector3>();
+        private List<Vector3> normals = new List<Vector3>();
         private List<short> indices = new List<short>();
         private List<Vector2> uvs = new List<Vector2>();
 
@@ -22,16 +23,15 @@ namespace MinecraftClone {
 
         private Mesh mesh;
 
-        public float TextureUnit = 0;
 
-        public Vector2 grassTop = new Vector2(0, 0);
-        public Vector2 dirt = new Vector2(2, 0);
-        public Vector2 grassSide = new Vector2(3, 0);
-        public Vector2 lava = new Vector2(31, 31 - 4);
-        public Vector2 stonePosition = new Vector2(1, 0);
+        public Vector2 grassTop = new Vector2(0, 31);
+        public Vector2 dirt = new Vector2(2, 31);
+        public Vector2 grassSide = new Vector2(3, 31);
+        public Vector2 lava = new Vector2(31, 4);
+        public Vector2 stonePosition = new Vector2(1, 31);
 
-
-        public int TextureCountX;
+        public float TextureUnit = 0.03125f;
+        public int TextureCountX = 31;
 
         public float heightFactor;
 
@@ -43,6 +43,8 @@ namespace MinecraftClone {
 
         public float noiseScale;
         public int seed;
+
+        public Texture2D mainTexture;
 
 
         public void StartChunkGeneration() {
@@ -92,12 +94,16 @@ namespace MinecraftClone {
             }
             UpdateMesh();
         }
-
         void SetTop(int x, int y, int z, byte type) {
-            vertices.Add(new VertexPositionNormalTexture(new Vector3(x,y,z+1), Vector3.Up, new Vector2(0,0)));
-            vertices.Add(new VertexPositionNormalTexture(new Vector3(x + 1, y, z + 1), Vector3.Up, new Vector2(1, 0)));
-            vertices.Add(new VertexPositionNormalTexture(new Vector3(x + 1, y, z), Vector3.Up, new Vector2(1, 1)));
-            vertices.Add(new VertexPositionNormalTexture(new Vector3(x, y, z), Vector3.Up, new Vector2(0, 1)));
+            vertices.Add(new Vector3(x, y, z + 1));
+            vertices.Add(new Vector3(x + 1, y, z + 1));
+            vertices.Add(new Vector3(x + 1, y, z));
+            vertices.Add(new Vector3(x, y, z));
+
+            normals.Add(Vector3.Up);
+            normals.Add(Vector3.Up);
+            normals.Add(Vector3.Up);
+            normals.Add(Vector3.Up);
 
             Vector2 texturePos = GetTexturePosForType(type, false, false, true);
 
@@ -105,10 +111,16 @@ namespace MinecraftClone {
         }
 
         void SetNorth(int x, int y, int z, byte type, bool hasBlockAbove) {
-            vertices.Add(new VertexPositionNormalTexture(new Vector3(x + 1, y - 1, z + 1), Vector3.UnitY, new Vector2(0, 0)));
-            vertices.Add(new VertexPositionNormalTexture(new Vector3(x + 1, y, z + 1), Vector3.UnitY, new Vector2(1, 0)));
-            vertices.Add(new VertexPositionNormalTexture(new Vector3(x, y, z + 1), Vector3.UnitY, new Vector2(1, 1)));
-            vertices.Add(new VertexPositionNormalTexture(new Vector3(x, y - 1, z + 1), Vector3.UnitY, new Vector2(0, 1)));
+            vertices.Add(new Vector3(x + 1, y - 1, z + 1));
+            vertices.Add(new Vector3(x + 1, y, z + 1));
+            vertices.Add(new Vector3(x, y, z + 1));
+            vertices.Add(new Vector3(x, y - 1, z + 1));
+
+            normals.Add(Vector3.UnitX);
+            normals.Add(Vector3.UnitX);
+            normals.Add(Vector3.UnitX);
+            normals.Add(Vector3.UnitX);
+
 
             Vector2 texturePos = GetTexturePosForType(type, hasBlockAbove);
 
@@ -116,10 +128,15 @@ namespace MinecraftClone {
         }
 
         void SetEast(int x, int y, int z, byte type, bool hasBlockAbove) {
-            vertices.Add(new VertexPositionNormalTexture(new Vector3(x + 1, y - 1, z), Vector3.Left, new Vector2(0, 1)));
-            vertices.Add(new VertexPositionNormalTexture(new Vector3(x + 1, y, z), Vector3.Left, new Vector2(0, 1)));
-            vertices.Add(new VertexPositionNormalTexture(new Vector3(x + 1, y, z + 1), Vector3.Left, new Vector2(0, 1)));
-            vertices.Add(new VertexPositionNormalTexture(new Vector3(x + 1, y - 1, z + 1), Vector3.Left, new Vector2(0, 1)));
+            vertices.Add(new Vector3(x + 1, y - 1, z));
+            vertices.Add(new Vector3(x + 1, y, z));
+            vertices.Add(new Vector3(x + 1, y, z + 1));
+            vertices.Add(new Vector3(x + 1, y - 1, z + 1));
+
+            normals.Add(Vector3.Right);
+            normals.Add(Vector3.Right);
+            normals.Add(Vector3.Right);
+            normals.Add(Vector3.Right);
 
 
             Vector2 texturePos = GetTexturePosForType(type, hasBlockAbove);
@@ -128,10 +145,16 @@ namespace MinecraftClone {
         }
 
         void SetSouth(int x, int y, int z, byte type, bool hasBlockAbove) {
-            vertices.Add(new VertexPositionNormalTexture(new Vector3(x, y - 1, z), Vector3.Left, new Vector2(0, 1)));
-            vertices.Add(new VertexPositionNormalTexture(new Vector3(x, y, z), Vector3.Left, new Vector2(0, 1)));
-            vertices.Add(new VertexPositionNormalTexture(new Vector3(x + 1, y, z), Vector3.Left, new Vector2(0, 1)));
-            vertices.Add(new VertexPositionNormalTexture(new Vector3(x + 1, y - 1, z), Vector3.Left, new Vector2(0, 1)));
+            vertices.Add(new Vector3(x, y - 1, z));
+            vertices.Add(new Vector3(x, y, z));
+            vertices.Add(new Vector3(x + 1, y, z));
+            vertices.Add(new Vector3(x + 1, y - 1, z));
+
+            normals.Add(-Vector3.UnitX);
+            normals.Add(-Vector3.UnitX);
+            normals.Add(-Vector3.UnitX);
+            normals.Add(-Vector3.UnitX);
+
 
             Vector2 texturePos = GetTexturePosForType(type, hasBlockAbove);
 
@@ -140,10 +163,15 @@ namespace MinecraftClone {
         }
 
         void SetWest(int x, int y, int z, byte type, bool hasBlockAbove) {
-            vertices.Add(new VertexPositionNormalTexture(new Vector3(x, y - 1, z + 1), Vector3.Left, new Vector2(0, 1)));
-            vertices.Add(new VertexPositionNormalTexture(new Vector3(x, y, z + 1), Vector3.Left, new Vector2(0, 1)));
-            vertices.Add(new VertexPositionNormalTexture(new Vector3(x, y, z), Vector3.Left, new Vector2(0, 1)));
-            vertices.Add(new VertexPositionNormalTexture(new Vector3(x, y - 1, z), Vector3.Left, new Vector2(0, 1)));
+            vertices.Add(new Vector3(x, y - 1, z + 1));
+            vertices.Add(new Vector3(x, y, z + 1));
+            vertices.Add(new Vector3(x, y, z));
+            vertices.Add(new Vector3(x, y - 1, z));
+
+            normals.Add(-Vector3.Right);
+            normals.Add(-Vector3.Right);
+            normals.Add(-Vector3.Right);
+            normals.Add(-Vector3.Right);
 
 
             Vector2 texturePos = GetTexturePosForType(type, hasBlockAbove);
@@ -153,10 +181,16 @@ namespace MinecraftClone {
         }
 
         void SetBottom(int x, int y, int z, byte type, bool hasBlockAbove) {
-            vertices.Add(new VertexPositionNormalTexture(new Vector3(x, y - 1, z), Vector3.Left, new Vector2(0, 1)));
-            vertices.Add(new VertexPositionNormalTexture(new Vector3(x + 1, y - 1, z), Vector3.Left, new Vector2(0, 1)));
-            vertices.Add(new VertexPositionNormalTexture(new Vector3(x + 1, y - 1, z + 1), Vector3.Left, new Vector2(0, 1)));
-            vertices.Add(new VertexPositionNormalTexture(new Vector3(x, y - 1, z + 1), Vector3.Left, new Vector2(0, 1)));
+            vertices.Add(new Vector3(x, y - 1, z));
+            vertices.Add(new Vector3(x + 1, y - 1, z));
+            vertices.Add(new Vector3(x + 1, y - 1, z + 1));
+            vertices.Add(new Vector3(x, y - 1, z + 1));
+
+            normals.Add(Vector3.Down);
+            normals.Add(Vector3.Down);
+            normals.Add(Vector3.Down);
+            normals.Add(Vector3.Down);
+
 
             Vector2 texturePos = GetTexturePosForType(type, hasBlockAbove, true);
             Cube(texturePos);
@@ -188,18 +222,18 @@ namespace MinecraftClone {
         }
 
         void Cube(Vector2 texturePos) {
-            indices.Add((short) (faceCount * 4)); //1
-            indices.Add((short) (faceCount * 4 + 2)); //3
-            indices.Add((short) (faceCount * 4 + 1)); //2
-            indices.Add((short) (faceCount * 4)); //1
-            indices.Add((short) (faceCount * 4 + 3)); //4
-            indices.Add((short) (faceCount * 4 + 2)); //3
+            indices.Add((short)(faceCount * 4)); //1
+            indices.Add((short)(faceCount * 4 + 2)); //3
+            indices.Add((short)(faceCount * 4 + 1)); //2
+            indices.Add((short)(faceCount * 4)); //1
+            indices.Add((short)(faceCount * 4 + 3)); //4
+            indices.Add((short)(faceCount * 4 + 2)); //3
 
 
-            uvs.Add(new Vector2(TextureUnit * texturePos.X, TextureCountX - (TextureUnit * texturePos.Y + TextureUnit)));
             uvs.Add(new Vector2(TextureUnit * texturePos.X, TextureCountX - (TextureUnit * texturePos.Y)));
-            uvs.Add(new Vector2(TextureUnit * texturePos.X + TextureUnit, TextureCountX - (TextureUnit * texturePos.Y)));
+            uvs.Add(new Vector2(TextureUnit * texturePos.X, TextureCountX - (TextureUnit * texturePos.Y + TextureUnit)));
             uvs.Add(new Vector2(TextureUnit * texturePos.X + TextureUnit, TextureCountX - (TextureUnit * texturePos.Y + TextureUnit)));
+            uvs.Add(new Vector2(TextureUnit * texturePos.X + TextureUnit, TextureCountX - (TextureUnit * texturePos.Y)));
 
 
 
@@ -211,11 +245,15 @@ namespace MinecraftClone {
         }
 
         void UpdateMesh() {
-           MeshRenderer mr = GameObject.AddComponent<MeshRenderer>();
+            MeshRenderer mr = GameObject.AddComponent<MeshRenderer>();
             mesh = new Mesh();
             mesh.Vertices = vertices.ToArray();
             mesh.Indices = indices.ToArray();
+            mesh.Uvs = uvs.ToArray();
+            mesh.Normals = normals.ToArray();
             mr.Mesh = mesh;
+            mr.Color = Color.LightGray;
+            mr.Texture = mainTexture;
 
             vertices.Clear();
             indices.Clear();
