@@ -19,9 +19,9 @@ namespace MinecraftClone {
 
         public Vector3 ChunkSize = new Vector3(16, 256, 16);
 
-        private const int Height = 30;
-        private const int DigDepth = 100;
-        public const float NoiseScale = 1.5f;
+        private const int Height = 12;
+        private const int DigDepth = 5;
+        public const float NoiseScale = 2;
         public const int Seed = 12040;
 
         public List<RenderChunk> renderChunks = new List<RenderChunk>();

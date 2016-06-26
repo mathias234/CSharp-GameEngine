@@ -52,6 +52,7 @@ namespace MinecraftClone {
         private bool meshReady = false;
 
         public void StartChunkGeneration() {
+
             map = new Map(seed, ChunkPostion, (int)scale.X, (int)scale.Y, (int)scale.Z, heightFactor, digDepth, noiseScale);
             for (var x = 0; x < (int)scale.X; x++) {
                 for (var y = 0; y < (int)scale.Y; y++) {

@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Diagnostics;
-using LibNoise;
 using Microsoft.Xna.Framework;
+using MinecraftClone.Noise;
 
 namespace Data.Voxel.Map {
     public class Map {
@@ -18,6 +18,7 @@ namespace Data.Voxel.Map {
         private int _seed;
         private float _heightFactor;
 
+
         public Map(int seed, Vector3 chunkPosition, int width, int height, int depth, float heightFactor, int digDepth, float noiseScale) {
             _chunkPosition = chunkPosition;
             _voxels = new byte[width, height, depth];
@@ -28,6 +29,8 @@ namespace Data.Voxel.Map {
             _scale = noiseScale;
             _heightFactor = heightFactor;
             _seed = seed;
+
+
             for (var x = 0; x < _width; x++) {
                 for (var y = 0; y < _height; y++) {
                     for (var z = 0; z < _depth; z++) {
@@ -49,10 +52,7 @@ namespace Data.Voxel.Map {
             float yCoord = ((_chunkPosition.Y + _seed + y / (float)_height) / _scale) - _height;
             float zCoord = ((_chunkPosition.Z + _seed + z / (float)_depth) / _scale) - _depth;
 
-            Perlin perlin = new Perlin();
-            perlin.NoiseQuality = NoiseQuality.Low;
-            perlin.Frequency = 0.1f;
-            int curHeight = (int)(perlin.GetValue(xCoord, yCoord, zCoord) * _heightFactor) + _digDepth;
+            int curHeight = (int)(ImprovedNoise.Noise(xCoord, yCoord, zCoord) * _heightFactor) + _digDepth;
 
             int yPos = y;
 
