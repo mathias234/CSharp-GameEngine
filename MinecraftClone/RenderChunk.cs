@@ -274,7 +274,6 @@ namespace MinecraftClone {
             mr.Texture = MainTexture;
             mr.Init();
 
-            mc.IsStatic = true;
             mc .Init();
             _faceCount = 0;
             HasGeneratedMesh = true;

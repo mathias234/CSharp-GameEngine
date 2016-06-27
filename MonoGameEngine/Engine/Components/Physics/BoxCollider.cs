@@ -31,7 +31,7 @@ namespace MonoGameEngine.Engine.Physics {
             var position = new BEPUutilities.Vector3(GameObject.Transform.Position.X, GameObject.Transform.Position.Y,
                 GameObject.Transform.Position.Z);
             
-            RigidBody = new Box(position, Width, Height, Length);
+            RigidBody = new Box(position, Width, Height, Length, Mass);
                 
             PhysicsEngine.AddPhysicsObject(RigidBody);
 

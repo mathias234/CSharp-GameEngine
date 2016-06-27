@@ -14,14 +14,15 @@ namespace MonoGameEngine.Engine {
         public PhysicsEngine() {
             Debug.WriteLine("Physics Engine initialized");
 
-            bepuSpace = new Space(new ParallelLooper());
+   
+
+            bepuSpace = new Space();
+            bepuSpace.ForceUpdater.Gravity = new BEPUutilities.Vector3(0, -9.81f, 0);
         }
 
         public void Update(GameTime gameTime) {
             float step = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            bepuSpace.ForceUpdater.Gravity = new BEPUutilities.Vector3(0, -9.81f, 0);
             bepuSpace.Update(step);
-
 
         }
 

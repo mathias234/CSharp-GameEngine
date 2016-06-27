@@ -4,14 +4,14 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BEPUphysics.BroadPhaseEntries;
 using BEPUphysics.Entities.Prefabs;
-using Microsoft.Xna.Framework;
+using BEPUutilities;
 using MonoGameEngine.Engine.Components;
+using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace MonoGameEngine.Engine.Physics {
     public class MeshCollider : Collider {
-        public bool IsStatic { get; set; }
-
         public MeshCollider() { }
 
         public override void Init() {
@@ -20,26 +20,22 @@ namespace MonoGameEngine.Engine.Physics {
             if (GameObject.GetComponent<MeshRenderer>() == null)
                 GameObject._components.Remove(this);
 
-            List<BEPUutilities.Vector3> vectors = new List<BEPUutilities.Vector3>();
+            List<BEPUutilities.Vector3> vertices = new List<BEPUutilities.Vector3>();
             foreach (var vector3 in GameObject.GetComponent<MeshRenderer>().Mesh.Vertices) {
-                vectors.Add(new BEPUutilities.Vector3(vector3.X, vector3.Y, vector3.Z));
+                vertices.Add(new BEPUutilities.Vector3(vector3.X, vector3.Y, vector3.Z));
             }
 
-            var rBody = new ConvexHull(new BEPUutilities.Vector3(GameObject.Transform.Position.X, GameObject.Transform.Position.Y,
-                GameObject.Transform.Position.Z), vectors);
+            List<int> indices = new List<int>();
+            foreach (var index in GameObject.GetComponent<MeshRenderer>().Mesh.Indices) {
+                indices.Add(index);
+            }
 
-            RigidBody = rBody;
+            var rbody2 = new StaticMesh(vertices.ToArray(),indices.ToArray(), new AffineTransform(new BEPUutilities.Vector3(GameObject.Transform.Position.X, GameObject.Transform.Position.Y,
+                GameObject.Transform.Position.Z)));
+
+            RigidBody = rbody2;
 
             PhysicsEngine.AddPhysicsObject(RigidBody);
-
-        }
-
-        public override void Update(float deltaTime) {
-            base.Update(deltaTime);
-            var rBody = (ConvexHull)RigidBody;
-
-            if (rBody.IsDynamic)
-                GameObject.Transform.Position = new Vector3(rBody.Position.X, rBody.Position.Y, rBody.Position.Z);
         }
     }
 }

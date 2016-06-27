@@ -122,7 +122,7 @@ namespace MinecraftClone {
                 sampleCube.GetComponent<MeshRenderer>().Mesh = Primitives.CreateCube();
                 sampleCube.GetComponent<MeshRenderer>().Color = Color.LightGray;
                 var sphereCollider = sampleCube.AddComponent<SphereCollider>();
-                sphereCollider.Radius = 2;
+                sphereCollider.Radius = 1;
                 sphereCollider.Mass = 1;
                 sphereCollider.IsStatic = false;
                 sampleCube.name = "cube";
