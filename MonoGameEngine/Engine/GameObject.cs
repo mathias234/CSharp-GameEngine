@@ -101,8 +101,8 @@ namespace MonoGameEngine {
         }
 
         public void Update(float deltaTime) {
-            foreach (var component in _components) {
-                component.Update(deltaTime);
+            for (int i = 0; i < _components.Count; i++) {
+                _components[i].Update(deltaTime);
             }
         }
 

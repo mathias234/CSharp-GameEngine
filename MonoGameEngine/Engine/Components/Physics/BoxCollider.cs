@@ -4,9 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Jitter.Collision.Shapes;
-using Jitter.Dynamics;
-using Jitter.LinearMath;
+using BEPUphysics.Entities.Prefabs;
 using Microsoft.Xna.Framework;
 
 namespace MonoGameEngine.Engine.Physics {
@@ -29,24 +27,22 @@ namespace MonoGameEngine.Engine.Physics {
 
         public override void Init() {
             base.Init();
-            RigidBody = new RigidBody(new BoxShape(Length, Height, Width)) {
-                Tag = GameObject.name,
-                Position =
-                    new JVector(GameObject.Transform.Position.X, GameObject.Transform.Position.Y,
-                        GameObject.Transform.Position.Z),
-                IsStatic = IsStatic,
-                Mass = Mass <= 0 ? 0.1f : Mass
-            };
 
+            var position = new BEPUutilities.Vector3(GameObject.Transform.Position.X, GameObject.Transform.Position.Y,
+                GameObject.Transform.Position.Z);
+            
+            RigidBody = new Box(position, Width, Height, Length);
+                
             PhysicsEngine.AddPhysicsObject(RigidBody);
 
         }
 
         public override void Update(float deltaTime) {
             base.Update(deltaTime);
+            var rBody = (Box)RigidBody;
 
-            if (!RigidBody.IsStatic)
-                GameObject.Transform.Position = new Vector3(RigidBody.Position.X, RigidBody.Position.Y, RigidBody.Position.Z);
+            if (rBody.IsDynamic)
+                GameObject.Transform.Position = new Vector3(rBody.Position.X, rBody.Position.Y, rBody.Position.Z);
         }
     }
 }

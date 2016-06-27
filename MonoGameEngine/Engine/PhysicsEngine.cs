@@ -1,39 +1,37 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
-using Jitter;
-using Jitter.Collision;
-using Jitter.Collision.Shapes;
-using Jitter.Dynamics;
-using Jitter.LinearMath;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
+using BEPUphysics;
+using BEPUutilities.Threading;
 
 namespace MonoGameEngine.Engine {
     public class PhysicsEngine {
-        private World world;
+        private Space bepuSpace;
 
         public PhysicsEngine() {
             Debug.WriteLine("Physics Engine initialized");
 
-            CollisionSystem collision = new CollisionSystemPersistentSAP();
-
-            world = new World(collision); world.AllowDeactivation = true;
+            bepuSpace = new Space(new ParallelLooper());
         }
 
         public void Update(GameTime gameTime) {
             float step = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            world.Step(step, false);
+            bepuSpace.ForceUpdater.Gravity = new BEPUutilities.Vector3(0, -9.81f, 0);
+            bepuSpace.Update(step);
+
+
         }
 
-        public static void AddPhysicsObject(RigidBody rigidBody) {
-            CoreEngine.instance.GetPhysicsEngine.world.AddBody(rigidBody);
+        public static void AddPhysicsObject(ISpaceObject spaceObj) {
+            CoreEngine.instance.GetPhysicsEngine.bepuSpace.Add(spaceObj);
         }
 
         public void Reset() {
-            CollisionSystem collision = new CollisionSystemPersistentSAP();
-            world = new World(collision);
+            bepuSpace = new Space(new ParallelLooper());
+
         }
     }
 }

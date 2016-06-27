@@ -32,8 +32,8 @@ namespace MonoGameEngine.Engine.UI {
             if (_lastMouseState.LeftButton == ButtonState.Released && _currentMouseState.LeftButton == ButtonState.Pressed) {
                 var uiElements = new List<UIComponent>();
                 // reverse the list so we go from bottom to top
-                foreach (var gameObject in CoreEngine.instance.GameObjects) {
-                    foreach (var component in gameObject._components) {
+                for (int i = 0; i < CoreEngine.instance.GameObjects.Count; i++) {
+                    foreach (var component in CoreEngine.instance.GameObjects[i]._components) {
                         if (component is UIComponent)
                             uiElements.Add((UIComponent)component);
                     }

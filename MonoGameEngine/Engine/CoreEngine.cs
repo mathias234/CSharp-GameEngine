@@ -28,7 +28,6 @@ namespace MonoGameEngine {
             Content.RootDirectory = "Content";
             _graphics = new GraphicsDeviceManager(this);
 
-            IsMouseVisible = true;
             Window.Title = title;
 
             _baseGameCode = baseCode;
