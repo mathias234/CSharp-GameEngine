@@ -28,7 +28,7 @@ namespace MonoGameEngine.Engine.Components {
 
                     vpntTemp[i] = (new VertexPositionNormalTexture(_mesh.Vertices[i], _mesh.Normals[i], _mesh.Uvs[i]));
                 }
-                if(vpntTemp.Length == 0)
+                if (vpntTemp.Length == 0)
                     return;
 
                 //Vert buffer
@@ -50,8 +50,8 @@ namespace MonoGameEngine.Engine.Components {
             set
             {
                 _color = value;
-                if (_basicEffect != null)
-                    _basicEffect.DiffuseColor = new Vector3((float)value.R / 255, (float)value.G / 255, (float)value.B / 255);
+                if (BasicEffect != null)
+                    BasicEffect.DiffuseColor = new Vector3((float)value.R / 255, (float)value.G / 255, (float)value.B / 255);
             }
             get { return _color; }
 
@@ -64,10 +64,10 @@ namespace MonoGameEngine.Engine.Components {
             set
             {
                 _texture = value;
-                if (_basicEffect != null) {
+                if (BasicEffect != null) {
                     if (value != null) {
-                        _basicEffect.TextureEnabled = true;
-                        _basicEffect.Texture = value;
+                        BasicEffect.TextureEnabled = true;
+                        BasicEffect.Texture = value;
                     }
                 }
             }
@@ -75,32 +75,26 @@ namespace MonoGameEngine.Engine.Components {
 
         }
 
-        [XmlIgnore]
         private BasicEffect _basicEffect;
+
+        [XmlIgnore]
+        private BasicEffect BasicEffect
+        {
+            set { _basicEffect = value; }
+            get {
+                if (_basicEffect == null) {
+                    _basicEffect = new BasicEffect(CoreEngine.instance.GraphicsDevice);
+                    _basicEffect.EnableDefaultLighting();
+                }
+                return _basicEffect;
+            }
+        }
 
         private VertexBuffer _vertexBuffer;
         private IndexBuffer _indexBuffer;
 
 
         public MeshRenderer() { }
-
-        public override void Init() {
-            base.Init();
-            _basicEffect = new BasicEffect(CoreEngine.instance.GraphicsDevice);
-            _basicEffect.Alpha = 1f;
-
-            _basicEffect.EnableDefaultLighting();
-            _basicEffect.DiffuseColor = new Vector3((float)Color.R / 255, (float)Color.G / 255, (float)Color.B / 255);
-
-            if (Texture != null) {
-                _basicEffect.TextureEnabled = true;
-                _basicEffect.Texture = Texture;
-            }
-            if (GameObject.FindGameObjectOfType<Camera>() == null) {
-                Debug.WriteLine("No Camera");
-                return;
-            }
-        }
 
         /// <summary>
         /// Should only be called by the renderer
@@ -120,19 +114,15 @@ namespace MonoGameEngine.Engine.Components {
                 return;
             }
 
-            if (_basicEffect == null) {
-                return;
-            }
+            BasicEffect.Projection = Camera.Main.ProjectionMatrix;
 
-            _basicEffect.Projection = Camera.Main.ProjectionMatrix;
-
-            _basicEffect.View = GameObject.FindGameObjectOfType<Camera>().ViewMatrix;
-            _basicEffect.World = GameObject.Transform.WorldMatrix;
+            BasicEffect.View = GameObject.FindGameObjectOfType<Camera>().ViewMatrix;
+            BasicEffect.World = GameObject.Transform.WorldMatrix;
 
             CoreEngine.instance.GraphicsDevice.SetVertexBuffer(_vertexBuffer);
             CoreEngine.instance.GraphicsDevice.Indices = _indexBuffer;
 
-            foreach (var pass in _basicEffect.CurrentTechnique.Passes) {
+            foreach (var pass in BasicEffect.CurrentTechnique.Passes) {
                 CoreEngine.instance.GraphicsDevice.SamplerStates[0] = SamplerState.PointWrap;
 
                 pass.Apply();

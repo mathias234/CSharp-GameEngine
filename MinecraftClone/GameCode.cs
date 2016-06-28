@@ -17,7 +17,7 @@ namespace MinecraftClone {
         private Vector2 _lastMousePos;
         private Vector2 _currMousePos;
         private bool _rotateCamera;
-        private const int InitialChunkAmount = 10;
+        private const int InitialChunkAmount = 32;
 
         public Vector3 ChunkSize = new Vector3(16, 256, 16);
 

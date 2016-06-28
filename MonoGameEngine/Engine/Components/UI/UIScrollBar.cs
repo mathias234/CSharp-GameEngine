@@ -15,9 +15,7 @@ namespace MonoGameEngine.Engine.Components.UI {
         private bool _hasClicked;
 
         private void OnScrollBarClicked() {
-            Debug.WriteLine("hey");
             _hasClicked = true;
-
         }
 
         public override void Update(float deltaTime) {

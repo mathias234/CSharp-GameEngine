@@ -18,7 +18,6 @@ namespace MonoGameEngine.GameCode {
             using (var editor = new CoreEngine("MonoGameEngine", gameCode))
                 editor.Run();
 #endif
-
         }
     }
 #endif

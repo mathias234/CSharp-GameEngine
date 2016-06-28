@@ -12,21 +12,20 @@ namespace MonoGameEngine.Engine.Physics {
         public float Radius { get; set; }
         public bool IsStatic { get; set; }
 
-        public SphereCollider() { }
+        public override void Init() {
+            RigidBody = new Sphere(new BEPUutilities.Vector3(GameObject.Transform.Position.X, GameObject.Transform.Position.Y,
+GameObject.Transform.Position.Z), Radius, Mass);
+
+
+            PhysicsEngine.AddPhysicsObject(RigidBody);
+        }
 
         public SphereCollider(float radius, float mass) {
             this.Radius = radius;
             this.Mass = mass;
         }
 
-        public override void Init() {
-            base.Init();
-
-            RigidBody = new Sphere(new BEPUutilities.Vector3(GameObject.Transform.Position.X, GameObject.Transform.Position.Y,
-                        GameObject.Transform.Position.Z), Radius, Mass);
-
-
-            PhysicsEngine.AddPhysicsObject(RigidBody);
+        public SphereCollider() {
         }
 
         public override void Update(float deltaTime) {

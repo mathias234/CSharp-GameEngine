@@ -270,11 +270,11 @@ namespace MinecraftClone {
             _mesh.Normals = _normals.ToArray();
 
             mr.Mesh = _mesh;
+            mc.Mesh = _mesh;
+
             mr.Color = Color.LightGray;
             mr.Texture = MainTexture;
-            mr.Init();
 
-            mc .Init();
             _faceCount = 0;
             HasGeneratedMesh = true;
         }

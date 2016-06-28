@@ -1,4 +1,5 @@
-﻿using System.Xml.Serialization;
+﻿using System.Diagnostics;
+using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGameEngine.Engine.Physics;
 using MonoGameEngine.Engine.UI;
@@ -13,9 +14,29 @@ namespace MonoGameEngine.Engine.Components {
     [XmlInclude(typeof(UiTextComponent))]
     [XmlInclude(typeof(UiTextureComponent))]
     [XmlInclude(typeof(UIComponent))]
-    public class Component  {
+    public class Component {
+        private GameObject _gameObject;
         [XmlIgnore]
-        public GameObject GameObject;
+        public GameObject GameObject
+        {
+            get
+            {
+                // if i have not been assigned a parent then ill have to find it myself.
+                if (_gameObject == null) {
+                    foreach (GameObject t in CoreEngine.instance.GameObjects) {
+                        foreach (Component t1 in t._components) {
+                            Debug.WriteLine("found my parent");
+                            if (t1 == this) {
+                                _gameObject = t;
+                                return _gameObject;
+                            }
+                        }
+                    }
+                }
+                return _gameObject;
+            }
+            set { _gameObject = value; }
+        }
 
         [XmlIgnore]
         public Transform Transform => GameObject.Transform;

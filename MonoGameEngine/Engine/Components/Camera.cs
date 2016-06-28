@@ -12,7 +12,7 @@ namespace MonoGameEngine.Engine.Components {
         public Matrix WorldMatrix { get; set; }
 
         public Camera() {
-
+       
         }
 
         public override void Init() {

@@ -16,7 +16,9 @@ namespace MonoGameEngine.Engine.Physics {
         public bool IsStatic { get; set; }
 
 
-        public BoxCollider() { }
+        public BoxCollider() {
+
+        }
 
         public BoxCollider(float width, float height, float length, float mass) {
             Width = width;
@@ -29,12 +31,11 @@ namespace MonoGameEngine.Engine.Physics {
             base.Init();
 
             var position = new BEPUutilities.Vector3(GameObject.Transform.Position.X, GameObject.Transform.Position.Y,
-                GameObject.Transform.Position.Z);
-            
-            RigidBody = new Box(position, Width, Height, Length, Mass);
-                
-            PhysicsEngine.AddPhysicsObject(RigidBody);
+    GameObject.Transform.Position.Z);
 
+            RigidBody = new Box(position, Width, Height, Length, Mass);
+
+            PhysicsEngine.AddPhysicsObject(RigidBody);
         }
 
         public override void Update(float deltaTime) {

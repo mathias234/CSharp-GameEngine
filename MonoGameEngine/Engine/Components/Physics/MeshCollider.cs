@@ -12,30 +12,38 @@ using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace MonoGameEngine.Engine.Physics {
     public class MeshCollider : Collider {
-        public MeshCollider() { }
+        private Mesh _mesh;
+
+        public Mesh Mesh {
+            get { return _mesh; }
+            set {
+                _mesh = value;
+                List<BEPUutilities.Vector3> vertices = new List<BEPUutilities.Vector3>();
+                foreach (var vector3 in _mesh.Vertices) {
+                    vertices.Add(new BEPUutilities.Vector3(vector3.X, vector3.Y, vector3.Z));
+                }
+
+                List<int> indices = new List<int>();
+                foreach (var index in _mesh.Indices) {
+                    indices.Add(index);
+                }
+
+                var rbody2 = new StaticMesh(vertices.ToArray(), indices.ToArray(), new AffineTransform(new BEPUutilities.Vector3(GameObject.Transform.Position.X, GameObject.Transform.Position.Y,
+                    GameObject.Transform.Position.Z)));
+
+                RigidBody = rbody2;
+
+                PhysicsEngine.AddPhysicsObject(RigidBody);
+            }
+        }
+
+        public MeshCollider() {
+
+        }
 
         public override void Init() {
             base.Init();
-
-            if (GameObject.GetComponent<MeshRenderer>() == null)
-                GameObject._components.Remove(this);
-
-            List<BEPUutilities.Vector3> vertices = new List<BEPUutilities.Vector3>();
-            foreach (var vector3 in GameObject.GetComponent<MeshRenderer>().Mesh.Vertices) {
-                vertices.Add(new BEPUutilities.Vector3(vector3.X, vector3.Y, vector3.Z));
-            }
-
-            List<int> indices = new List<int>();
-            foreach (var index in GameObject.GetComponent<MeshRenderer>().Mesh.Indices) {
-                indices.Add(index);
-            }
-
-            var rbody2 = new StaticMesh(vertices.ToArray(),indices.ToArray(), new AffineTransform(new BEPUutilities.Vector3(GameObject.Transform.Position.X, GameObject.Transform.Position.Y,
-                GameObject.Transform.Position.Z)));
-
-            RigidBody = rbody2;
-
-            PhysicsEngine.AddPhysicsObject(RigidBody);
+ 
         }
     }
 }

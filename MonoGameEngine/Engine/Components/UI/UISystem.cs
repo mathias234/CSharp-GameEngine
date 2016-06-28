@@ -21,8 +21,8 @@ namespace MonoGameEngine.Engine.UI {
             _spriteBatch = CoreEngine.instance.GetSpriteBatch;
             _lastMouseState = Mouse.GetState();
             _currentMouseState = Mouse.GetState();
-        //    _defaultFont = CoreEngine.instance.Content.Load<SpriteFont>("DefaultFont");
-          //  _defaultBackground = CoreEngine.instance.Content.Load<Texture2D>("Whitebg");
+            _defaultFont = CoreEngine.instance.Content.Load<SpriteFont>("DefaultFont");
+            _defaultBackground = CoreEngine.instance.Content.Load<Texture2D>("Whitebg");
         }
 
         public void Update() {

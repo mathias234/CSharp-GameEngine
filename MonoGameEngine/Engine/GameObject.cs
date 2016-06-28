@@ -32,6 +32,7 @@ namespace MonoGameEngine {
         public void Instantiate() {
             foreach (var component in _components) {
                 component.GameObject = this;
+
                 if (component.IsInitialized == false)
                     component.Init();
             }
@@ -64,14 +65,18 @@ namespace MonoGameEngine {
 
         public T AddComponent<T>() where T : Component {
             Component component = Activator.CreateInstance<T>();
+            component.GameObject = this;
             _components.Add(component);
-            _components[_components.Count - 1].GameObject = this;
+            if (component.IsInitialized == false)
+                component.Init();
             return (T)_components[_components.Count - 1];
         }
 
         public Component AddComponent(Component component) {
+            component.GameObject = this;
             _components.Add(component);
-            _components[_components.Count - 1].GameObject = this;
+            if (component.IsInitialized == false)
+                component.Init();
             return _components[_components.Count - 1];
         }
 
