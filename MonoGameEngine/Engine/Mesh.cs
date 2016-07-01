@@ -50,5 +50,27 @@ namespace MonoGameEngine.Engine {
 
         //    BoundingBox = bb;
         }
+
+        /// <summary>
+        /// BROKEN!
+        /// </summary>
+        public void CalculateNormals() {
+            Normals = new Vector3[Indices.Length];
+            for (var i = 0; i < Indices.Length; i += 3) {
+                Vector3 v0 = Vertices[Indices[i]];
+                Vector3 v1 = Vertices[Indices[i + 1]];
+                Vector3 v2 = Vertices[Indices[i + 2]];
+
+                Vector3 normal = Vector3.Normalize(Vector3.Cross(v2 - v0, v1 - v0)); //This is the normal of the triangle if that's all you're interested in.
+
+                Normals[i] = normal;
+                Normals[i + 1] = normal;
+                Normals[i + 2] = normal;
+            }
+
+            for (var i = 0; i < Vertices.Length; i++) {
+                Normals[i] = Vector3.Normalize(Normals[i]);
+            }
+        }
     }
 }

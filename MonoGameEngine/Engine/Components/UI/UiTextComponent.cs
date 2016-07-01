@@ -36,6 +36,7 @@ namespace MonoGameEngine.Engine.UI {
 
             CoreEngine.instance.GetSpriteBatch.GraphicsDevice.RasterizerState = defaultRasterizerState;
 
+            CoreEngine.instance.GetSpriteBatch.GraphicsDevice.BlendState = BlendState.Opaque;
             CoreEngine.instance.GetSpriteBatch.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             base.Draw(graphicsDevice);
         }

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGameEngine.Engine;
 using MonoGameEngine.Engine.Components;
+using MonoGameEngine.Engine.Threading;
 using MonoGameEngine.Engine.UI;
 
 namespace MonoGameEngine {
@@ -89,16 +91,25 @@ namespace MonoGameEngine {
 
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // later on this will be sorted with a draw order list
+            // later on this will be sorted with a draw order list; better then this
             var components = new List<Component>();
+            var uiComponents = new List<Component>();
 
             for (int i = 0; i < GameObjects.Count; i++) {
                 for (int j = 0; j < GameObjects[i]._components.Count; j++) {
-                    components.Add(GameObjects[i]._components[j]);
+                    if(GameObjects[i]._components[j] is UIComponent)
+                        uiComponents.Add(GameObjects[i]._components[j]);
+                    else
+                        components.Add(GameObjects[i]._components[j]);
                 }
             }
 
             foreach (var component in components) {
+                component.Draw(GraphicsDevice);
+            }
+
+            // ALWAYS DRAW UI ON TOP!
+            foreach (var component in uiComponents) {
                 component.Draw(GraphicsDevice);
             }
 
@@ -108,6 +119,7 @@ namespace MonoGameEngine {
 
 
         public static void Quit() {
+            ThreadManager.StopAllThreads();
             instance.Exit();
         }
     }

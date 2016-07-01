@@ -10,6 +10,7 @@ namespace MonoGameEngine.Engine.Components {
     [XmlInclude(typeof(MeshRenderer))]
     [XmlInclude(typeof(BoxCollider))]
     [XmlInclude(typeof(SphereCollider))]
+    [XmlInclude(typeof(MeshCollider))]
     [XmlInclude(typeof(UIComponent))]
     [XmlInclude(typeof(UiTextComponent))]
     [XmlInclude(typeof(UiTextureComponent))]

@@ -15,6 +15,7 @@ namespace MonoGameEngine.Engine.Components {
             set
             {
                 _mesh = value;
+
                 VertexPositionNormalTexture[] vpntTemp = new VertexPositionNormalTexture[_mesh.Vertices.Length];
                 for (int i = 0; i < _mesh.Vertices.Length; i++) {
                     if (_mesh.Normals == null || _mesh.Normals.Length < _mesh.Vertices.Length) {
@@ -28,8 +29,6 @@ namespace MonoGameEngine.Engine.Components {
 
                     vpntTemp[i] = (new VertexPositionNormalTexture(_mesh.Vertices[i], _mesh.Normals[i], _mesh.Uvs[i]));
                 }
-                if (vpntTemp.Length == 0)
-                    return;
 
                 //Vert buffer
                 _vertexBuffer = new VertexBuffer(CoreEngine.instance.GraphicsDevice, typeof(VertexPositionNormalTexture), vpntTemp.Length, BufferUsage.WriteOnly);
@@ -85,6 +84,7 @@ namespace MonoGameEngine.Engine.Components {
                 if (_basicEffect == null) {
                     _basicEffect = new BasicEffect(CoreEngine.instance.GraphicsDevice);
                     _basicEffect.EnableDefaultLighting();
+                    _basicEffect.PreferPerPixelLighting = true;
                 }
                 return _basicEffect;
             }
@@ -119,7 +119,8 @@ namespace MonoGameEngine.Engine.Components {
             BasicEffect.View = GameObject.FindGameObjectOfType<Camera>().ViewMatrix;
             BasicEffect.World = GameObject.Transform.WorldMatrix;
 
-            CoreEngine.instance.GraphicsDevice.SetVertexBuffer(_vertexBuffer);
+            CoreEngine.instance.GraphicsDevice.SetVertexBuffer(_vertexBuffer, 0);
+            Debug.WriteLine(_vertexBuffer.VertexCount);
             CoreEngine.instance.GraphicsDevice.Indices = _indexBuffer;
 
             foreach (var pass in BasicEffect.CurrentTechnique.Passes) {

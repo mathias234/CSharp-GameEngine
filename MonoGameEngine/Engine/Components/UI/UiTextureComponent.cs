@@ -19,7 +19,9 @@ namespace MonoGameEngine.Engine.UI {
                     rasterizerState);
             }
             else {
-                CoreEngine.instance.GetSpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend);
+                var rasterizerState = new RasterizerState { ScissorTestEnable = false };
+                CoreEngine.instance.GetSpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, null, null,
+                    rasterizerState);
             }
 
             CoreEngine.instance.GetSpriteBatch.Draw(Texture2D ?? UISystem.GetDefaultBackground, Rect, Color);
@@ -29,6 +31,7 @@ namespace MonoGameEngine.Engine.UI {
             CoreEngine.instance.GetSpriteBatch.GraphicsDevice.RasterizerState = new RasterizerState {
                 ScissorTestEnable = false
             };
+            CoreEngine.instance.GetSpriteBatch.GraphicsDevice.BlendState = BlendState.Opaque;
             CoreEngine.instance.GetSpriteBatch.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
             base.Draw(graphicsDevice);

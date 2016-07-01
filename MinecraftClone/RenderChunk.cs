@@ -61,6 +61,7 @@ namespace MinecraftClone {
         }
 
         private void StartChunkGeneration() {
+            _mesh = new Mesh();
             _vertices = new List<Vector3>();
             _normals = new List<Vector3>();
             _indices = new List<short>();
@@ -70,36 +71,36 @@ namespace MinecraftClone {
             for (var x = 0; x < (int)Scale.X; x++) {
                 for (var y = 0; y < (int)Scale.Y; y++) {
                     for (var z = 0; z < (int)Scale.Z; z++) {
-                        if (Map.GetVoxel(x, y, z) != 0) {
-                            if (Map.GetVoxel(x, y + 1, z) == 0) {
+                        if (Map.GetVoxel(x, y, z) != BlockTypes.Air) {
+                            if (Map.GetVoxel(x, y + 1, z) == BlockTypes.Air) {
                                 SetTop(x, y, z, Map.GetVoxel(x, y, z));
                             }
-                            if (Map.GetVoxel(x, y - 1, z) == 0) {
-                                if (Map.GetVoxel(x, y + 1, z) == 0)
+                            if (Map.GetVoxel(x, y - 1, z) == BlockTypes.Air) {
+                                if (Map.GetVoxel(x, y + 1, z) == BlockTypes.Air)
                                     SetBottom(x, y, z, Map.GetVoxel(x, y, z), false);
                                 else
                                     SetBottom(x, y, z, Map.GetVoxel(x, y, z), true);
                             }
-                            if (Map.GetVoxel(x + 1, y, z) == 0) {
-                                if (Map.GetVoxel(x, y + 1, z) == 0)
+                            if (Map.GetVoxel(x + 1, y, z) == BlockTypes.Air) {
+                                if (Map.GetVoxel(x, y + 1, z) == BlockTypes.Air)
                                     SetEast(x, y, z, Map.GetVoxel(x, y, z), false);
                                 else
                                     SetEast(x, y, z, Map.GetVoxel(x, y, z), true);
                             }
-                            if (Map.GetVoxel(x - 1, y, z) == 0) {
-                                if (Map.GetVoxel(x, y + 1, z) == 0)
+                            if (Map.GetVoxel(x - 1, y, z) == BlockTypes.Air) {
+                                if (Map.GetVoxel(x, y + 1, z) == BlockTypes.Air)
                                     SetWest(x, y, z, Map.GetVoxel(x, y, z), false);
                                 else
                                     SetWest(x, y, z, Map.GetVoxel(x, y, z), true);
                             }
-                            if (Map.GetVoxel(x, y, z + 1) == 0) {
-                                if (Map.GetVoxel(x, y + 1, z) == 0)
+                            if (Map.GetVoxel(x, y, z + 1) == BlockTypes.Air) {
+                                if (Map.GetVoxel(x, y + 1, z) == BlockTypes.Air)
                                     SetNorth(x, y, z, Map.GetVoxel(x, y, z), false);
                                 else
                                     SetNorth(x, y, z, Map.GetVoxel(x, y, z), true);
                             }
-                            if (Map.GetVoxel(x, y, z - 1) == 0) {
-                                if (Map.GetVoxel(x, y + 1, z) == 0)
+                            if (Map.GetVoxel(x, y, z - 1) == BlockTypes.Air) {
+                                if (Map.GetVoxel(x, y + 1, z) == BlockTypes.Air)
                                     SetSouth(x, y, z, Map.GetVoxel(x, y, z), false);
                                 else
                                     SetSouth(x, y, z, Map.GetVoxel(x, y, z), true);
@@ -261,9 +262,9 @@ namespace MinecraftClone {
         }
 
         void UpdateMesh() {
-            MeshRenderer mr = GameObject.AddComponent<MeshRenderer>();
-            MeshCollider mc = GameObject.AddComponent<MeshCollider>();
-            _mesh = new Mesh();
+            var mr = GameObject.GetComponent<MeshRenderer>() ?? GameObject.AddComponent<MeshRenderer>();
+            var mc = GameObject.GetComponent<MeshCollider>() ?? GameObject.AddComponent<MeshCollider>();
+
             _mesh.Vertices = _vertices.ToArray();
             _mesh.Indices = _indices.ToArray();
             _mesh.Uvs = _uvs.ToArray();

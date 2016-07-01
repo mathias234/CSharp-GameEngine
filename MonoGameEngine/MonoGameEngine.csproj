@@ -123,12 +123,15 @@
     <Compile Include="Engine\Components\UI\UISystem.cs" />
     <Compile Include="Engine\Components\UI\UiTextComponent.cs" />
     <Compile Include="Engine\Components\UI\UiTextureComponent.cs" />
+    <Compile Include="Engine\Threading\ThreadManager.cs" />
     <Compile Include="Engine\Utilites.cs" />
     <Compile Include="Engine\Mesh.cs" />
     <Compile Include="Engine\Primitives.cs" />
     <Compile Include="Engine\CoreEngine.cs" />
     <Compile Include="Engine\GameObject.cs" />
     <Compile Include="Engine\SceneManager.cs" />
+    <Compile Include="Engine\Utilites\Physics\RayCastResult.cs" />
+    <Compile Include="Engine\Utilites\Physics\RayHit.cs" />
     <Compile Include="GameCode\Engine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -26,6 +26,7 @@ namespace MonoGameEngine.Engine.Components {
             return transformedReference;
         }
 
+        // TODO: FIX!
         public Vector3 Left() {
             Matrix rotationMatrix =
                 Matrix.CreateRotationX(Rotation.X) *

@@ -17,6 +17,7 @@ namespace MonoGameEngine.Engine.Physics {
         public Mesh Mesh {
             get { return _mesh; }
             set {
+                PhysicsEngine.RemovePhysicsObject(RigidBody);
                 _mesh = value;
                 List<BEPUutilities.Vector3> vertices = new List<BEPUutilities.Vector3>();
                 foreach (var vector3 in _mesh.Vertices) {
@@ -32,7 +33,6 @@ namespace MonoGameEngine.Engine.Physics {
                     GameObject.Transform.Position.Z)));
 
                 RigidBody = rbody2;
-
                 PhysicsEngine.AddPhysicsObject(RigidBody);
             }
         }

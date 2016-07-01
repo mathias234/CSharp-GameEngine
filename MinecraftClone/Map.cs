@@ -63,7 +63,7 @@ namespace Data.Voxel.Map {
         public void GenerateBaseTerrain(int x, int y, int z) {
             // generate base terrain
 
-            _voxels[x, y, z] = 0;
+            _voxels[x, y, z] = BlockTypes.Air;
 
             float xCoord = ((_chunkPosition.X + _seed + x / (float)_width) / _scale) - _width;
             float yCoord = ((_chunkPosition.Y + _seed + y / (float)_height) / _scale) - _height;
@@ -84,31 +84,33 @@ namespace Data.Voxel.Map {
         }
 
         public void GenerateLakes(int x, int y, int z) {
-            if (y <= _digDepth + 2 && y >= _digDepth && GetVoxel(x, y, z) == 0) {
+            if (y <= _digDepth + 2 && y >= _digDepth && GetVoxel(x, y, z) == BlockTypes.Air) {
                 _voxels[x, y, z] = BlockTypes.Water;
             }
         }
 
         public void GenerateBeaches(int x, int y, int z) {
             if (y <= _digDepth + 2 && y >= _digDepth &&
-                (GetVoxel(x, y, z) != BlockTypes.Air && GetVoxel(x,y,z) != BlockTypes.Water)
-                && (GetVoxel(x, y + 1, z) == BlockTypes.Air || GetVoxel(x,y+1,z) == BlockTypes.Water)) {
+                (GetVoxel(x, y, z) != BlockTypes.Air && GetVoxel(x, y, z) != BlockTypes.Water)
+                && (GetVoxel(x, y + 1, z) == BlockTypes.Air || GetVoxel(x, y + 1, z) == BlockTypes.Water)) {
                 _voxels[x, y, z] = BlockTypes.Sand;
             }
         }
 
 
         public void SetVoxel(int x, int y, int z, BlockTypes type) {
-            _voxels[x, y, z] = type;
+            try {
+                _voxels[x, y, z] = type;
+            }
+            catch (IndexOutOfRangeException ex) {
+                Debug.WriteLine(ex.ToString());
+            }
         }
 
         public BlockTypes GetVoxel(int x, int y, int z) {
             if (x >= _width || x < 0 || y >= _height || y < 0 || z >= _depth || z < 0) {
                 // to optimize the mesh more we dont render all the chunk edges, just the once on the top( to avoid any wierd bugs )
-                if (y >= _digDepth - 5)
-                    return 0;
-
-                return BlockTypes.Stone;
+                return BlockTypes.Air;
             }
 
             return _voxels[x, y, z];
