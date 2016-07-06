@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewEngine", "NewEngine\NewEngine.csproj", "{F4B7A456-30F9-4B1E-8FD7-10957293EB61}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game", "Game\Game.csproj", "{2EFA7D3A-23C6-4B45-BFCE-C60F2C3A4891}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinecraftClone", "MinecraftClone\MinecraftClone.csproj", "{9D0AFB89-D88E-4EA9-ACED-7A5F002848A2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F4B7A456-30F9-4B1E-8FD7-10957293EB61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4B7A456-30F9-4B1E-8FD7-10957293EB61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4B7A456-30F9-4B1E-8FD7-10957293EB61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4B7A456-30F9-4B1E-8FD7-10957293EB61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2EFA7D3A-23C6-4B45-BFCE-C60F2C3A4891}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EFA7D3A-23C6-4B45-BFCE-C60F2C3A4891}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EFA7D3A-23C6-4B45-BFCE-C60F2C3A4891}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EFA7D3A-23C6-4B45-BFCE-C60F2C3A4891}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D0AFB89-D88E-4EA9-ACED-7A5F002848A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D0AFB89-D88E-4EA9-ACED-7A5F002848A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D0AFB89-D88E-4EA9-ACED-7A5F002848A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D0AFB89-D88E-4EA9-ACED-7A5F002848A2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -4,7 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using MinecraftClone;
-using MonoGameEngine.GameCode;
+using NewEngine.Engine.Core;
+using OpenTK;
 
 namespace WindowsFormsApplication1 {
     static class Program {
@@ -13,8 +14,10 @@ namespace WindowsFormsApplication1 {
         /// </summary>
         [STAThread]
         static void Main() {
-            var GameCode = new GameCode();
-            Engine.EngineStart(GameCode);
+            using (var engine = new CoreEngine(1920, 1080, VSyncMode.Off, new GameCode())) {
+                engine.CreateWindow("TestGame");
+                engine.Start();
+            }
         }
     }
 }

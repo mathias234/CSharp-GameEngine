@@ -2,22 +2,23 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Data.Voxel.Map;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using MonoGameEngine.Engine;
-using MonoGameEngine.Engine.Components;
-using MonoGameEngine.Engine.Physics;
+using NewEngine.Engine.components;
+using NewEngine.Engine.Core;
+using NewEngine.Engine.Physics.PhysicsComponents;
+using NewEngine.Engine.Rendering;
+using OpenTK;
 
 namespace MinecraftClone {
-    public class RenderChunk : Component {
-        private List<Vector3> _vertices = new List<Vector3>();
+    public class RenderChunk : GameComponent {
+        private List<Vertex> _vertices = new List<Vertex>();
         private List<Vector3> _normals = new List<Vector3>();
-        private List<short> _indices = new List<short>();
+        private List<int> _indices = new List<int>();
         private List<Vector2> _uvs = new List<Vector2>();
 
         public Map Map;
@@ -34,6 +35,7 @@ namespace MinecraftClone {
         public Vector2 Water = new Vector2(15, 13);
         public Vector2 Stone = new Vector2(1, 0);
         public Vector2 Sand = new Vector2(2, 1);
+        public Vector2 Diamond = new Vector2(2, 3);
         public float TextureUnit = 0.0625f;
         public int TextureCountX = 16;
 
@@ -48,7 +50,7 @@ namespace MinecraftClone {
         public float NoiseScale;
         public int Seed;
 
-        public Texture2D MainTexture;
+        public Material Material;
 
         public bool HasGeneratedMesh = false;
         private bool _worldReady = false;
@@ -61,10 +63,9 @@ namespace MinecraftClone {
         }
 
         private void StartChunkGeneration() {
-            _mesh = new Mesh();
-            _vertices = new List<Vector3>();
+            _vertices = new List<Vertex>();
             _normals = new List<Vector3>();
-            _indices = new List<short>();
+            _indices = new List<int>();
             _uvs = new List<Vector2>();
             _meshGenerationStarted = true;
 
@@ -113,105 +114,63 @@ namespace MinecraftClone {
         }
 
         void SetTop(int x, int y, int z, BlockTypes type) {
-            _vertices.Add(new Vector3(x, y, z + 1));
-            _vertices.Add(new Vector3(x + 1, y, z + 1));
-            _vertices.Add(new Vector3(x + 1, y, z));
-            _vertices.Add(new Vector3(x, y, z));
-
-            _normals.Add(Vector3.Up);
-            _normals.Add(Vector3.Up);
-            _normals.Add(Vector3.Up);
-            _normals.Add(Vector3.Up);
 
             Vector2 texturePos = GetTexturePosForType(type, false, false, true);
 
-            Cube(texturePos);
+            _vertices.Add(new Vertex(new Vector3(x, y, z + 1), new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y + TextureUnit)), Vector3.UnitY));
+            _vertices.Add(new Vertex(new Vector3(x + 1, y, z + 1), new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y)), Vector3.UnitY));
+            _vertices.Add(new Vertex(new Vector3(x + 1, y, z), new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y)), Vector3.UnitY));
+            _vertices.Add(new Vertex(new Vector3(x, y, z), new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y + TextureUnit)), Vector3.UnitY));
+            Cube();
         }
 
         void SetNorth(int x, int y, int z, BlockTypes type, bool hasBlockAbove) {
-            _vertices.Add(new Vector3(x + 1, y - 1, z + 1));
-            _vertices.Add(new Vector3(x + 1, y, z + 1));
-            _vertices.Add(new Vector3(x, y, z + 1));
-            _vertices.Add(new Vector3(x, y - 1, z + 1));
-
-            _normals.Add(Vector3.UnitX);
-            _normals.Add(Vector3.UnitX);
-            _normals.Add(Vector3.UnitX);
-            _normals.Add(Vector3.UnitX);
-
-
             Vector2 texturePos = GetTexturePosForType(type, hasBlockAbove);
+            _vertices.Add(new Vertex(new Vector3(x + 1, y - 1, z + 1), new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y + TextureUnit)), Vector3.UnitX));
+            _vertices.Add(new Vertex(new Vector3(x + 1, y, z + 1), new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y)), Vector3.UnitX));
+            _vertices.Add(new Vertex(new Vector3(x, y, z + 1), new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y)), Vector3.UnitX));
+            _vertices.Add(new Vertex(new Vector3(x, y - 1, z + 1), new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y + TextureUnit)), Vector3.UnitX));
 
-            Cube(texturePos);
+            Cube();
         }
 
         void SetEast(int x, int y, int z, BlockTypes type, bool hasBlockAbove) {
-            _vertices.Add(new Vector3(x + 1, y - 1, z));
-            _vertices.Add(new Vector3(x + 1, y, z));
-            _vertices.Add(new Vector3(x + 1, y, z + 1));
-            _vertices.Add(new Vector3(x + 1, y - 1, z + 1));
-
-            _normals.Add(Vector3.Right);
-            _normals.Add(Vector3.Right);
-            _normals.Add(Vector3.Right);
-            _normals.Add(Vector3.Right);
-
-
             Vector2 texturePos = GetTexturePosForType(type, hasBlockAbove);
-
-            Cube(texturePos);
+            _vertices.Add(new Vertex(new Vector3(x + 1, y - 1, z), new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y + TextureUnit)), Vector3.UnitZ));
+            _vertices.Add(new Vertex(new Vector3(x + 1, y, z), new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y)), Vector3.UnitZ));
+            _vertices.Add(new Vertex(new Vector3(x + 1, y, z + 1), new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y)), Vector3.UnitZ));
+            _vertices.Add(new Vertex(new Vector3(x + 1, y - 1, z + 1), new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y + TextureUnit)), Vector3.UnitZ));
+            Cube();
         }
 
         void SetSouth(int x, int y, int z, BlockTypes type, bool hasBlockAbove) {
-            _vertices.Add(new Vector3(x, y - 1, z));
-            _vertices.Add(new Vector3(x, y, z));
-            _vertices.Add(new Vector3(x + 1, y, z));
-            _vertices.Add(new Vector3(x + 1, y - 1, z));
-
-            _normals.Add(-Vector3.UnitX);
-            _normals.Add(-Vector3.UnitX);
-            _normals.Add(-Vector3.UnitX);
-            _normals.Add(-Vector3.UnitX);
-
-
             Vector2 texturePos = GetTexturePosForType(type, hasBlockAbove);
 
-
-            Cube(texturePos);
+            _vertices.Add(new Vertex(new Vector3(x, y - 1, z), new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y + TextureUnit)), -Vector3.UnitX));
+            _vertices.Add(new Vertex(new Vector3(x, y, z), new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y)), -Vector3.UnitX));
+            _vertices.Add(new Vertex(new Vector3(x + 1, y, z), new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y)), -Vector3.UnitX));
+            _vertices.Add(new Vertex(new Vector3(x + 1, y - 1, z), new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y + TextureUnit)), -Vector3.UnitX));
+            Cube();
         }
 
         void SetWest(int x, int y, int z, BlockTypes type, bool hasBlockAbove) {
-            _vertices.Add(new Vector3(x, y - 1, z + 1));
-            _vertices.Add(new Vector3(x, y, z + 1));
-            _vertices.Add(new Vector3(x, y, z));
-            _vertices.Add(new Vector3(x, y - 1, z));
-
-            _normals.Add(-Vector3.Right);
-            _normals.Add(-Vector3.Right);
-            _normals.Add(-Vector3.Right);
-            _normals.Add(-Vector3.Right);
-
-
             Vector2 texturePos = GetTexturePosForType(type, hasBlockAbove);
 
-
-            Cube(texturePos);
+            _vertices.Add(new Vertex(new Vector3(x, y - 1, z + 1), new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y + TextureUnit)), -Vector3.UnitZ));
+            _vertices.Add(new Vertex(new Vector3(x, y, z + 1), new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y)), -Vector3.UnitZ));
+            _vertices.Add(new Vertex(new Vector3(x, y, z), new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y)), -Vector3.UnitZ));
+            _vertices.Add(new Vertex(new Vector3(x, y - 1, z), new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y + TextureUnit)), -Vector3.UnitZ));
+            Cube();
         }
 
         void SetBottom(int x, int y, int z, BlockTypes type, bool hasBlockAbove) {
-            _vertices.Add(new Vector3(x, y - 1, z));
-            _vertices.Add(new Vector3(x + 1, y - 1, z));
-            _vertices.Add(new Vector3(x + 1, y - 1, z + 1));
-            _vertices.Add(new Vector3(x, y - 1, z + 1));
-
-            _normals.Add(Vector3.Down);
-            _normals.Add(Vector3.Down);
-            _normals.Add(Vector3.Down);
-            _normals.Add(Vector3.Down);
-
-
             Vector2 texturePos = GetTexturePosForType(type, hasBlockAbove, true);
-            Cube(texturePos);
+
+            _vertices.Add(new Vertex(new Vector3(x, y - 1, z), new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y + TextureUnit)), -Vector3.UnitY));
+            _vertices.Add(new Vertex(new Vector3(x + 1, y - 1, z), new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y)), -Vector3.UnitY));
+            _vertices.Add(new Vertex(new Vector3(x + 1, y - 1, z + 1), new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y)), -Vector3.UnitY));
+            _vertices.Add(new Vertex(new Vector3(x, y - 1, z + 1), new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y + TextureUnit)), -Vector3.UnitY));
+            Cube();
         }
 
         Vector2 GetTexturePosForType(BlockTypes type, bool hasBlockAbove = true, bool isBottom = false, bool isTop = false) {
@@ -237,50 +196,37 @@ namespace MinecraftClone {
             if (type == BlockTypes.Sand) {
                 return Sand;
             }
+            if (type == BlockTypes.Diamond) {
+                return Diamond;
+            }
 
 
             return new Vector2(0, 0);
         }
 
-        void Cube(Vector2 texturePos) {
-            _indices.Add((short)(_faceCount * 4)); //1
+        void Cube() {
             _indices.Add((short)(_faceCount * 4 + 2)); //3
+            _indices.Add((short)(_faceCount * 4)); //1
             _indices.Add((short)(_faceCount * 4 + 1)); //2
-            _indices.Add((short)(_faceCount * 4)); //1
             _indices.Add((short)(_faceCount * 4 + 3)); //4
+            _indices.Add((short)(_faceCount * 4)); //1
             _indices.Add((short)(_faceCount * 4 + 2)); //3
-
-
-            _uvs.Add(new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y + TextureUnit)));
-            _uvs.Add(new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y)));
-            _uvs.Add(new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y)));
-            _uvs.Add(new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y + TextureUnit)));
-
-
 
             _faceCount++; // Add this line
         }
 
         void UpdateMesh() {
-            var mr = GameObject.GetComponent<MeshRenderer>() ?? GameObject.AddComponent<MeshRenderer>();
-            var mc = GameObject.GetComponent<MeshCollider>() ?? GameObject.AddComponent<MeshCollider>();
 
-            _mesh.Vertices = _vertices.ToArray();
-            _mesh.Indices = _indices.ToArray();
-            _mesh.Uvs = _uvs.ToArray();
-            _mesh.Normals = _normals.ToArray();
+            _mesh = new Mesh(_vertices.ToArray(), _indices.ToArray(), false);
 
-            mr.Mesh = _mesh;
-            mc.Mesh = _mesh;
-
-            mr.Color = Color.LightGray;
-            mr.Texture = MainTexture;
+            Parent.AddComponent(new MeshRenderer(_mesh, Material));
+            Parent.AddComponent(new MeshCollider(_vertices.ToArray(), _indices.ToArray()));
 
             _faceCount = 0;
             HasGeneratedMesh = true;
         }
 
-        public override void Update(float deltaTime) {
+        public override void Update() {
             if (_worldReady && HasGeneratedMesh == false) {
                 StartChunkGeneration();
             }

@@ -1,0 +1,14 @@
+C:\Users\matha\OneDrive\Documents\NewEngine\NewEngine\Game\bin\Debug\Game.exe.config
+C:\Users\matha\OneDrive\Documents\NewEngine\NewEngine\Game\bin\Debug\Game.exe
+C:\Users\matha\OneDrive\Documents\NewEngine\NewEngine\Game\bin\Debug\Game.pdb
+C:\Users\matha\OneDrive\Documents\NewEngine\NewEngine\Game\bin\Debug\NewEngine.dll
+C:\Users\matha\OneDrive\Documents\NewEngine\NewEngine\Game\bin\Debug\OpenTK.dll
+C:\Users\matha\OneDrive\Documents\NewEngine\NewEngine\Game\bin\Debug\NewEngine.pdb
+C:\Users\matha\OneDrive\Documents\NewEngine\NewEngine\Game\bin\Debug\OpenTK.xml
+C:\Users\matha\OneDrive\Documents\NewEngine\NewEngine\Game\obj\Debug\Game.csprojResolveAssemblyReference.cache
+C:\Users\matha\OneDrive\Documents\NewEngine\NewEngine\Game\obj\Debug\Game.exe
+C:\Users\matha\OneDrive\Documents\NewEngine\NewEngine\Game\obj\Debug\Game.pdb
+C:\Users\matha\OneDrive\Documents\NewEngine\NewEngine\Game\bin\Debug\BEPUphysics.dll
+C:\Users\matha\OneDrive\Documents\NewEngine\NewEngine\Game\bin\Debug\BEPUutilities.dll
+C:\Users\matha\OneDrive\Documents\NewEngine\NewEngine\Game\bin\Debug\BEPUphysics.xml
+C:\Users\matha\OneDrive\Documents\NewEngine\NewEngine\Game\bin\Debug\BEPUutilities.xml

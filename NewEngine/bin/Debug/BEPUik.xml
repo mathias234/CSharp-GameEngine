@@ -1,0 +1,994 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BEPUik</name>
+    </assembly>
+    <members>
+        <member name="F:BEPUik.IKConstraint.StiffnessOverDamping">
+            <summary>
+            The rigidity of a constraint is used to derive the stiffness and damping coefficients using a fixed stiffness:damping ratio.
+            </summary>
+            <remarks>
+            This is used over independent coefficients because IK usages of the constraints don't really vary in behavior, just strength.
+            </remarks>
+        </member>
+        <member name="M:BEPUik.IKConstraint.Preupdate(System.Single,System.Single)">
+            <summary>
+            Updates the softness, bias factor, and maximum impulse based on the current time step.
+            </summary>
+            <param name="dt">Time step duration.</param>
+            <param name="updateRate">Inverse time step duration.</param>
+        </member>
+        <member name="M:BEPUik.IKConstraint.UpdateJacobiansAndVelocityBias">
+            <summary>
+            Update the jacobians for the latest position and orientation bone states and store a velocity bias based on the error.
+            </summary>
+        </member>
+        <member name="M:BEPUik.IKConstraint.ComputeEffectiveMass">
+            <summary>
+            Computes the effective mass matrix for the constraint for the current jacobians.
+            </summary>
+        </member>
+        <member name="M:BEPUik.IKConstraint.WarmStart">
+            <summary>
+            Applies the accumulated impulse to warm up the constraint solving process.
+            </summary>
+        </member>
+        <member name="M:BEPUik.IKConstraint.SolveVelocityIteration">
+            <summary>
+            Applies impulses to satisfy the velocity constraint.
+            </summary>
+        </member>
+        <member name="M:BEPUik.IKConstraint.ClearAccumulatedImpulses">
+            <summary>
+            Clears out the accumulated impulse.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKConstraint.Rigidity">
+            <summary>
+            Gets the rigidity of the constraint. Higher values correspond to more rigid constraints, lower values to less rigid constraints. Must be positive.
+            </summary>
+            <remarks>
+            Scaling up the rigidity is like preparing the constraint to handle a heavier load. If the load is proportionally heavier, the damping ratio stays the same. 
+            If the load stays the same but the rigidity increases, the result is a more rigid joint, but with a slightly different damping ratio.
+            In other words, modifying rigidity without modifying the effective mass of the system results in a variable damping ratio. 
+            This isn't a huge problem in practice- there is a massive ultra-damping hack in IK bone position integration that make a little physical deviation or underdamping irrelevant.
+            </remarks>
+        </member>
+        <member name="P:BEPUik.IKConstraint.MaximumForce">
+            <summary>
+            Gets or sets the maximum force that the constraint can apply.
+            </summary>
+        </member>
+        <member name="P:BEPUik.SingleBoneConstraint.TargetBone">
+            <summary>
+            Gets or sets the bone associated with the single bone constraint.
+            </summary>
+        </member>
+        <member name="T:BEPUik.IKLimit">
+            <summary>
+            Connects two bones together.
+            </summary>
+        </member>
+        <member name="T:BEPUik.IKJoint">
+            <summary>
+            Connects two bones together.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKJoint.ConnectionA">
+            <summary>
+            Gets the first bone connected by this joint.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKJoint.ConnectionB">
+            <summary>
+            Gets the second bone connected by this joint.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKJoint.IsActive">
+            <summary>
+            Gets whether or not the joint is a member of the active set as determined by the last IK solver execution.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKJoint.Enabled">
+            <summary>
+            Gets or sets whether or not this joint is enabled. If set to true, this joint will be a part of
+            the joint graph and will undergo solving. If set to false, this joint will be removed from the connected bones and will no longer be traversable.
+            </summary>
+        </member>
+        <member name="T:BEPUik.IKDistanceLimit">
+            <summary>
+            Tries to keep the anchor points on two bones within an allowed range of distances.
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKDistanceLimit.LocalAnchorA">
+            <summary>
+            Gets or sets the offset in connection A's local space from the center of mass to the anchor point.
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKDistanceLimit.LocalAnchorB">
+            <summary>
+            Gets or sets the offset in connection B's local space from the center of mass to the anchor point.
+            </summary>
+        </member>
+        <member name="M:BEPUik.IKDistanceLimit.#ctor(BEPUik.Bone,BEPUik.Bone,BEPUutilities.Vector3,BEPUutilities.Vector3,System.Single,System.Single)">
+            <summary>
+            Constructs a new distance joint.
+            </summary>
+            <param name="connectionA">First bone connected by the joint.</param>
+            <param name="connectionB">Second bone connected by the joint.</param>
+            <param name="anchorA">Anchor point on the first bone in world space.</param>
+            <param name="anchorB">Anchor point on the second bone in world space.</param>
+            <param name="minimumDistance">Minimum distance that the joint connections should be kept from each other.</param>
+            <param name="maximumDistance">Maximum distance that the joint connections should be kept from each other.</param>
+        </member>
+        <member name="P:BEPUik.IKDistanceLimit.AnchorA">
+            <summary>
+            Gets or sets the offset in world space from the center of mass of connection A to the anchor point.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKDistanceLimit.AnchorB">
+            <summary>
+            Gets or sets the offset in world space from the center of mass of connection B to the anchor point.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKDistanceLimit.MinimumDistance">
+            <summary>
+            Gets or sets the minimum distance that the joint connections should be kept from each other.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKDistanceLimit.MaximumDistance">
+            <summary>
+            Gets or sets the maximum distance that the joint connections should be kept from each other.
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKBallSocketJoint.LocalOffsetA">
+            <summary>
+            Gets or sets the offset in connection A's local space from the center of mass to the anchor point.
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKBallSocketJoint.LocalOffsetB">
+            <summary>
+            Gets or sets the offset in connection B's local space from the center of mass to the anchor point.
+            </summary>
+        </member>
+        <member name="M:BEPUik.IKBallSocketJoint.#ctor(BEPUik.Bone,BEPUik.Bone,BEPUutilities.Vector3)">
+            <summary>
+            Builds a ball socket joint.
+            </summary>
+            <param name="connectionA">First connection in the pair.</param>
+            <param name="connectionB">Second connection in the pair.</param>
+            <param name="anchor">World space anchor location used to initialize the local anchors.</param>
+        </member>
+        <member name="P:BEPUik.IKBallSocketJoint.OffsetA">
+            <summary>
+            Gets or sets the offset in world space from the center of mass of connection A to the anchor point.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKBallSocketJoint.OffsetB">
+            <summary>
+            Gets or sets the offset in world space from the center of mass of connection B to the anchor point.
+            </summary>
+        </member>
+        <member name="T:BEPUik.IKSwingLimit">
+            <summary>
+            Prevents two bones from rotating beyond a certain angle away from each other as measured by attaching an axis to each connected bone.
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKSwingLimit.LocalAxisA">
+            <summary>
+            Gets or sets the axis attached to ConnectionA in its local space.
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKSwingLimit.LocalAxisB">
+            <summary>
+            Gets or sets the axis attached to ConnectionB in its local space.
+            </summary>
+        </member>
+        <member name="M:BEPUik.IKSwingLimit.#ctor(BEPUik.Bone,BEPUik.Bone,BEPUutilities.Vector3,BEPUutilities.Vector3,System.Single)">
+            <summary>
+            Builds a new swing limit. Prevents two bones from rotating beyond a certain angle away from each other as measured by attaching an axis to each connected bone.
+            </summary>
+            <param name="connectionA">First connection of the limit.</param>
+            <param name="connectionB">Second connection of the limit.</param>
+            <param name="axisA">Axis attached to connectionA in world space.</param>
+            <param name="axisB">Axis attached to connectionB in world space.</param>
+            <param name="maximumAngle">Maximum angle allowed between connectionA's axis and connectionB's axis.</param>
+        </member>
+        <member name="P:BEPUik.IKSwingLimit.AxisA">
+            <summary>
+            Gets or sets the axis attached to ConnectionA in world space.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKSwingLimit.AxisB">
+            <summary>
+             Gets or sets the axis attached to ConnectionB in world space.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKSwingLimit.MaximumAngle">
+            <summary>
+            Gets or sets the maximum angle between the two axes allowed by the constraint.
+            </summary>
+        </member>
+        <member name="T:BEPUik.IKDistanceJoint">
+            <summary>
+            Keeps the anchor points on two bones at the same distance.
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKDistanceJoint.LocalAnchorA">
+            <summary>
+            Gets or sets the offset in connection A's local space from the center of mass to the anchor point.
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKDistanceJoint.LocalAnchorB">
+            <summary>
+            Gets or sets the offset in connection B's local space from the center of mass to the anchor point.
+            </summary>
+        </member>
+        <member name="M:BEPUik.IKDistanceJoint.#ctor(BEPUik.Bone,BEPUik.Bone,BEPUutilities.Vector3,BEPUutilities.Vector3)">
+            <summary>
+            Constructs a new distance joint.
+            </summary>
+            <param name="connectionA">First bone connected by the joint.</param>
+            <param name="connectionB">Second bone connected by the joint.</param>
+            <param name="anchorA">Anchor point on the first bone in world space.</param>
+            <param name="anchorB">Anchor point on the second bone in world space.</param>
+        </member>
+        <member name="P:BEPUik.IKDistanceJoint.AnchorA">
+            <summary>
+            Gets or sets the offset in world space from the center of mass of connection A to the anchor point.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKDistanceJoint.AnchorB">
+            <summary>
+            Gets or sets the offset in world space from the center of mass of connection A to the anchor point.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKDistanceJoint.Distance">
+            <summary>
+            Gets or sets the distance that the joint connections should be kept from each other.
+            </summary>
+        </member>
+        <member name="T:BEPUik.IKPointOnPlaneJoint">
+            <summary>
+            Keeps an anchor point on one bone on a plane defined by another bone.
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKPointOnPlaneJoint.LocalPlaneAnchor">
+            <summary>
+            Gets or sets the offset in connection A's local space from the center of mass to the anchor point of the line.
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKPointOnPlaneJoint.LocalPlaneNormal">
+            <summary>
+            Gets or sets the direction of the line in connection A's local space.
+            Must be unit length.
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKPointOnPlaneJoint.LocalAnchorB">
+            <summary>
+            Gets or sets the offset in connection B's local space from the center of mass to the anchor point which will be kept on the plane.
+            </summary>
+        </member>
+        <member name="M:BEPUik.IKPointOnPlaneJoint.#ctor(BEPUik.Bone,BEPUik.Bone,BEPUutilities.Vector3,BEPUutilities.Vector3,BEPUutilities.Vector3)">
+            <summary>
+            Constructs a new point on plane joint.
+            </summary>
+            <param name="connectionA">First bone connected by the joint.</param>
+            <param name="connectionB">Second bone connected by the joint.</param>
+            <param name="planeAnchor">Anchor point of the plane attached to the first bone in world space.</param>
+            <param name="planeNormal">Normal of the plane attached to the first bone in world space. Must be unit length.</param>
+            <param name="anchorB">Anchor point on the second bone in world space which is measured against the other connection's anchor.</param>
+        </member>
+        <member name="P:BEPUik.IKPointOnPlaneJoint.PlaneAnchor">
+            <summary>
+            Gets or sets the world space location of the line anchor attached to connection A.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKPointOnPlaneJoint.PlaneNormal">
+            <summary>
+            Gets or sets the world space normal of the plane attached to connection A.
+            Must be unit length.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKPointOnPlaneJoint.AnchorB">
+            <summary>
+            Gets or sets the offset in world space from the center of mass of connection B to the anchor point.
+            </summary>
+        </member>
+        <member name="T:BEPUik.Control">
+            <summary>
+            Constrains an individual bone in an attempt to reach some goal.
+            Controls act as groups of single bone constraints. They are used
+            by the solver to determine the active set of body constraints.
+            </summary>
+        </member>
+        <member name="P:BEPUik.Control.TargetBone">
+            <summary>
+            Gets or sets the controlled bone.
+            </summary>
+        </member>
+        <member name="F:BEPUik.SingleBoneAngularMotor.TargetOrientation">
+            <summary>
+            Gets or sets the target orientation to apply to the target bone.
+            </summary>
+        </member>
+        <member name="T:BEPUik.IKTwistLimit">
+            <summary>
+            Prevents two bones from twisting beyond a certain angle away from each other as measured by the twist between two measurement axes.
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKTwistLimit.LocalAxisA">
+            <summary>
+            Gets or sets the axis attached to ConnectionA in its local space.
+            Must be unit length and perpendicular to LocalMeasurementAxisA.
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKTwistLimit.LocalAxisB">
+            <summary>
+            Gets or sets the axis attached to ConnectionB in its local space.
+            Must be unit length and perpendicular to LocalMeasurementAxisB.
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKTwistLimit.LocalMeasurementAxisA">
+            <summary>
+            Gets or sets the measurement axis attached to connection A.
+            Must be unit length and perpendicular to LocalAxisA.
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKTwistLimit.LocalMeasurementAxisB">
+            <summary>
+            Gets or sets the measurement axis attached to connection B.
+            Must be unit length and perpendicular to LocalAxisB.
+            </summary>
+        </member>
+        <member name="M:BEPUik.IKTwistLimit.ComputeMeasurementAxes">
+            <summary>
+            Automatically computes the measurement axes for the current local axes.
+            The current relative state of the entities will be considered 0 twist angle.
+            </summary>
+        </member>
+        <member name="M:BEPUik.IKTwistLimit.#ctor(BEPUik.Bone,BEPUik.Bone,BEPUutilities.Vector3,BEPUutilities.Vector3,System.Single)">
+            <summary>
+            Builds a new twist limit. Prevents two bones from rotating beyond a certain angle away from each other as measured by attaching an axis to each connected bone.
+            </summary>
+            <param name="connectionA">First connection of the limit.</param>
+            <param name="connectionB">Second connection of the limit.</param>
+            <param name="axisA">Axis attached to connectionA in world space.</param>
+            <param name="axisB">Axis attached to connectionB in world space.</param>
+            <param name="maximumAngle">Maximum angle allowed between connectionA's axis and connectionB's axis.</param>
+        </member>
+        <member name="P:BEPUik.IKTwistLimit.AxisA">
+            <summary>
+            Gets or sets the axis attached to ConnectionA in world space.
+            Must be unit length and perpendicular to MeasurementAxisA.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKTwistLimit.AxisB">
+            <summary>
+            Gets or sets the axis attached to ConnectionB in world space.
+            Must be unit length and perpendicular to MeasurementAxisB.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKTwistLimit.MeasurementAxisA">
+            <summary>
+            Gets or sets the measurement axis attached to ConnectionA in world space.
+            This axis is compared against the other connection's measurement axis to determine the twist.
+            Must be unit length and perpendicular to AxisA.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKTwistLimit.MeasurementAxisB">
+            <summary>
+            Gets or sets the measurement axis attached to ConnectionB in world space.
+            This axis is compared against the other connection's measurement axis to determine the twist.
+            Must be unit length and perpendicular to AxisB.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKTwistLimit.MaximumAngle">
+            <summary>
+            Gets or sets the maximum angle between the two axes allowed by the constraint.
+            </summary>
+        </member>
+        <member name="T:BEPUik.DragControl">
+            <summary>
+            Constrains an individual bone in an attempt to reach some position goal.
+            </summary>
+        </member>
+        <member name="P:BEPUik.DragControl.TargetBone">
+            <summary>
+            Gets or sets the controlled bone.
+            </summary>
+        </member>
+        <member name="P:BEPUik.DragControl.LinearMotor">
+            <summary>
+            Gets or sets the linear motor used by the control.
+            </summary>
+        </member>
+        <member name="T:BEPUik.IKTwistJoint">
+            <summary>
+            Prevents two bones from twisting relative to each other..
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKTwistJoint.LocalAxisA">
+            <summary>
+            Gets or sets the axis attached to ConnectionA in its local space.
+            Must be unit length and perpendicular to LocalMeasurementAxisA.
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKTwistJoint.LocalAxisB">
+            <summary>
+            Gets or sets the axis attached to ConnectionB in its local space.
+            Must be unit length and perpendicular to LocalMeasurementAxisB.
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKTwistJoint.LocalMeasurementAxisA">
+            <summary>
+            Gets or sets the measurement axis attached to connection A.
+            Must be unit length and perpendicular to LocalAxisA.
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKTwistJoint.LocalMeasurementAxisB">
+            <summary>
+            Gets or sets the measurement axis attached to connection B.
+            Must be unit length and perpendicular to LocalAxisB.
+            </summary>
+        </member>
+        <member name="M:BEPUik.IKTwistJoint.ComputeMeasurementAxes">
+            <summary>
+            Automatically computes the measurement axes for the current local axes.
+            The current relative state of the entities will be considered 0 twist angle.
+            </summary>
+        </member>
+        <member name="M:BEPUik.IKTwistJoint.#ctor(BEPUik.Bone,BEPUik.Bone,BEPUutilities.Vector3,BEPUutilities.Vector3)">
+            <summary>
+            Builds a new twist limit. Prevents two bones from rotating beyond a certain angle away from each other as measured by attaching an axis to each connected bone.
+            </summary>
+            <param name="connectionA">First connection of the limit.</param>
+            <param name="connectionB">Second connection of the limit.</param>
+            <param name="axisA">Axis attached to connectionA in world space.</param>
+            <param name="axisB">Axis attached to connectionB in world space.</param>
+        </member>
+        <member name="P:BEPUik.IKTwistJoint.AxisA">
+            <summary>
+            Gets or sets the axis attached to ConnectionA in world space.
+            Must be unit length and perpendicular to MeasurementAxisA.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKTwistJoint.AxisB">
+            <summary>
+            Gets or sets the axis attached to ConnectionB in world space.
+            Must be unit length and perpendicular to MeasurementAxisB.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKTwistJoint.MeasurementAxisA">
+            <summary>
+            Gets or sets the measurement axis attached to ConnectionA in world space.
+            This axis is compared against the other connection's measurement axis to determine the twist.
+            Must be unit length and perpendicular to AxisA.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKTwistJoint.MeasurementAxisB">
+            <summary>
+            Gets or sets the measurement axis attached to ConnectionB in world space.
+            This axis is compared against the other connection's measurement axis to determine the twist.
+            Must be unit length and perpendicular to AxisB.
+            </summary>
+        </member>
+        <member name="T:BEPUik.IKSolver">
+            <summary>
+            <para>
+            This is a little experimental project designed to iteratively converge to a decent solution
+            to full body inverse kinematics subject to a variety of constraints.
+            </para>
+            <para>
+            It's currently separated from the rest of BEPUphysics library internals because the immediate goal is to test out 
+            features to be potentially integrated into a blender content pipeline. BEPUphysics interactions with this system
+            will have to go through the interfaces like everything else for now.
+            </para>
+            </summary>
+        </member>
+        <member name="M:BEPUik.IKSolver.#ctor">
+            <summary>
+            Constructs a new IKSolver.
+            </summary>
+        </member>
+        <member name="M:BEPUik.IKSolver.Solve(System.Collections.Generic.List{BEPUik.IKJoint})">
+            <summary>
+            Updates the positions of bones acted upon by the joints given to this solver.
+            This variant of the solver can be used when there are no goal-driven controls in the simulation.
+            This amounts to running just the 'fixer iterations' of a normal control-driven solve.
+            </summary>
+        </member>
+        <member name="M:BEPUik.IKSolver.Solve(System.Collections.Generic.List{BEPUik.Control})">
+            <summary>
+            Updates the positions of bones acted upon by the controls given to this solver.
+            </summary>
+            <param name="controls">List of currently active controls.</param>
+        </member>
+        <member name="P:BEPUik.IKSolver.ActiveSet">
+            <summary>
+            Gets the active joint set associated with the solver.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKSolver.ControlIterationCount">
+            <summary>
+            Gets or sets the number of solver iterations to perform in an attempt to reach specified goals.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKSolver.FixerIterationCount">
+            <summary>
+            Gets or sets the number of solter iterations to perform after the control iterations in an attempt to minimize
+            errors introduced by unreachable goals.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKSolver.VelocitySubiterationCount">
+            <summary>
+            Gets or sets the number of velocity iterations to perform per control or fixer iteration.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKSolver.AutoscaleControlImpulses">
+            <summary>
+            Gets or sets whether or not to scale control impulses such that they fit well with the mass of objects.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKSolver.AutoscaleControlMaximumForce">
+            <summary>
+            Gets or sets the maximum impulse the controls will try to push bones with when AutoscaleControlImpulses is enabled.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKSolver.TimeStepDuration">
+            <summary>
+            Gets or sets the time step duration elapsed by each position iteration.
+            </summary>
+        </member>
+        <member name="T:BEPUik.IKPointOnLineJoint">
+            <summary>
+            Keeps the anchor points on two bones at the same distance.
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKPointOnLineJoint.LocalLineAnchor">
+            <summary>
+            Gets or sets the offset in connection A's local space from the center of mass to the anchor point of the line.
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKPointOnLineJoint.LocalAnchorB">
+            <summary>
+            Gets or sets the offset in connection B's local space from the center of mass to the anchor point which will be kept on the line.
+            </summary>
+        </member>
+        <member name="M:BEPUik.IKPointOnLineJoint.#ctor(BEPUik.Bone,BEPUik.Bone,BEPUutilities.Vector3,BEPUutilities.Vector3,BEPUutilities.Vector3)">
+            <summary>
+            Constructs a new point on line joint.
+            </summary>
+            <param name="connectionA">First bone connected by the joint.</param>
+            <param name="connectionB">Second bone connected by the joint.</param>
+            <param name="lineAnchor">Anchor point of the line attached to the first bone in world space.</param>
+            <param name="lineDirection">Direction of the line attached to the first bone in world space. Must be unit length.</param>
+            <param name="anchorB">Anchor point on the second bone in world space which tries to stay on connection A's line.</param>
+        </member>
+        <member name="P:BEPUik.IKPointOnLineJoint.LocalLineDirection">
+            <summary>
+            Gets or sets the direction of the line in connection A's local space.
+            Must be unit length.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKPointOnLineJoint.LineAnchor">
+            <summary>
+            Gets or sets the world space location of the line anchor attached to connection A.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKPointOnLineJoint.LineDirection">
+            <summary>
+            Gets or sets the world space direction of the line attached to connection A.
+            Must be unit length.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKPointOnLineJoint.AnchorB">
+            <summary>
+            Gets or sets the offset in world space from the center of mass of connection B to the anchor point.
+            </summary>
+        </member>
+        <member name="T:BEPUik.AngularPlaneControl">
+            <summary>
+            Constrains an individual bone in an attempt to keep a bone-attached axis flat on a plane defined by a world space normal.
+            </summary>
+        </member>
+        <member name="P:BEPUik.AngularPlaneControl.TargetBone">
+            <summary>
+            Gets or sets the controlled bone.
+            </summary>
+        </member>
+        <member name="P:BEPUik.AngularPlaneControl.AngularMotor">
+            <summary>
+            Gets or sets the linear motor used by the control.
+            </summary>
+        </member>
+        <member name="T:BEPUik.StateControl">
+            <summary>
+            Constrains an individual bone in an attempt to reach some position and orientation goal.
+            </summary>
+        </member>
+        <member name="P:BEPUik.StateControl.TargetBone">
+            <summary>
+            Gets or sets the controlled bone.
+            </summary>
+        </member>
+        <member name="P:BEPUik.StateControl.LinearMotor">
+            <summary>
+            Gets the linear motor used by the control.
+            </summary>
+        </member>
+        <member name="P:BEPUik.StateControl.AngularMotor">
+            <summary>
+            Gets the angular motor used by the control.
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKSwivelHingeJoint.LocalHingeAxis">
+            <summary>
+            Gets or sets the free hinge axis attached to connection A in its local space.
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKSwivelHingeJoint.LocalTwistAxis">
+            <summary>
+            Gets or sets the free twist axis attached to connection B in its local space.
+            </summary>
+        </member>
+        <member name="M:BEPUik.IKSwivelHingeJoint.#ctor(BEPUik.Bone,BEPUik.Bone,BEPUutilities.Vector3,BEPUutilities.Vector3)">
+            <summary>
+            Constructs a new constraint which allows relative angular motion around a hinge axis and a twist axis.
+            </summary>
+            <param name="connectionA">First connection of the pair.</param>
+            <param name="connectionB">Second connection of the pair.</param>
+            <param name="worldHingeAxis">Hinge axis attached to connectionA.
+            The connected bone will be able to rotate around this axis relative to each other.</param>
+            <param name="worldTwistAxis">Twist axis attached to connectionB.
+            The connected bones will be able to rotate around this axis relative to each other.</param>
+        </member>
+        <member name="P:BEPUik.IKSwivelHingeJoint.WorldHingeAxis">
+            <summary>
+            Gets or sets the free hinge axis attached to connection A in world space.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKSwivelHingeJoint.WorldTwistAxis">
+            <summary>
+            Gets or sets the free twist axis attached to connection B in world space.
+            </summary>
+        </member>
+        <member name="M:BEPUik.IKRevoluteJoint.#ctor(BEPUik.Bone,BEPUik.Bone,BEPUutilities.Vector3)">
+            <summary>
+            Constructs a new orientation joint.
+            Orientation joints can be used to simulate the angular portion of a hinge.
+            Orientation joints allow rotation around only a single axis.
+            </summary>
+            <param name="connectionA">First entity connected in the orientation joint.</param>
+            <param name="connectionB">Second entity connected in the orientation joint.</param>
+            <param name="freeAxis">Axis allowed to rotate freely in world space.</param>
+        </member>
+        <member name="P:BEPUik.IKRevoluteJoint.LocalFreeAxisA">
+            <summary>
+            Gets or sets the free axis in connection A's local space.
+            Must be unit length.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKRevoluteJoint.LocalFreeAxisB">
+            <summary>
+            Gets or sets the free axis in connection B's local space.
+            Must be unit length.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKRevoluteJoint.WorldFreeAxisA">
+            <summary>
+            Gets or sets the free axis attached to connection A in world space.
+            This does not change the other connection's free axis.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKRevoluteJoint.WorldFreeAxisB">
+            <summary>
+            Gets or sets the free axis attached to connection B in world space.
+            This does not change the other connection's free axis.
+            </summary>
+        </member>
+        <member name="F:BEPUik.SingleBoneAngularPlaneConstraint.PlaneNormal">
+            <summary>
+            Gets or sets normal of the plane which the bone's axis will be constrained to..
+            </summary>
+        </member>
+        <member name="F:BEPUik.SingleBoneAngularPlaneConstraint.BoneLocalAxis">
+            <summary>
+            Axis to constrain to the plane in the bone's local space.
+            </summary>
+        </member>
+        <member name="T:BEPUik.ActiveSet">
+            <summary>
+            Manages the subset of joints which potentially need solving.
+            The active joint set contains connected components in the joint-bone graph which interact with control constraints.
+            These connected components can be bounded by pinned bones which do not transfer any motion.
+            </summary>
+        </member>
+        <member name="M:BEPUik.ActiveSet.Clear">
+            <summary>
+            Clears out the bone and joint listings and unsets all flags.
+            </summary>
+        </member>
+        <member name="M:BEPUik.ActiveSet.UpdateActiveSet(System.Collections.Generic.List{BEPUik.Control})">
+            <summary>
+            Updates the ordered set of active joints.
+            Joints are ordered according to their graph traversal distance from control constraints.
+            Joints close to the control constraints are closer to index 0 than joints that are far from control constraints.
+            The relative ordering of joints from different connected components is irrelevant; the only guarantee is that
+            constraints further from the source in a particular connected component are later in the list than those that are close.
+            </summary>
+            <param name="controls">Currently active control constraints.</param>
+        </member>
+        <member name="P:BEPUik.ActiveSet.Joints">
+            <summary>
+            Gets the most recently computed set of active joints sorted by their traversal distance from control constraints.
+            </summary>
+        </member>
+        <member name="P:BEPUik.ActiveSet.Bones">
+            <summary>
+            Gets the most recently computed set of active bones sorted by their traversal distance from control constraints.
+            </summary>
+        </member>
+        <member name="P:BEPUik.ActiveSet.UseAutomass">
+            <summary>
+            Gets or sets whether or not to automatically configure the masses of bones in the active set based upon their dependencies.
+            Enabling this makes the solver more responsive and avoids some potential instability.
+            This will overwrite any existing mass settings.
+            </summary>
+        </member>
+        <member name="P:BEPUik.ActiveSet.AutomassUnstressedFalloff">
+            <summary>
+            Gets or sets the multiplier applied to the mass of a bone before distributing it to the child bones.
+            Used only when UseAutomass is set to true.
+            </summary>
+        </member>
+        <member name="P:BEPUik.ActiveSet.AutomassTarget">
+            <summary>
+            Gets or sets the mass that the heaviest bones will have when automass is enabled.
+            </summary>
+        </member>
+        <member name="T:BEPUik.RevoluteControl">
+            <summary>
+            Constrains an individual bone in an attempt to keep a bone-attached axis aligned with a specified world axis.
+            </summary>
+        </member>
+        <member name="P:BEPUik.RevoluteControl.TargetBone">
+            <summary>
+            Gets or sets the controlled bone.
+            </summary>
+        </member>
+        <member name="P:BEPUik.RevoluteControl.AngularMotor">
+            <summary>
+            Gets or sets the linear motor used by the control.
+            </summary>
+        </member>
+        <member name="T:BEPUik.Bone">
+            <summary>
+            Piece of a character which is moved by constraints.
+            </summary>
+        </member>
+        <member name="F:BEPUik.Bone.Position">
+            <summary>
+            Gets or sets the position of the bone.
+            </summary>
+        </member>
+        <member name="F:BEPUik.Bone.Orientation">
+            <summary>
+            Gets or sets the orientation of the bone.
+            </summary>
+        </member>
+        <member name="F:BEPUik.Bone.angularVelocity">
+            <summary>
+            The mid-iteration angular velocity associated with the bone.
+            This is computed during the velocity subiterations and then applied to the orientation at the end of each position iteration.
+            </summary>
+        </member>
+        <member name="F:BEPUik.Bone.linearVelocity">
+            <summary>
+            The mid-iteration linear velocity associated with the bone.
+            This is computed during the velocity subiterations and then applied to the position at the end of each position iteration.
+            </summary>
+        </member>
+        <member name="F:BEPUik.Bone.InertiaTensorScaling">
+            <summary>
+            An arbitrary scaling factor is applied to the inertia tensor. This tends to improve stability.
+            </summary>
+        </member>
+        <member name="M:BEPUik.Bone.#ctor(BEPUutilities.Vector3,BEPUutilities.Quaternion,System.Single,System.Single,System.Single)">
+            <summary>
+            Constructs a new bone.
+            </summary>
+            <param name="position">Initial position of the bone.</param>
+            <param name="orientation">Initial orientation of the bone.</param>
+            <param name="radius">Radius of the bone.</param>
+            <param name="height">Height of the bone.</param>
+            <param name="mass">Mass of the bone.</param>
+        </member>
+        <member name="M:BEPUik.Bone.#ctor(BEPUutilities.Vector3,BEPUutilities.Quaternion,System.Single,System.Single)">
+            <summary>
+            Constructs a new bone. Assumes the mass will be set later.
+            </summary>
+            <param name="position">Initial position of the bone.</param>
+            <param name="orientation">Initial orientation of the bone.</param>
+            <param name="radius">Radius of the bone.</param>
+            <param name="height">Height of the bone.</param>
+        </member>
+        <member name="M:BEPUik.Bone.UpdateInertiaTensor">
+            <summary>
+            Updates the world inertia tensor based upon the local inertia tensor and current orientation.
+            </summary>
+        </member>
+        <member name="M:BEPUik.Bone.UpdatePosition">
+            <summary>
+            Integrates the position and orientation of the bone forward based upon the current linear and angular velocity.
+            </summary>
+        </member>
+        <member name="F:BEPUik.Bone.traversed">
+            <summary>
+            Used by the per-control traversals to find stressed paths.
+            It has to be separate from the IsActive flag because the IsActive flag is used in the same traversal
+            to denote all visited bones (including unstressed ones).
+            Also used in the unstressed traversals; FindCycles uses the IsActive flag and the following DistributeMass phase uses the traversed flag.
+            </summary>
+        </member>
+        <member name="F:BEPUik.Bone.stressCount">
+            <summary>
+            The number of stressed paths which use this bone. A stressed path is a possible path between a pin and a control.
+            </summary>
+        </member>
+        <member name="F:BEPUik.Bone.predecessors">
+            <summary>
+            The set of parents of a given bone in a traversal. This is like a list of parents; there can be multiple incoming paths and they all need to be kept handy in order to perform some traversal details.
+            </summary>
+        </member>
+        <member name="F:BEPUik.Bone.unstressedCycle">
+            <summary>
+            True of the bone is a member of a cycle in an unstressed part of the graph or an unstressed predecessor of an unstressed cycle.
+            Marking all the predecessors is conceptually simpler than attempting to mark the cycles in isolation.
+            </summary>
+        </member>
+        <member name="F:BEPUik.Bone.targetedByOtherControl">
+            <summary>
+            True if the bone is targeted by a control in the current stress cycle traversal that isn't the current source control.
+            </summary>
+        </member>
+        <member name="P:BEPUik.Bone.Mass">
+            <summary>
+            Gets or sets the mass of the bone.
+            High mass bones resist motion more than those of small mass.
+            Setting the mass updates the inertia tensor of the bone.
+            </summary>
+        </member>
+        <member name="P:BEPUik.Bone.Joints">
+            <summary>
+            Gets the list of joints affecting this bone.
+            </summary>
+        </member>
+        <member name="P:BEPUik.Bone.Pinned">
+            <summary>
+            Gets or sets whether or not this bone is pinned. Pinned bones cannot be moved by constraints.
+            </summary>
+        </member>
+        <member name="P:BEPUik.Bone.IsActive">
+            <summary>
+            Gets whether or not the bone is a member of the active set as determined by the last IK solver execution.
+            </summary>
+        </member>
+        <member name="P:BEPUik.Bone.Radius">
+            <summary>
+            Gets or sets the radius of the bone.
+            Setting the radius changes the inertia tensor of the bone.
+            </summary>
+        </member>
+        <member name="P:BEPUik.Bone.HalfHeight">
+            <summary>
+            Gets or sets the height, divided by two, of the bone.
+            The half height extends both ways from the center position of the bone.
+            Setting the half height changes the inertia tensor of the bone.
+            </summary>
+        </member>
+        <member name="P:BEPUik.Bone.Height">
+            <summary>
+            Gets or sets the height of the bone.
+            Setting the height changes the inertia tensor of the bone.
+            </summary>
+        </member>
+        <member name="F:BEPUik.SingleBoneRevoluteConstraint.BoneLocalFreeAxis">
+            <summary>
+            Axis of allowed rotation in the bone's local space.
+            </summary>
+        </member>
+        <member name="P:BEPUik.SingleBoneRevoluteConstraint.FreeAxis">
+            <summary>
+            Gets or sets the direction to constrain the bone free axis to.
+            </summary>
+        </member>
+        <member name="T:BEPUik.IKAngularJoint">
+            <summary>
+            Attempts to maintain the relative orientation between two bones.
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKAngularJoint.GoalRelativeOrientation">
+            <summary>
+            Gets or sets the rotation from connection A's orientation to connection B's orientation in A's local space.
+            </summary>
+        </member>
+        <member name="M:BEPUik.IKAngularJoint.#ctor(BEPUik.Bone,BEPUik.Bone)">
+            <summary>
+            Constructs a 3DOF angular joint which tries to keep two bones in angular alignment.
+            </summary>
+            <param name="connectionA">First bone to connect to the joint.</param>
+            <param name="connectionB">Second bone to connect to the joint.</param>
+        </member>
+        <member name="F:BEPUik.SingleBoneLinearMotor.TargetPosition">
+            <summary>
+            Gets or sets the target position to apply to the target bone.
+            </summary>
+        </member>
+        <member name="F:BEPUik.SingleBoneLinearMotor.LocalOffset">
+            <summary>
+            Gets or sets the offset in the bone's local space to the point which will be pulled towards the target position.
+            </summary>
+        </member>
+        <member name="T:BEPUik.IKLinearAxisLimit">
+            <summary>
+            Keeps an anchor point on one bone between planes defined by another bone.
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKLinearAxisLimit.LocalLineAnchor">
+            <summary>
+            Gets or sets the offset in connection A's local space from the center of mass to the anchor point of the line.
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKLinearAxisLimit.LocalLineDirection">
+            <summary>
+            Gets or sets the direction of the line in connection A's local space.
+            Must be unit length.
+            </summary>
+        </member>
+        <member name="F:BEPUik.IKLinearAxisLimit.LocalAnchorB">
+            <summary>
+            Gets or sets the offset in connection B's local space from the center of mass to the anchor point which will be kept on the line.
+            </summary>
+        </member>
+        <member name="M:BEPUik.IKLinearAxisLimit.#ctor(BEPUik.Bone,BEPUik.Bone,BEPUutilities.Vector3,BEPUutilities.Vector3,BEPUutilities.Vector3,System.Single,System.Single)">
+            <summary>
+            Constructs a new axis limit.
+            </summary>
+            <param name="connectionA">First bone connected by the joint.</param>
+            <param name="connectionB">Second bone connected by the joint.</param>
+            <param name="lineAnchor">Anchor point of the line attached to the first bone in world space.</param>
+            <param name="lineDirection">Direction of the line attached to the first bone in world space. Must be unit length.</param>
+            <param name="anchorB">Anchor point on the second bone in world space which is measured against the other connection's anchor.</param>
+            <param name="minimumDistance">Minimum distance that the joint connections should be kept from each other along the axis.</param>
+            <param name="maximumDistance">Maximum distance that the joint connections should be kept from each other along the axis.</param>
+        </member>
+        <member name="P:BEPUik.IKLinearAxisLimit.LineAnchor">
+            <summary>
+            Gets or sets the world space location of the line anchor attached to connection A.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKLinearAxisLimit.LineDirection">
+            <summary>
+            Gets or sets the world space direction of the line attached to connection A.
+            Must be unit length.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKLinearAxisLimit.AnchorB">
+            <summary>
+            Gets or sets the offset in world space from the center of mass of connection B to the anchor point.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKLinearAxisLimit.MinimumDistance">
+            <summary>
+            Gets or sets the minimum distance that the joint connections should be kept from each other.
+            </summary>
+        </member>
+        <member name="P:BEPUik.IKLinearAxisLimit.MaximumDistance">
+            <summary>
+            Gets or sets the maximum distance that the joint connections should be kept from each other.
+            </summary>
+        </member>
+    </members>
+</doc>

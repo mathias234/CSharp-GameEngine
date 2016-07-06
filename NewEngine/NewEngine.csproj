@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F4B7A456-30F9-4B1E-8FD7-10957293EB61}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NewEngine</RootNamespace>
+    <AssemblyName>NewEngine</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="BEPUik, Version=1.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\BEPUphysics.1.4.0\lib\net40\BEPUik.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="BEPUphysics, Version=1.4.0.0, Culture=neutral, PublicKeyToken=31f6a8732a21de19, processorArchitecture=MSIL">
+      <HintPath>..\packages\BEPUphysics.1.4.0\lib\net40\BEPUphysics.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="BEPUutilities, Version=1.4.0.0, Culture=neutral, PublicKeyToken=31f6a8732a21de19, processorArchitecture=MSIL">
+      <HintPath>..\packages\BEPUphysics.1.4.0\lib\net40\BEPUutilities.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenTK.1.1.2349.61993\lib\NET40\OpenTK.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Engine\components\GameComponent.cs" />
+    <Compile Include="Engine\Core\GameObject.cs" />
+    <Compile Include="Engine\Physics\PhysicsComponents\MeshCollider.cs" />
+    <Compile Include="Engine\Physics\PhysicsComponents\BoxCollider.cs" />
+    <Compile Include="Engine\Physics\PhysicsComponents\PhysicsComponent.cs" />
+    <Compile Include="Engine\Physics\PhysicsEngine.cs" />
+    <Compile Include="Engine\Rendering\RenderingEngine.cs" />
+    <Compile Include="Engine\components\MeshRenderer.cs" />
+    <Compile Include="Engine\Rendering\Camera.cs" />
+    <Compile Include="Engine\Core\Fps.cs" />
+    <Compile Include="Engine\Core\CoreEngine.cs" />
+    <Compile Include="Engine\Rendering\Shading\ForwardAmbient.cs" />
+    <Compile Include="Engine\Rendering\Material.cs" />
+    <Compile Include="Engine\Rendering\Mesh.cs" />
+    <Compile Include="Engine\Rendering\Shading\ForwardSpot.cs" />
+    <Compile Include="Engine\Rendering\Shading\ForwardPoint.cs" />
+    <Compile Include="Engine\Rendering\Shading\ForwardDirectional.cs" />
+    <Compile Include="Engine\Rendering\Shading\Shader.cs" />
+    <Compile Include="Engine\components\BaseLight.cs" />
+    <Compile Include="Engine\Rendering\Shading\BasicShader.cs" />
+    <Compile Include="Engine\components\DirectionalLight.cs" />
+    <Compile Include="Engine\components\PointLight.cs" />
+    <Compile Include="Engine\components\SpotLight.cs" />
+    <Compile Include="Engine\Rendering\Texture.cs" />
+    <Compile Include="Engine\Core\Transform.cs" />
+    <Compile Include="Engine\Core\LogManager.cs" />
+    <Compile Include="Engine\Core\StringExtensions.cs" />
+    <Compile Include="Engine\Core\Util.cs" />
+    <Compile Include="Engine\Core\Vertex.cs" />
+    <Compile Include="Engine\Core\Input.cs" />
+    <Compile Include="Engine\Core\Game.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Configs\App.config" />
+    <None Include="Configs\packages.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
