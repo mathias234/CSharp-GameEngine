@@ -17,47 +17,24 @@ namespace NewEngine.Engine.Rendering.Shading {
             }
         }
 
-        public ForwardSpot() {
-            AddVertexShaderFromFile("forward-spot.vs");
-            AddFragmentShaderFromFile("forward-spot.fs");
-
-            CompileShader();
-
-            AddUniform("model");
-            AddUniform("MVP");
-
-            AddUniform("specularIntensity");
-            AddUniform("specularPower");
-            AddUniform("eyePos");
-
-            AddUniform("spotLight.pointLight.base.color");
-            AddUniform("spotLight.pointLight.base.intensity");
-            AddUniform("spotLight.pointLight.atten.constant");
-            AddUniform("spotLight.pointLight.atten.linear");
-            AddUniform("spotLight.pointLight.atten.exponent");
-            AddUniform("spotLight.pointLight.position");
-            AddUniform("spotLight.pointLight.range");
-
-            AddUniform("spotLight.direction");
-            AddUniform("spotLight.cutoff");
-
+        public ForwardSpot() : base("forward-spot") {
         }
 
-        public override void UpdateUniforms(Transform transform, Material material) {
+        public override void UpdateUniforms(Transform transform, Material material, RenderingEngine renderingEngine) {
             Matrix4 worldMatrix = transform.GetTransformation();
-            Matrix4 projectedMatrix = worldMatrix * RenderingEngine.MainCamera.GetViewProjection();
+            Matrix4 projectedMatrix = worldMatrix * renderingEngine.MainCamera.GetViewProjection();
 
-            material.MainTexture.Bind();
+            material.GetTexture("diffuse").Bind();
 
             SetUniform("model", worldMatrix);
             SetUniform("MVP", projectedMatrix);
 
-            SetUniform("specularIntensity", material.SpecularIntensity);
-            SetUniform("specularPower", material.SpecularPower);
+            SetUniform("specularIntensity", material.GetFloat("specularIntensity"));
+            SetUniform("specularPower", material.GetFloat("specularPower"));
 
-            SetUniform("eyePos", RenderingEngine.MainCamera.Position);
+            SetUniform("eyePos", renderingEngine.MainCamera.Transform.GetTransformedPosition());
 
-            SetUniformSpotLight("spotLight", (SpotLight) RenderingEngine.GetActiveLight);
+            SetUniformSpotLight("spotLight", (SpotLight)renderingEngine.GetActiveLight);
         }
 
         public void SetUniformBaseLight(string uniformName, BaseLight baseLight) {
@@ -70,7 +47,7 @@ namespace NewEngine.Engine.Rendering.Shading {
             SetUniform(uniformName + ".atten.constant", pointLight.Constant);
             SetUniform(uniformName + ".atten.linear", pointLight.Linear);
             SetUniform(uniformName + ".atten.exponent", pointLight.Exponent);
-            SetUniform(uniformName + ".position", pointLight.Transform.Position);
+            SetUniform(uniformName + ".position", pointLight.Transform.GetTransformedPosition());
             SetUniform(uniformName + ".range", pointLight.Range);
         }
 

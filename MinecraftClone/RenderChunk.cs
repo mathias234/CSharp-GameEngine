@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Data.Voxel;
 using Data.Voxel.Map;
 using NewEngine.Engine.components;
 using NewEngine.Engine.Core;
@@ -36,7 +37,8 @@ namespace MinecraftClone {
         public Vector2 Stone = new Vector2(1, 0);
         public Vector2 Sand = new Vector2(2, 1);
         public Vector2 Diamond = new Vector2(2, 3);
-        public float TextureUnit = 0.0625f;
+        
+        public float TextureUnit = 0.0625f; 
         public int TextureCountX = 16;
 
         public float HeightFactor;
@@ -52,14 +54,17 @@ namespace MinecraftClone {
 
         public Material Material;
 
-        public bool HasGeneratedMesh = false;
-        private bool _worldReady = false;
-        private bool _meshGenerationStarted = false;
+        public bool HasGeneratedMesh;
+        private bool _worldReady;
 
 
         public void CreateNewChunk() {
-            Map = new Map(Seed, ChunkPostion, (int)Scale.X, (int)Scale.Y, (int)Scale.Z, HeightFactor, DigDepth, NoiseScale);
+            Map = new Map(Seed, ChunkPostion, (int)Scale.X, (int)Scale.Y, (int)Scale.Z, HeightFactor, DigDepth,
+                NoiseScale);
+
             _worldReady = true;
+            //Thread thread = new Thread(ThreadedUpdate);
+            //thread.Start();
         }
 
         private void StartChunkGeneration() {
@@ -67,41 +72,40 @@ namespace MinecraftClone {
             _normals = new List<Vector3>();
             _indices = new List<int>();
             _uvs = new List<Vector2>();
-            _meshGenerationStarted = true;
 
             for (var x = 0; x < (int)Scale.X; x++) {
                 for (var y = 0; y < (int)Scale.Y; y++) {
                     for (var z = 0; z < (int)Scale.Z; z++) {
-                        if (Map.GetVoxel(x, y, z) != BlockTypes.Air) {
-                            if (Map.GetVoxel(x, y + 1, z) == BlockTypes.Air) {
+                        if (Map.GetVoxel(x,y,z).Type != BlockTypes.Air) {
+                            if (CanSeeThrough(x, y + 1, z)) {
                                 SetTop(x, y, z, Map.GetVoxel(x, y, z));
                             }
-                            if (Map.GetVoxel(x, y - 1, z) == BlockTypes.Air) {
-                                if (Map.GetVoxel(x, y + 1, z) == BlockTypes.Air)
+                            if (CanSeeThrough(x, y - 1, z)) {
+                                if (CanSeeThrough(x, y + 1, z))
                                     SetBottom(x, y, z, Map.GetVoxel(x, y, z), false);
                                 else
                                     SetBottom(x, y, z, Map.GetVoxel(x, y, z), true);
                             }
-                            if (Map.GetVoxel(x + 1, y, z) == BlockTypes.Air) {
-                                if (Map.GetVoxel(x, y + 1, z) == BlockTypes.Air)
+                            if (CanSeeThrough(x + 1, y, z)) {
+                                if (CanSeeThrough(x, y + 1, z))
                                     SetEast(x, y, z, Map.GetVoxel(x, y, z), false);
                                 else
                                     SetEast(x, y, z, Map.GetVoxel(x, y, z), true);
                             }
-                            if (Map.GetVoxel(x - 1, y, z) == BlockTypes.Air) {
-                                if (Map.GetVoxel(x, y + 1, z) == BlockTypes.Air)
+                            if (CanSeeThrough(x - 1, y, z)) {
+                                if (CanSeeThrough(x, y + 1, z))
                                     SetWest(x, y, z, Map.GetVoxel(x, y, z), false);
                                 else
                                     SetWest(x, y, z, Map.GetVoxel(x, y, z), true);
                             }
-                            if (Map.GetVoxel(x, y, z + 1) == BlockTypes.Air) {
-                                if (Map.GetVoxel(x, y + 1, z) == BlockTypes.Air)
+                            if (CanSeeThrough(x, y, z + 1)) {
+                                if (CanSeeThrough(x, y + 1, z))
                                     SetNorth(x, y, z, Map.GetVoxel(x, y, z), false);
                                 else
                                     SetNorth(x, y, z, Map.GetVoxel(x, y, z), true);
                             }
-                            if (Map.GetVoxel(x, y, z - 1) == BlockTypes.Air) {
-                                if (Map.GetVoxel(x, y + 1, z) == BlockTypes.Air)
+                            if (CanSeeThrough(x, y, z - 1)) {
+                                if (CanSeeThrough(x, y + 1, z))
                                     SetSouth(x, y, z, Map.GetVoxel(x, y, z), false);
                                 else
                                     SetSouth(x, y, z, Map.GetVoxel(x, y, z), true);
@@ -113,67 +117,125 @@ namespace MinecraftClone {
             UpdateMesh();
         }
 
-        void SetTop(int x, int y, int z, BlockTypes type) {
+        public bool CanSeeThrough(int x, int y, int z) {
+            if (Map.GetVoxel(x, y, z).Type == BlockTypes.Air || (Map.GetVoxel(x,y,z) .Type== BlockTypes.Water))
+                return true;
 
-            Vector2 texturePos = GetTexturePosForType(type, false, false, true);
+            return false;
+        }
 
-            _vertices.Add(new Vertex(new Vector3(x, y, z + 1), new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y + TextureUnit)), Vector3.UnitY));
-            _vertices.Add(new Vertex(new Vector3(x + 1, y, z + 1), new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y)), Vector3.UnitY));
-            _vertices.Add(new Vertex(new Vector3(x + 1, y, z), new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y)), Vector3.UnitY));
-            _vertices.Add(new Vertex(new Vector3(x, y, z), new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y + TextureUnit)), Vector3.UnitY));
+        public float InvertedMass(int x, int y, int z) {
+            return 1 - Map.GetVoxel(x, y, z).Mass;
+        }
+
+        void SetTop(int x, int y, int z, Voxel voxel) {
+            float waterHeight = (voxel.Type != BlockTypes.Water) ? 0.0f : InvertedMass(x, y, z);
+
+            Vector2 texturePos = GetTexturePosForType(voxel.Type, false, false, true);
+
+            _vertices.Add(new Vertex(new Vector3(x, y - waterHeight, z + 1),
+                new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y + TextureUnit)), Vector3.UnitY));
+            _vertices.Add(new Vertex(new Vector3(x + 1, y - waterHeight, z + 1),
+                new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y)), Vector3.UnitY));
+            _vertices.Add(new Vertex(new Vector3(x + 1, y - waterHeight, z),
+                new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y)), Vector3.UnitY));
+            _vertices.Add(new Vertex(new Vector3(x, y - waterHeight, z),
+                new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y + TextureUnit)),
+                Vector3.UnitY));
+
+
             Cube();
         }
 
-        void SetNorth(int x, int y, int z, BlockTypes type, bool hasBlockAbove) {
-            Vector2 texturePos = GetTexturePosForType(type, hasBlockAbove);
-            _vertices.Add(new Vertex(new Vector3(x + 1, y - 1, z + 1), new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y + TextureUnit)), Vector3.UnitX));
-            _vertices.Add(new Vertex(new Vector3(x + 1, y, z + 1), new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y)), Vector3.UnitX));
-            _vertices.Add(new Vertex(new Vector3(x, y, z + 1), new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y)), Vector3.UnitX));
-            _vertices.Add(new Vertex(new Vector3(x, y - 1, z + 1), new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y + TextureUnit)), Vector3.UnitX));
+        void SetNorth(int x, int y, int z, Voxel voxel, bool hasBlockAbove) {
+            float waterHeight = (voxel.Type != BlockTypes.Water) ? 0.0f : InvertedMass(x, y, z);
+
+            Vector2 texturePos = GetTexturePosForType(voxel.Type, hasBlockAbove);
+            _vertices.Add(new Vertex(new Vector3(x + 1, y - 1, z + 1),
+                new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y + TextureUnit)), Vector3.UnitX));
+            _vertices.Add(new Vertex(new Vector3(x + 1, y - waterHeight, z + 1),
+                new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y)), Vector3.UnitX));
+            _vertices.Add(new Vertex(new Vector3(x, y - waterHeight, z + 1),
+                new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y)), Vector3.UnitX));
+            _vertices.Add(new Vertex(new Vector3(x, y - 1, z + 1),
+                new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y + TextureUnit)),
+                Vector3.UnitX));
 
             Cube();
         }
 
-        void SetEast(int x, int y, int z, BlockTypes type, bool hasBlockAbove) {
-            Vector2 texturePos = GetTexturePosForType(type, hasBlockAbove);
-            _vertices.Add(new Vertex(new Vector3(x + 1, y - 1, z), new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y + TextureUnit)), Vector3.UnitZ));
-            _vertices.Add(new Vertex(new Vector3(x + 1, y, z), new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y)), Vector3.UnitZ));
-            _vertices.Add(new Vertex(new Vector3(x + 1, y, z + 1), new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y)), Vector3.UnitZ));
-            _vertices.Add(new Vertex(new Vector3(x + 1, y - 1, z + 1), new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y + TextureUnit)), Vector3.UnitZ));
+        void SetEast(int x, int y, int z, Voxel voxel, bool hasBlockAbove) {
+            float waterHeight = (voxel.Type != BlockTypes.Water) ? 0.0f : InvertedMass(x, y, z);
+
+            Vector2 texturePos = GetTexturePosForType(voxel.Type, hasBlockAbove);
+
+
+            _vertices.Add(new Vertex(new Vector3(x + 1, y - 1, z),
+                new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y + TextureUnit)), Vector3.UnitZ));
+            _vertices.Add(new Vertex(new Vector3(x + 1, y - waterHeight, z),
+                new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y)), Vector3.UnitZ));
+            _vertices.Add(new Vertex(new Vector3(x + 1, y - waterHeight, z + 1),
+                new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y)), Vector3.UnitZ));
+            _vertices.Add(new Vertex(new Vector3(x + 1, y - 1, z + 1),
+                new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y + TextureUnit)),
+                Vector3.UnitZ));
+
+
             Cube();
         }
 
-        void SetSouth(int x, int y, int z, BlockTypes type, bool hasBlockAbove) {
-            Vector2 texturePos = GetTexturePosForType(type, hasBlockAbove);
+        void SetSouth(int x, int y, int z, Voxel voxel, bool hasBlockAbove) {
+            float waterHeight = (voxel.Type != BlockTypes.Water) ? 0.0f : InvertedMass(x, y, z);
 
-            _vertices.Add(new Vertex(new Vector3(x, y - 1, z), new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y + TextureUnit)), -Vector3.UnitX));
-            _vertices.Add(new Vertex(new Vector3(x, y, z), new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y)), -Vector3.UnitX));
-            _vertices.Add(new Vertex(new Vector3(x + 1, y, z), new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y)), -Vector3.UnitX));
-            _vertices.Add(new Vertex(new Vector3(x + 1, y - 1, z), new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y + TextureUnit)), -Vector3.UnitX));
+            Vector2 texturePos = GetTexturePosForType(voxel.Type, hasBlockAbove);
+
+            _vertices.Add(new Vertex(new Vector3(x, y - 1, z),
+                new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y + TextureUnit)), -Vector3.UnitX));
+            _vertices.Add(new Vertex(new Vector3(x, y- waterHeight, z),
+                new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y)), -Vector3.UnitX));
+            _vertices.Add(new Vertex(new Vector3(x + 1, y - waterHeight, z),
+                new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y)), -Vector3.UnitX));
+            _vertices.Add(new Vertex(new Vector3(x + 1, y - 1, z),
+                new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y + TextureUnit)),
+                -Vector3.UnitX));
             Cube();
         }
 
-        void SetWest(int x, int y, int z, BlockTypes type, bool hasBlockAbove) {
-            Vector2 texturePos = GetTexturePosForType(type, hasBlockAbove);
+        void SetWest(int x, int y, int z, Voxel voxel, bool hasBlockAbove) {
+            float waterHeight = (voxel.Type != BlockTypes.Water) ? 0.0f : InvertedMass(x, y, z);
 
-            _vertices.Add(new Vertex(new Vector3(x, y - 1, z + 1), new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y + TextureUnit)), -Vector3.UnitZ));
-            _vertices.Add(new Vertex(new Vector3(x, y, z + 1), new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y)), -Vector3.UnitZ));
-            _vertices.Add(new Vertex(new Vector3(x, y, z), new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y)), -Vector3.UnitZ));
-            _vertices.Add(new Vertex(new Vector3(x, y - 1, z), new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y + TextureUnit)), -Vector3.UnitZ));
+
+            Vector2 texturePos = GetTexturePosForType(voxel.Type, hasBlockAbove);
+
+            _vertices.Add(new Vertex(new Vector3(x, y - 1, z + 1),
+                new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y + TextureUnit)), -Vector3.UnitZ));
+            _vertices.Add(new Vertex(new Vector3(x, y - waterHeight, z + 1),
+                new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y)), -Vector3.UnitZ));
+            _vertices.Add(new Vertex(new Vector3(x, y - waterHeight, z),
+                new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y)), -Vector3.UnitZ));
+            _vertices.Add(new Vertex(new Vector3(x, y - 1, z),
+                new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y + TextureUnit)),
+                -Vector3.UnitZ));
             Cube();
         }
 
-        void SetBottom(int x, int y, int z, BlockTypes type, bool hasBlockAbove) {
-            Vector2 texturePos = GetTexturePosForType(type, hasBlockAbove, true);
+        void SetBottom(int x, int y, int z, Voxel voxel, bool hasBlockAbove) {
+            Vector2 texturePos = GetTexturePosForType(voxel.Type, hasBlockAbove, true);
 
-            _vertices.Add(new Vertex(new Vector3(x, y - 1, z), new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y + TextureUnit)), -Vector3.UnitY));
-            _vertices.Add(new Vertex(new Vector3(x + 1, y - 1, z), new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y)), -Vector3.UnitY));
-            _vertices.Add(new Vertex(new Vector3(x + 1, y - 1, z + 1), new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y)), -Vector3.UnitY));
-            _vertices.Add(new Vertex(new Vector3(x, y - 1, z + 1), new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y + TextureUnit)), -Vector3.UnitY));
+            _vertices.Add(new Vertex(new Vector3(x, y - 1, z),
+                new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y + TextureUnit)), -Vector3.UnitY));
+            _vertices.Add(new Vertex(new Vector3(x + 1, y - 1, z),
+                new Vector2(TextureUnit * texturePos.X, (TextureUnit * texturePos.Y)), -Vector3.UnitY));
+            _vertices.Add(new Vertex(new Vector3(x + 1, y - 1, z + 1),
+                new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y)), -Vector3.UnitY));
+            _vertices.Add(new Vertex(new Vector3(x, y - 1, z + 1),
+                new Vector2(TextureUnit * texturePos.X + TextureUnit, (TextureUnit * texturePos.Y + TextureUnit)),
+                -Vector3.UnitY));
             Cube();
         }
 
-        Vector2 GetTexturePosForType(BlockTypes type, bool hasBlockAbove = true, bool isBottom = false, bool isTop = false) {
+        Vector2 GetTexturePosForType(BlockTypes type, bool hasBlockAbove = true, bool isBottom = false,
+            bool isTop = false) {
             // 1 = grass
             // 2 = stone
             // 3 = lava
@@ -219,17 +281,40 @@ namespace MinecraftClone {
 
             _mesh = new Mesh(_vertices.ToArray(), _indices.ToArray(), false);
 
+            if (Parent.GetComponent<MeshRenderer>() != null)
+                Parent.ClearComponent(Parent.GetComponent<MeshRenderer>());
+
             Parent.AddComponent(new MeshRenderer(_mesh, Material));
+
+            if (Parent.GetComponent<MeshCollider>() != null)
+                Parent.ClearComponent(Parent.GetComponent<MeshCollider>());
+
             Parent.AddComponent(new MeshCollider(_vertices.ToArray(), _indices.ToArray()));
 
             _faceCount = 0;
             HasGeneratedMesh = true;
         }
 
+        public int updatesSinceLastSimulation;
+
         public override void Update() {
             if (_worldReady && HasGeneratedMesh == false) {
                 StartChunkGeneration();
             }
+            if (updatesSinceLastSimulation == 30) {
+                updatesSinceLastSimulation = 0;
+            }
+            updatesSinceLastSimulation++;
+
         }
+        // WATER SIMULATION
+
+        public void ThreadedUpdate() {
+            //while (true) {
+            //    // since this loop is insainly fast it needs a huge number so we dont update tooo often
+
+            //}
+        }
+
     }
 }

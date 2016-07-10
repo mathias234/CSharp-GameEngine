@@ -18,24 +18,21 @@ namespace NewEngine.Engine.Rendering.Shading {
             }
         }
 
-        public ForwardAmbient() {
-            AddVertexShaderFromFile("forward-ambient.vs");
-            AddFragmentShaderFromFile("forward-ambient.fs");
+        public ForwardAmbient() : base("forward-ambient") {
 
-            CompileShader();
-
-            AddUniform("MVP");
-            AddUniform("ambientIntensity");
         }
 
-        public override void UpdateUniforms(Transform transform, Material material) {
-            Matrix4 worldMatrix = transform.GetTransformation();
-            Matrix4 projectedMatrix = worldMatrix * RenderingEngine.MainCamera.GetViewProjection();
+        public override void UpdateUniforms(Transform transform, Material material, RenderingEngine renderingEngine) {
+            if(renderingEngine.MainCamera == null)
+                return;
 
-            material.MainTexture.Bind();
+            Matrix4 worldMatrix = transform.GetTransformation();
+            Matrix4 projectedMatrix = worldMatrix * renderingEngine.MainCamera.GetViewProjection();
+
+            material.GetTexture("diffuse").Bind();
 
             SetUniform("MVP", projectedMatrix);
-            SetUniform("ambientIntensity", RenderingEngine.GetAmbientLight);
+            SetUniform("ambientIntensity", renderingEngine.GetAmbientLight);
         }
     }
 }

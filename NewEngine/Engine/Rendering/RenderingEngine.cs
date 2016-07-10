@@ -14,10 +14,7 @@ namespace NewEngine.Engine.Rendering {
         private List<BaseLight> _lights;
         private BaseLight _activeLight;
 
-        public static RenderingEngine Instance;
-
         public RenderingEngine() {
-            Instance = this;
             _lights = new List<BaseLight>();
 
             GL.ClearColor(0.37f, 0.59f, 1, 1);
@@ -31,7 +28,7 @@ namespace NewEngine.Engine.Rendering {
 
             GL.Enable(EnableCap.Texture2D);
 
-            _mainCamera = new Camera(MathHelper.DegreesToRadians(70.0f), (float)CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000);
+            //_mainCamera = new Camera(MathHelper.DegreesToRadians(70.0f), (float)CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000);
 
             _ambientLight = new Vector3(0.3f);
         }
@@ -49,9 +46,7 @@ namespace NewEngine.Engine.Rendering {
 
             Shader forwardAmbient = ForwardAmbient.Instance;
 
-            forwardAmbient.RenderingEngine = this;
-
-            gameObject.Render(forwardAmbient);
+            gameObject.Render(forwardAmbient, this);
 
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.One);
@@ -59,10 +54,8 @@ namespace NewEngine.Engine.Rendering {
             GL.DepthFunc(DepthFunction.Equal);
 
             foreach (var light in _lights) {
-                light.Shader.RenderingEngine = this;
-
                 _activeLight = light;
-                gameObject.Render(light.Shader);
+                gameObject.Render(light.Shader, this);
             }
 
 
@@ -108,6 +101,10 @@ namespace NewEngine.Engine.Rendering {
         {
             get { return _mainCamera; }
             set { _mainCamera = value; }
+        }
+
+        public void AddCamera(Camera camera) {
+            MainCamera = camera;
         }
     }
 }

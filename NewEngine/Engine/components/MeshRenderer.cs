@@ -24,9 +24,9 @@ namespace NewEngine.Engine.components {
             set { _mesh = value; }
         }
 
-        public override void Render(Shader shader) {
+        public override void Render(Shader shader, RenderingEngine renderingEngine) {
             shader.Bind();
-            shader.UpdateUniforms(Transform, _material);
+            shader.UpdateUniforms(Transform, _material, renderingEngine);
             _mesh.Draw();
         }
     }

@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using NewEngine.Engine.Physics;
 using NewEngine.Engine.Rendering;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Input;
 
 namespace NewEngine.Engine.Core {
     public class CoreEngine : GameWindow {
@@ -16,12 +18,24 @@ namespace NewEngine.Engine.Core {
         private Game _game;
         private RenderingEngine _renderingEngine;
 
+        private static CoreEngine _getCoreEngine;
+
 
         public CoreEngine(int width, int height, VSyncMode vSync, Game game) : base(width, height, new GraphicsMode(32,24,0,32)) {
+            _getCoreEngine = this;
             _width = width;
             _height = height;
             _game = game;
             _vSync = vSync;
+        }
+
+        public Game Game {
+            get { return _game; }
+            set { _game = value; }
+        }
+
+        public static CoreEngine GetCoreEngine {
+            get { return _getCoreEngine; }
         }
 
         public void CreateWindow(string title) {
@@ -45,8 +59,6 @@ namespace NewEngine.Engine.Core {
         private void Run(object sender, FrameEventArgs e) {
             _game.Update((float)e.Time);
 
-            _renderingEngine.MainCamera.Update((float)e.Time);
-
             PhysicsEngine.Update((float)e.Time);
 
             Input.Update(Mouse);
@@ -54,7 +66,7 @@ namespace NewEngine.Engine.Core {
 
         private void Render(object sender, FrameEventArgs e) {
            // LogManager.Debug(Fps.GetFps(e.Time).ToString());
-            _renderingEngine.Render(_game.GetRootObject);
+            _game.Render(_renderingEngine);
             SwapBuffers();
         }
 
@@ -70,8 +82,8 @@ namespace NewEngine.Engine.Core {
             return _height;
         }
 
-        public Vector2 GetWindowCenter() {
-            return new Vector2((float)GetWidth() /2, (float)GetWidth() /2);
+        public override void Dispose() {
+            base.Dispose();
         }
     }
 }

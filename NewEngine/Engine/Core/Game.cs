@@ -1,6 +1,8 @@
-﻿namespace NewEngine.Engine.Core {
+﻿using NewEngine.Engine.Rendering;
+
+namespace NewEngine.Engine.Core {
     public abstract class Game {
-        private GameObject _root;
+        private GameObject _root = new GameObject();
 
         public virtual void Start() {
         }
@@ -9,7 +11,15 @@
             GetRootObject.Update();
         }
 
-        public GameObject GetRootObject
+        public virtual void Render(RenderingEngine renderingEngine) {
+            renderingEngine.Render(GetRootObject);
+        }
+
+        public void AddObject(GameObject gObj) {
+            _root.AddChild(gObj);
+        }
+
+        private GameObject GetRootObject
         {
             get
             {

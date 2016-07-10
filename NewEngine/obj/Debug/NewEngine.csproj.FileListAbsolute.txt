@@ -12,3 +12,17 @@ C:\Users\matha\OneDrive\Documents\NewEngine\NewEngine\NewEngine\bin\Debug\BEPUut
 C:\Users\matha\OneDrive\Documents\NewEngine\NewEngine\NewEngine\bin\Debug\BEPUik.xml
 C:\Users\matha\OneDrive\Documents\NewEngine\NewEngine\NewEngine\bin\Debug\BEPUphysics.xml
 C:\Users\matha\OneDrive\Documents\NewEngine\NewEngine\NewEngine\bin\Debug\BEPUutilities.xml
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\NewEngine\bin\Debug\NewEngine.dll.config
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\NewEngine\bin\Debug\NewEngine.dll
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\NewEngine\bin\Debug\NewEngine.pdb
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\NewEngine\bin\Debug\BEPUik.dll
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\NewEngine\bin\Debug\BEPUphysics.dll
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\NewEngine\bin\Debug\BEPUutilities.dll
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\NewEngine\bin\Debug\OpenTK.dll
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\NewEngine\bin\Debug\BEPUik.xml
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\NewEngine\bin\Debug\BEPUphysics.xml
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\NewEngine\bin\Debug\BEPUutilities.xml
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\NewEngine\bin\Debug\OpenTK.xml
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\NewEngine\obj\Debug\NewEngine.dll
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\NewEngine\obj\Debug\NewEngine.pdb
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\NewEngine\obj\Debug\NewEngine.csprojResolveAssemblyReference.cache

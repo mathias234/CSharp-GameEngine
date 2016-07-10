@@ -1,4 +1,5 @@
-﻿using NewEngine.Engine.Core;
+﻿using System;
+using NewEngine.Engine.Core;
 using NewEngine.Engine.Rendering;
 using NewEngine.Engine.Rendering.Shading;
 
@@ -11,7 +12,7 @@ namespace NewEngine.Engine.components {
 
         }
 
-        public virtual void Render(Shader shader) {
+        public virtual void Render(Shader shader, RenderingEngine renderingEngine) {
 
         }
 
@@ -30,6 +31,9 @@ namespace NewEngine.Engine.components {
 
         public virtual void AddToRenderingEngine(RenderingEngine renderingEngine) {
 
+        }
+
+        public virtual void OnDestroyed() {
         }
     }
 }

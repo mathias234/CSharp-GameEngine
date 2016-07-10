@@ -24,11 +24,10 @@ namespace NewEngine.Engine.Physics.PhysicsComponents {
         }
 
         public override void OnEnable() {
-            Thread t = new Thread(AddPhysicsObjectThreaded);
-            t.Start();
+            AddPhysicsObjectThreaded();
         }
 
-        // since this operation is slow on some big models, do it in a thread!
+        // since this operation is slow on some big models, do it in a thread, JK!
         private void AddPhysicsObjectThreaded() {
             Vector3[] vertices = new Vector3[_vertices.Length];
 
@@ -36,9 +35,17 @@ namespace NewEngine.Engine.Physics.PhysicsComponents {
                 vertices[i] = ToBepuVector3(_vertices[i].Position);
             }
 
+            // can have more but to be safe this is the number i went with
+            // if you want more split the mesh into more objects
+            if (vertices.Length >= 32296) {
+                LogManager.Error("Too many verticies. ABORTING");
+                return;
+            }
+
             PhysicsObject = new StaticMesh(vertices, _indices, new AffineTransform(ToBepuVector3(Parent.Transform.Position)));
 
             PhysicsEngine.AddToPhysicsEngine(PhysicsObject);
         }
+
     }
 }

@@ -16,6 +16,18 @@ namespace NewEngine.Engine.Core {
             return result.ToArray();
         }
 
+        public static int[] FromNullableIntArray(int?[] nullableArray) {
+            int[] array = new int[nullableArray.Length];
+            for (int i = 0; i < array.Length; i++) {
+
+                var nullable = nullableArray[i];
+
+                if (nullable != null) array[i] = nullable.Value;
+            }
+
+            return array;
+        }
+
         public static Quaternion FromEulerAngles(float yaw, float pitch, float roll) {
             var num1 = roll * 0.5f;
             var num2 = pitch * 0.5f;
@@ -90,5 +102,15 @@ namespace NewEngine.Engine.Core {
             vector3.Z = (float)(((double)num8 - (double)num11) * (double)point.X + ((double)num9 + (double)num10) * (double)point.Y + (1.0 - ((double)num4 + (double)num5)) * (double)point.Z);
             return vector3;
         }
+
+        public static Quaternion Mul(Quaternion baseQuat, Vector3 r) {
+            float w_ = -baseQuat.X * r.X - baseQuat.Y * r.Y - baseQuat.Z * r.Z;
+            float x_ = baseQuat.W * r.X + baseQuat.Y * r.Z - baseQuat.Z * r.Y;
+            float y_ = baseQuat.W * r.Y + baseQuat.Z * r.X - baseQuat.X * r.Z;
+            float z_ = baseQuat.W * r.Z + baseQuat.X * r.Y - baseQuat.Y * r.X;
+
+            return new Quaternion(x_, y_, z_, w_);
+        }
+
     }
 }

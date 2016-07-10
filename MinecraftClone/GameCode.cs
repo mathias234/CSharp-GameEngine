@@ -1,72 +1,57 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
-using System.IO;
 using System.Threading;
-using System.Windows.Forms;
 using Data.Voxel.Map;
 using NewEngine.Engine.components;
 using NewEngine.Engine.Core;
+using NewEngine.Engine.Physics;
 using NewEngine.Engine.Physics.PhysicsComponents;
 using NewEngine.Engine.Rendering;
 using OpenTK;
 using OpenTK.Input;
-using ButtonState = OpenTK.Input.ButtonState;
 
 namespace MinecraftClone {
     public class GameCode : Game {
-        private Vector2 _lastMousePos;
-        private Vector2 _currMousePos;
-        private bool _rotateCamera;
-        private const int InitialChunkAmount = 32;
+        public const int InitialChunkAmount = 10;
 
-        public Vector3 ChunkSize = new Vector3(16, 256, 16);
+        private  static Vector3 _chunkSize = new Vector3(16, 50, 16);
 
         private const int Height = 12;
-        private const int DigDepth = 42;
+        public const int DigDepth = 2;
         public const float NoiseScale = 5;
-        public const int Seed = 52393;
+        public const int Seed = 2132;
 
-        public RenderChunk[,,] renderChunks;
+        public static RenderChunk[,,] renderChunks;
 
         public bool hasGeneratedChunks = false;
 
-        KeyboardState keyboardPreviousState = new KeyboardState();
-        MouseState mousePreviousState = new MouseState();
-
-
         private Material terrainMaterial;
 
+        private GameObject camera;
+
         public override void Start() {
-            terrainMaterial = new Material(new Texture("terrain.png"), Color.White, 1, 16);
+            camera = new GameObject().AddComponent(new Camera(MathHelper.DegreesToRadians(70.0f),
+                (float)CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000));
+            AddObject(camera);
+
+
+            terrainMaterial = new Material();
+            terrainMaterial.AddTexture("diffuse", new Texture("terrain.png", TextureType.Point));
+            terrainMaterial.AddFloat("specularIntensity", 1);
+            terrainMaterial.AddFloat("specularPower", 16);
+
 
             GameObject directionalLightObj = new GameObject();
-            DirectionalLight directionalLight = new DirectionalLight(new Vector3(1), 0.7f, new Vector3(1));
+            DirectionalLight directionalLight = new DirectionalLight(new Vector3(1), 0.7f);
             directionalLightObj.AddComponent(directionalLight);
-            GetRootObject.AddChild(directionalLightObj);
+            directionalLightObj.Transform.Rotation = Quaternion.FromAxisAngle(new Vector3(1, 0, 0), MathHelper.DegreesToRadians(-45));
+            AddObject(directionalLightObj);
 
             Thread thread = new Thread(StartWorldGen);
             thread.Start();
 
             Debug.WriteLine("init done");
         }
-        /*
-        private void CreateGUI() {
-            GameObject uiObject = new GameObject("UISystem");
-            uiObject.Instantiate();
-
-            var crosshair1 = uiObject.AddComponent<UiTextureComponent>();
-            crosshair1.Rect = new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width / 2 - 10, CoreEngine.instance.GraphicsDevice.Viewport.Height / 2 - 2, 20, 4);
-            crosshair1.Texture2D = UISystem.GetDefaultBackground;
-            crosshair1.Color = Color.DarkGray;
-
-            var crosshair2 = uiObject.AddComponent<UiTextureComponent>();
-            crosshair2.Rect = new Rectangle(CoreEngine.instance.GraphicsDevice.Viewport.Width / 2 - 2, CoreEngine.instance.GraphicsDevice.Viewport.Height / 2 - 10, 4, 20);
-            crosshair2.Texture2D = UISystem.GetDefaultBackground;
-            crosshair2.Color = Color.DarkGray;
-
-        }*/
 
         public void StartWorldGen() {
             renderChunks = new RenderChunk[3000, 1, 3000];
@@ -74,7 +59,7 @@ namespace MinecraftClone {
             for (int x = 0; x < InitialChunkAmount; x++) {
                 for (int z = 0; z < InitialChunkAmount; z++) {
                     GameObject chunk1 = new GameObject();
-                    chunk1.Transform.Position = new Vector3(x * ChunkSize.X - 0.5f, 0.5f, z * ChunkSize.Z - 0.5f);
+                    chunk1.Transform.Position = new Vector3(x * _chunkSize.X - 0.5f, 0.5f, z * _chunkSize.Z - 0.5f);
 
                     RenderChunk rChunk1 = new RenderChunk();
 
@@ -82,7 +67,7 @@ namespace MinecraftClone {
 
                     rChunk1.Material = terrainMaterial;
                     rChunk1.ChunkPostion = new Vector3(x, 0, z);
-                    rChunk1.Scale = ChunkSize;
+                    rChunk1.Scale = _chunkSize;
                     rChunk1.HeightFactor = Height;
                     rChunk1.DigDepth = DigDepth;
                     rChunk1.NoiseScale = NoiseScale;
@@ -90,19 +75,19 @@ namespace MinecraftClone {
                     rChunk1.CreateNewChunk();
                     renderChunks[x, 0, z] = rChunk1;
 
-                    GetRootObject.AddChild(chunk1);
+                    AddObject(chunk1);
                 }
             }
 
         }
 
-        public void ChangeBlockAtWorldCoord(Vector3 worldCoord, BlockTypes type) {
+        public static void SetBlockAt(Vector3 worldCoord, BlockTypes type) {
             Debug.WriteLine("hit at worldcoord " + worldCoord);
 
 
-            int chunkX = FloorToInt(worldCoord.X / ChunkSize.X);
+            int chunkX = FloorToInt(worldCoord.X / _chunkSize.X);
             int chunkY = 0;
-            int chunkZ = FloorToInt(worldCoord.Z / ChunkSize.Z);
+            int chunkZ = FloorToInt(worldCoord.Z / _chunkSize.Z);
             Debug.WriteLine("updating " + chunkX + " " + chunkY + " " + chunkZ);
 
             RenderChunk chunk = null;
@@ -116,16 +101,19 @@ namespace MinecraftClone {
 
 
             if (chunk != null) {
-                var blockX = RoundToInt(worldCoord.X - (chunk.ChunkPostion.X * ChunkSize.X));
+                var blockX = RoundToInt(worldCoord.X - (chunk.ChunkPostion.X * _chunkSize.X));
 
                 int blockY = RoundToInt(worldCoord.Y);
 
-                var blockZ = RoundToInt(worldCoord.Z - (chunk.ChunkPostion.Z * ChunkSize.Z));
+                var blockZ = RoundToInt(worldCoord.Z - (chunk.ChunkPostion.Z * _chunkSize.Z));
 
                 if (chunk.Map != null) {
                     Debug.WriteLine("updating block" + blockX + " " + blockY + " " + blockZ);
 
                     chunk.Map.SetVoxel(blockX, blockY, blockZ, type);
+                    if (type == BlockTypes.Water)
+                        chunk.Map.GetVoxel(blockX, blockY, blockZ).Mass = 1;
+
                     chunk.HasGeneratedMesh = false;
                 }
             }
@@ -133,12 +121,36 @@ namespace MinecraftClone {
 
         public override void Update(float deltaTime) {
             base.Update(deltaTime);
-            if (Input.GetKey(Key.B)) {
-                var obj = new GameObject();
-                obj.Transform.Position = RenderingEngine.Instance.MainCamera.Position;
-                obj.AddComponent(new BoxCollider(2,2,2, 30));
-                obj.AddComponent(new MeshRenderer(new Mesh("test.obj"), new Material(new Texture("test.png"), Color.White)));
-                GetRootObject.AddChild(obj);
+            if (Input.GetMouseDown(MouseButton.Left)) {
+                Ray ray = new Ray(camera.Transform.Position, camera.Transform.Forward);
+                RayCastResult hitResult = null;
+                PhysicsEngine.Raycast(ray, 5000, out hitResult);
+
+
+                Vector3 position = hitResult.HitData.Location;
+                position += (hitResult.HitData.Normal * -0.5f);
+
+                Debug.WriteLine(hitResult.HitData.Normal);
+                SetBlockAt(position, BlockTypes.Air);
+            }
+            if (Input.GetMouseDown(MouseButton.Right)) {
+                Ray ray = new Ray(camera.Transform.Position, camera.Transform.Forward);
+                RayCastResult hitResult = null;
+                PhysicsEngine.Raycast(ray, 5000, out hitResult);
+
+
+                Vector3 position = hitResult.HitData.Location;
+                position += (hitResult.HitData.Normal * 0.5f);
+
+                Debug.WriteLine(hitResult.HitData.Normal);
+                SetBlockAt(position, BlockTypes.Sand);
+            }
+            if (Input.GetKeyDown(Key.B)) {
+                GameObject gObj = new GameObject();
+                gObj.Transform.Position = camera.Transform.Position;
+                gObj.AddComponent(new MeshRenderer(new Mesh("monkey3.obj"), new Material().AddTexture("diffuse", new Texture("test.png"))));
+                gObj.AddComponent(new BoxCollider(2, 2, 2, 2));
+                AddObject(gObj);
             }
         }
 

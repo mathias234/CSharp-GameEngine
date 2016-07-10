@@ -2,56 +2,63 @@
 using System.Collections.Generic;
 using System.IO;
 using NewEngine.Engine.Core;
+using NewEngine.Engine.Rendering.MeshLoading;
+using NewEngine.Engine.Rendering.ResourceManagament;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering {
-    public class Mesh {
-        private int _vbo;
-        private int _ibo;
-        private int _size;
+    public class Mesh : IDisposable {
+        private static Dictionary<string, MeshResource> _loadedModels = new Dictionary<string, MeshResource>();
+        private MeshResource _resource;
+        private string _filename;
 
-        public Mesh(string fileName) {
-            GL.GenBuffers(1, out _vbo);
-            GL.GenBuffers(1, out _ibo);
-            _size = 0;
-
-            LoadMesh(fileName);
+        public Mesh(string filename) {
+            _filename = filename;
+            if (_loadedModels.ContainsKey(filename)) {
+                _resource = _loadedModels[filename];
+                _resource.AddReference();
+            }
+            else {
+                _resource = new MeshResource();
+                LogManager.Debug(filename);
+                LoadMesh(filename);
+                _loadedModels.Add(filename, _resource);
+            }
         }
 
         public Mesh(Vertex[] vertices, int[] indices) {
-            InitMeshData();
+            _resource = new MeshResource();
 
             AddVertices(vertices, indices, true);
         }
 
 
         public Mesh(Vertex[] vertices, int[] indices, bool calcNormals) {
-            InitMeshData();
+            _resource = new MeshResource();
+
+            _filename = "";
 
             AddVertices(vertices, indices, calcNormals);
         }
 
-        public void InitMeshData() {
-            GL.GenBuffers(1, out _vbo);
-            GL.GenBuffers(1, out _ibo);
-            _size = 0;
 
-        }
-
-        private void AddVertices(Vertex[] vertices,  int[] indices, bool calcNormals) {
+        private void AddVertices(Vertex[] vertices, int[] indices, bool calcNormals) {
             if (calcNormals) {
                 CalculateNormals(vertices, indices);
             }
 
-            _size = indices.Length;
+            _resource.Size = indices.Length;
 
-            GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, _resource.Vbo);
             GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(vertices.Length * (Vertex.Size * 4)), vertices, BufferUsageHint.StaticDraw);
 
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _ibo);
-            Array.Reverse(indices);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(_size * 4 /* size of int */), indices, BufferUsageHint.StaticDraw);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _resource.Ibo);
+
+            int[] reversedIndices = (int[])indices.Clone();
+
+            Array.Reverse(reversedIndices);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(_resource.Size * 4 /* size of int */), reversedIndices, BufferUsageHint.StaticDraw);
         }
 
         public void Draw() {
@@ -59,14 +66,14 @@ namespace NewEngine.Engine.Rendering {
             GL.EnableVertexAttribArray(1);
             GL.EnableVertexAttribArray(2);
 
-            GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, _resource.Vbo);
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, Vertex.Size * 4, 0);
             GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, Vertex.Size * 4, 12);
             GL.VertexAttribPointer(2, 3, VertexAttribPointerType.Float, false, Vertex.Size * 4, 20);
 
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _ibo);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _resource.Ibo);
 
-            GL.DrawElements(BeginMode.Triangles, _size, DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(BeginMode.Triangles, _resource.Size, DrawElementsType.UnsignedInt, 0);
 
             GL.DisableVertexAttribArray(0);
             GL.DisableVertexAttribArray(1);
@@ -100,46 +107,28 @@ namespace NewEngine.Engine.Rendering {
             string[] splitArray = filename.Split('.');
             string ext = splitArray[splitArray.Length - 1];
 
+
             if (ext != "obj") {
                 LogManager.Error("Error: File format not supported for mesh data: " + ext);
             }
 
+            ObjModel test = new ObjModel(Path.Combine("./res/models", filename));
+            IndexedModel model = test.ToIndexedModel();
+            model.CalculateNormals();
+
             List<Vertex> vertices = new List<Vertex>();
-            List<int> indices = new List<int>();
-
-            try {
-                var reader = new StreamReader(Path.Combine("./res/models", filename));
-                string line;
-
-                while ((line = reader.ReadLine()) != null) {
-                    string[] tokens = line.Split(' ');
-                    tokens = Util.RemoveEmptyStrings(tokens);
-
-                    switch (tokens[0]) {
-                        case "v":
-                            vertices.Add(
-                                new Vertex(new Vector3(tokens[1].ParseInvariantFloat(), tokens[2].ParseInvariantFloat(), tokens[3].ParseInvariantFloat())));
-                            break;
-                        case "f":
-                            indices.Add(int.Parse(tokens[1].Split('/')[0]) - 1);
-                            indices.Add(int.Parse(tokens[2].Split('/')[0]) - 1);
-                            indices.Add(int.Parse(tokens[3].Split('/')[0]) - 1);
-
-                            if (tokens.Length > 4) {
-                                indices.Add(int.Parse(tokens[1].Split('/')[0]) - 1);
-                                indices.Add(int.Parse(tokens[3].Split('/')[0]) - 1);
-                                indices.Add(int.Parse(tokens[4].Split('/')[0]) - 1);
-                            }
-                            break;
-                    }
-                }
-            }
-            catch (Exception e) {
-                LogManager.Error("Failed to load model " + e.Message + " at " + Path.Combine("./res/models", filename));
-                LogManager.Error(e.StackTrace);
+            for (int i = 0; i < model.Positions.Count; i++) {
+                vertices.Add(new Vertex(model.Positions[i], model.TexCoords[i], model.Normals[i]));
             }
 
-            AddVertices(vertices.ToArray(), indices.ToArray(), false);
+
+            AddVertices(vertices.ToArray(), Util.FromNullableIntArray(model.Indices.ToArray()), false);
+        }
+
+        public void Dispose() {
+            if (_resource.RemoveReference() && _filename != "") {
+                _loadedModels.Remove(_filename);
+            }
         }
     }
 }

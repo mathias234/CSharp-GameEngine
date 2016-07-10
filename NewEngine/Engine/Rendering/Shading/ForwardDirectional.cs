@@ -19,40 +19,23 @@ namespace NewEngine.Engine.Rendering.Shading {
             }
         }
 
-        public ForwardDirectional() {
-            AddVertexShaderFromFile("forward-directional.vs");
-            AddFragmentShaderFromFile("forward-directional.fs");
-
-            CompileShader();
-
-
-            AddUniform("model");
-            AddUniform("MVP");
-
-            AddUniform("specularIntensity");
-            AddUniform("specularPower");
-            AddUniform("eyePos");
-
-            AddUniform("directionalLight.base.color");
-            AddUniform("directionalLight.base.intensity");
-            AddUniform("directionalLight.direction");
-
+        public ForwardDirectional() : base("forward-directional") {
         }
 
-        public override void UpdateUniforms(Transform transform, Material material) {
+        public override void UpdateUniforms(Transform transform, Material material, RenderingEngine renderingEngine) {
             Matrix4 worldMatrix = transform.GetTransformation();
-            Matrix4 projectedMatrix = worldMatrix * RenderingEngine.MainCamera.GetViewProjection();
+            Matrix4 projectedMatrix = worldMatrix * renderingEngine.MainCamera.GetViewProjection();
 
-            material.MainTexture.Bind();
+            material.GetTexture("diffuse").Bind();
 
             SetUniform("model", worldMatrix);
             SetUniform("MVP", projectedMatrix);
 
-            SetUniform("specularIntensity", material.SpecularIntensity);
-            SetUniform("specularPower", material.SpecularPower);
+            SetUniform("specularIntensity", material.GetFloat("specularIntensity"));
+            SetUniform("specularPower", material.GetFloat("specularPower"));
 
-            SetUniform("eyePos", RenderingEngine.MainCamera.Position);
-            SetUniformDirectionalLight("directionalLight", (DirectionalLight)RenderingEngine.GetActiveLight);
+            SetUniform("eyePos", renderingEngine.MainCamera.Transform.GetTransformedPosition());
+            SetUniformDirectionalLight("directionalLight", (DirectionalLight)renderingEngine.GetActiveLight);
         }
 
 

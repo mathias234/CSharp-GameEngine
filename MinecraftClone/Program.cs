@@ -14,7 +14,7 @@ namespace WindowsFormsApplication1 {
         /// </summary>
         [STAThread]
         static void Main() {
-            using (var engine = new CoreEngine(1920, 1080, VSyncMode.Off, new GameCode())) {
+            using (var engine = new CoreEngine(800, 600, VSyncMode.Adaptive, new GameCode())) {
                 engine.CreateWindow("TestGame");
                 engine.Start();
             }

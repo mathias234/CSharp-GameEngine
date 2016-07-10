@@ -12,3 +12,17 @@ C:\Users\matha\OneDrive\Documents\NewEngine\NewEngine\Game\bin\Release\BEPUutili
 C:\Users\matha\OneDrive\Documents\NewEngine\NewEngine\Game\obj\Release\Game.csprojResolveAssemblyReference.cache
 C:\Users\matha\OneDrive\Documents\NewEngine\NewEngine\Game\obj\Release\Game.exe
 C:\Users\matha\OneDrive\Documents\NewEngine\NewEngine\Game\obj\Release\Game.pdb
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\Game\bin\Release\Game.exe.config
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\Game\bin\Release\Game.exe
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\Game\bin\Release\Game.pdb
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\Game\bin\Release\NewEngine.dll
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\Game\bin\Release\OpenTK.dll
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\Game\bin\Release\BEPUphysics.dll
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\Game\bin\Release\BEPUutilities.dll
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\Game\bin\Release\NewEngine.pdb
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\Game\bin\Release\OpenTK.xml
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\Game\bin\Release\BEPUphysics.xml
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\Game\bin\Release\BEPUutilities.xml
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\Game\obj\Release\Game.csprojResolveAssemblyReference.cache
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\Game\obj\Release\Game.exe
+C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\Game\obj\Release\Game.pdb

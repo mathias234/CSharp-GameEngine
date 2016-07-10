@@ -70,11 +70,19 @@
     <Compile Include="Engine\Physics\PhysicsComponents\BoxCollider.cs" />
     <Compile Include="Engine\Physics\PhysicsComponents\PhysicsComponent.cs" />
     <Compile Include="Engine\Physics\PhysicsEngine.cs" />
+    <Compile Include="Engine\Physics\Ray.cs" />
+    <Compile Include="Engine\Physics\RayCastResult.cs" />
+    <Compile Include="Engine\Physics\RayHit.cs" />
+    <Compile Include="Engine\Rendering\MeshLoading\IndexedModel.cs" />
+    <Compile Include="Engine\Rendering\MeshLoading\ObjIndex.cs" />
+    <Compile Include="Engine\Rendering\MeshLoading\ObjModel.cs" />
     <Compile Include="Engine\Rendering\RenderingEngine.cs" />
     <Compile Include="Engine\components\MeshRenderer.cs" />
-    <Compile Include="Engine\Rendering\Camera.cs" />
+    <Compile Include="Engine\components\Camera.cs" />
     <Compile Include="Engine\Core\Fps.cs" />
     <Compile Include="Engine\Core\CoreEngine.cs" />
+    <Compile Include="Engine\Rendering\ResourceManagament\MeshResource.cs" />
+    <Compile Include="Engine\Rendering\ResourceManagament\TextureResource.cs" />
     <Compile Include="Engine\Rendering\Shading\ForwardAmbient.cs" />
     <Compile Include="Engine\Rendering\Material.cs" />
     <Compile Include="Engine\Rendering\Mesh.cs" />
@@ -83,7 +91,6 @@
     <Compile Include="Engine\Rendering\Shading\ForwardDirectional.cs" />
     <Compile Include="Engine\Rendering\Shading\Shader.cs" />
     <Compile Include="Engine\components\BaseLight.cs" />
-    <Compile Include="Engine\Rendering\Shading\BasicShader.cs" />
     <Compile Include="Engine\components\DirectionalLight.cs" />
     <Compile Include="Engine\components\PointLight.cs" />
     <Compile Include="Engine\components\SpotLight.cs" />
@@ -102,7 +109,6 @@
     <None Include="Configs\packages.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

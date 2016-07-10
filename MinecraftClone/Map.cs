@@ -17,7 +17,7 @@ namespace Data.Voxel.Map {
     }
 
     public class Map {
-        private BlockTypes[,,] _voxels;
+        private Voxel[,,] _voxels;
         private int _width;
         private int _height;
         private int _depth;
@@ -33,7 +33,7 @@ namespace Data.Voxel.Map {
 
         public Map(int seed, Vector3 chunkPosition, int width, int height, int depth, float heightFactor, int digDepth, float noiseScale) {
             _chunkPosition = chunkPosition;
-            _voxels = new BlockTypes[width, height, depth];
+            _voxels = new Voxel[width, height, depth];
             _width = width;
             _height = height;
             _digDepth = digDepth;
@@ -46,6 +46,7 @@ namespace Data.Voxel.Map {
             for (var x = 0; x < _width; x++) {
                 for (var y = 0; y < _height; y++) {
                     for (var z = 0; z < _depth; z++) {
+
                         GenerateBaseTerrain(x, y, z);
                     }
                 }
@@ -78,7 +79,7 @@ namespace Data.Voxel.Map {
                 for (var y = 0; y < _height; y++) {
                     for (var z = 0; z < _depth; z++) {
                         GenerateOverhang(x, y, z);
-                        GenerateDiamonds(x, y, z);
+                        //GenerateDiamonds(x, y, z);
                     }
                 }
             }
@@ -86,6 +87,7 @@ namespace Data.Voxel.Map {
 
         public void GenerateBaseTerrain(int x, int y, int z) {
             // generate base terrain
+            _voxels[x, y, z] = new Voxel(BlockTypes.Air);
 
             float xCoord = ((_chunkPosition.X + _seed + x / (float)_width) / _scale) - _width;
             float yCoord = ((_chunkPosition.Y + _seed + y / (float)_height) / _scale) - _height;
@@ -96,27 +98,28 @@ namespace Data.Voxel.Map {
             int yPos = y;
 
             if (yPos < curHeight) {
-                _voxels[x, y, z] = BlockTypes.Stone;
+                _voxels[x, y, z].Type = BlockTypes.Stone;
             }
         }
 
         public void GenerateGrassLayer(int x, int y, int z) {
-            if (GetVoxel(x, y + 1, z) == BlockTypes.Air && GetVoxel(x, y, z) == BlockTypes.Stone) {
-                _voxels[x, y, z] = BlockTypes.Grass;
+            if (GetVoxel(x, y + 1, z).Type == BlockTypes.Air && GetVoxel(x, y, z).Type == BlockTypes.Stone) {
+                _voxels[x, y, z].Type = BlockTypes.Grass;
             }
         }
 
         public void GenerateLakes(int x, int y, int z) {
-            if (y <= _digDepth + 2 && y >= _digDepth && GetVoxel(x, y, z) == BlockTypes.Air) {
-                _voxels[x, y, z] = BlockTypes.Water;
+            if (y <= _digDepth + 2 && y >= _digDepth && GetVoxel(x, y, z).Type == BlockTypes.Air) {
+                _voxels[x, y, z].Type = BlockTypes.Water;
+                _voxels[x, y, z].Mass = 1;
             }
         }
 
         public void GenerateBeaches(int x, int y, int z) {
             if (y <= _digDepth + 2 && y >= _digDepth &&
-                (GetVoxel(x, y, z) != BlockTypes.Air && GetVoxel(x, y, z) != BlockTypes.Water)
-                && (GetVoxel(x, y + 1, z) == BlockTypes.Air || GetVoxel(x, y + 1, z) == BlockTypes.Water)) {
-                _voxels[x, y, z] = BlockTypes.Sand;
+                (GetVoxel(x, y, z).Type != BlockTypes.Air && GetVoxel(x, y, z).Type != BlockTypes.Water)
+                && (GetVoxel(x, y + 1, z).Type == BlockTypes.Air || GetVoxel(x, y + 1, z).Type == BlockTypes.Water)) {
+                _voxels[x, y, z].Type = BlockTypes.Sand;
             }
         }
 
@@ -131,8 +134,8 @@ namespace Data.Voxel.Map {
             int curHeight = (int)(Noise.GetNoise(xCoord, yCoord, zCoord) * _heightFactor);
 
             if (curHeight < 2) {
-                if (_voxels[x, y, z] != BlockTypes.Sand && _voxels[x, y, z] != BlockTypes.Water)
-                    _voxels[x, y, z] = BlockTypes.Air;
+                if (_voxels[x, y, z].Type != BlockTypes.Sand && _voxels[x, y, z].Type != BlockTypes.Water)
+                    _voxels[x, y, z].Type = BlockTypes.Air;
             }
         }
 
@@ -148,11 +151,11 @@ namespace Data.Voxel.Map {
             float curHeight = (Noise.GetNoise(xCoord, yCoord, zCoord) * _heightFactor);
 
             if (curHeight < 0.3f && y <= 10) {
-                GenerateCluster(3, x, y, z, BlockTypes.Diamond);
+                GenerateSphere(3, x, y, z, BlockTypes.Diamond);
             }
         }
 
-        public void GenerateCluster(int clusterSize, int x, int y, int z, BlockTypes type) {
+        public void GenerateSphere(int clusterSize, int x, int y, int z, BlockTypes type) {
             int r = clusterSize;
 
             Random random = new Random(_seed * x * y * z);
@@ -163,7 +166,7 @@ namespace Data.Voxel.Map {
                             if (random.Next(0, 30) >= 6) { }
                             else
                                 try {
-                                    _voxels[tx + r + x, ty + r + y, tz + r + z] = type;
+                                    _voxels[tx + r + x, ty + r + y, tz + r + z].Type = type;
                                 }
                                 catch {
                                 }
@@ -176,18 +179,16 @@ namespace Data.Voxel.Map {
 
 
         public void SetVoxel(int x, int y, int z, BlockTypes type) {
-            try {
-                _voxels[x, y, z] = type;
+            if (x >= _width || x < 0 || y >= _height || y < 0 || z >= _depth || z < 0) {
+                return;
             }
-            catch (IndexOutOfRangeException ex) {
-                Debug.WriteLine(ex.ToString());
-            }
+            _voxels[x, y, z].Type = type;
         }
 
-        public BlockTypes GetVoxel(int x, int y, int z) {
+        public Voxel GetVoxel(int x, int y, int z) {
             if (x >= _width || x < 0 || y >= _height || y < 0 || z >= _depth || z < 0) {
                 // to optimize the mesh more we dont render all the chunk edges, just the once on the top( to avoid any wierd bugs )
-                return BlockTypes.Air;
+                return new Voxel(BlockTypes.Air);
             }
 
             return _voxels[x, y, z];

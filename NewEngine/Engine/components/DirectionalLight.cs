@@ -4,18 +4,15 @@ using OpenTK;
 
 namespace NewEngine.Engine.components {
     public class DirectionalLight : BaseLight {
-        private Vector3 _direction;
 
-        public DirectionalLight(Vector3 color, float intensity, Vector3 direction) : base(color, intensity) {
-            _direction = direction.Normalized();
+        public DirectionalLight(Vector3 color, float intensity) : base(color, intensity) {
 
             Shader = ForwardDirectional.Instance;
         }
 
         public Vector3 Direction
         {
-            get { return _direction; }
-            set { _direction = value; }
+            get { return Transform.Forward; }
         }
     }
 }
