@@ -1,9 +1,3 @@
-# MonoGameEngine
-Creating a more gameengine(very similar syntax to unity3d) feel when using monogame
+# New Engine(need a name)
 
-
-**Future Plans:**
-
-- Switch from MonoGame to lowerlevel DirectX or OpenGL
-
-
+written in C# using OpenTK as OpenGL Wrapper
