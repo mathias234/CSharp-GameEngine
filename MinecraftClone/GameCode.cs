@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
+using Data.Voxel;
 using Data.Voxel.Map;
 using NewEngine.Engine.components;
 using NewEngine.Engine.Core;
@@ -14,9 +15,9 @@ using Image = NewEngine.Engine.components.UIComponents.Image;
 
 namespace MinecraftClone {
     public class GameCode : Game {
-        public const int InitialChunkAmount = 10;
+        public const int InitialChunkAmount = 2;
 
-        private  static Vector3 _chunkSize = new Vector3(16, 50, 16);
+        public static Vector3 _chunkSize = new Vector3(16, 50, 16);
 
         private const int Height = 12;
         public const int DigDepth = 2;
@@ -31,9 +32,11 @@ namespace MinecraftClone {
 
         private GameObject camera;
 
+        private WaterSimulation _waterSimulation;
+
         public override void Start() {
             var crossHairY = new GameObject().AddComponent(new Image(new RectTransform(2.5f, 20, 1.25f, 10), new Texture((Bitmap)null)));
-            var crossHairX = new GameObject().AddComponent(new Image(new RectTransform(20, 2.5f, 10, 1.25f), new Texture((Bitmap) null)));
+            var crossHairX = new GameObject().AddComponent(new Image(new RectTransform(20, 2.5f, 10, 1.25f), new Texture((Bitmap)null)));
             AddObject(crossHairY);
             AddObject(crossHairX);
 
@@ -54,10 +57,12 @@ namespace MinecraftClone {
             directionalLightObj.Transform.Rotation = Quaternion.FromAxisAngle(new Vector3(1, 0, 0), MathHelper.DegreesToRadians(-45));
             AddObject(directionalLightObj);
 
-            Thread thread = new Thread(StartWorldGen);
-            thread.Start();
+            StartWorldGen();
 
             Debug.WriteLine("init done");
+            _waterSimulation = new WaterSimulation();
+            Thread t = new Thread(_waterSimulation.Simulate);
+            t.Start();
         }
 
         public void StartWorldGen() {
@@ -86,16 +91,55 @@ namespace MinecraftClone {
                 }
             }
 
+
         }
 
-        public static void SetBlockAt(Vector3 worldCoord, BlockTypes type) {
-            Debug.WriteLine("hit at worldcoord " + worldCoord);
+        public static Voxel GetBlockAt(int x, int y, int z) {
+            return GetBlockAt(new Vector3(x, y, z));
+        }
 
+        public static Voxel GetBlockAt(Vector3 worldCoord) {
+            var size = new Vector3(_chunkSize.X * (float)InitialChunkAmount,
+                                _chunkSize.Y * InitialChunkAmount,
+                                _chunkSize.Z * InitialChunkAmount);
 
             int chunkX = FloorToInt(worldCoord.X / _chunkSize.X);
             int chunkY = 0;
             int chunkZ = FloorToInt(worldCoord.Z / _chunkSize.Z);
-            Debug.WriteLine("updating " + chunkX + " " + chunkY + " " + chunkZ);
+
+            RenderChunk chunk = null;
+
+            if (worldCoord.X >= size.X || worldCoord.X < 0 || worldCoord.Y >= size.Y || worldCoord.Y < 0 || worldCoord.Z >= size.Z || worldCoord.Z < 0) {
+                // to optimize the mesh more we dont render all the chunk edges, just the once on the top( to avoid any wierd bugs )
+                return new Voxel(BlockTypes.Stone);
+            }
+
+
+            chunk = renderChunks[chunkX, chunkY, chunkZ];
+
+
+            if (chunk != null) {
+                var blockX = RoundToInt(worldCoord.X - (chunk.ChunkPostion.X * _chunkSize.X));
+
+                int blockY = RoundToInt(worldCoord.Y);
+
+                var blockZ = RoundToInt(worldCoord.Z - (chunk.ChunkPostion.Z * _chunkSize.Z));
+
+                if (chunk.Map != null) {
+                    return chunk.Map.GetVoxel(blockX, blockY, blockZ);
+                }
+            }
+            return null;
+        }
+
+        public static void SetBlockAt(int x, int y, int z, BlockTypes type) {
+            SetBlockAt(new Vector3(x, y, z), type);
+        }
+
+        public static void SetBlockAt(Vector3 worldCoord, BlockTypes type) {
+            int chunkX = FloorToInt(worldCoord.X / _chunkSize.X);
+            int chunkY = 0;
+            int chunkZ = FloorToInt(worldCoord.Z / _chunkSize.Z);
 
             RenderChunk chunk = null;
 
@@ -103,7 +147,7 @@ namespace MinecraftClone {
                 chunk = renderChunks[chunkX, chunkY, chunkZ];
             }
             catch (IndexOutOfRangeException e) {
-                Debug.WriteLine(e.Message);
+                LogManager.Debug(e.Message);
             }
 
 
@@ -115,8 +159,6 @@ namespace MinecraftClone {
                 var blockZ = RoundToInt(worldCoord.Z - (chunk.ChunkPostion.Z * _chunkSize.Z));
 
                 if (chunk.Map != null) {
-                    Debug.WriteLine("updating block" + blockX + " " + blockY + " " + blockZ);
-
                     chunk.Map.SetVoxel(blockX, blockY, blockZ, type);
                     if (type == BlockTypes.Water)
                         chunk.Map.GetVoxel(blockX, blockY, blockZ).Mass = 1;
@@ -126,7 +168,16 @@ namespace MinecraftClone {
             }
         }
 
+        private int _updatesSinceLastSimulation = 0;
+
         public override void Update(float deltaTime) {
+            if (_updatesSinceLastSimulation == 50) {
+                _waterSimulation.simulate = true;
+                _updatesSinceLastSimulation = 0;
+            }
+
+            _updatesSinceLastSimulation ++;
+
             base.Update(deltaTime);
             if (Input.GetMouseDown(MouseButton.Left)) {
                 Ray ray = new Ray(camera.Transform.Position, camera.Transform.Forward);

@@ -106,7 +106,7 @@ namespace Game {
             testMonkey2.Transform.Position = new Vector3(0, 5, 0);
 
 
-            Image t = new Image(new RectTransform(200, 20, 200, 100));
+            Image t = new Image(new RectTransform(200, 20, 200, 100), new Texture((Bitmap) null));
             GameObject testObject = new GameObject().AddComponent(t);
             AddObject(testObject);
         }
