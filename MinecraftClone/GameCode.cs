@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.Threading;
 using Data.Voxel.Map;
 using NewEngine.Engine.components;
@@ -9,6 +10,7 @@ using NewEngine.Engine.Physics.PhysicsComponents;
 using NewEngine.Engine.Rendering;
 using OpenTK;
 using OpenTK.Input;
+using Image = NewEngine.Engine.components.UIComponents.Image;
 
 namespace MinecraftClone {
     public class GameCode : Game {
@@ -30,6 +32,11 @@ namespace MinecraftClone {
         private GameObject camera;
 
         public override void Start() {
+            var crossHairY = new GameObject().AddComponent(new Image(new RectTransform(2.5f, 20, 1.25f, 10), new Texture((Bitmap)null)));
+            var crossHairX = new GameObject().AddComponent(new Image(new RectTransform(20, 2.5f, 10, 1.25f), new Texture((Bitmap) null)));
+            AddObject(crossHairY);
+            AddObject(crossHairX);
+
             camera = new GameObject().AddComponent(new Camera(MathHelper.DegreesToRadians(70.0f),
                 (float)CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000));
             AddObject(camera);

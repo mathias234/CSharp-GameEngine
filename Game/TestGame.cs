@@ -1,15 +1,19 @@
 ﻿using System.Drawing;
 using NewEngine.Engine.components;
+using NewEngine.Engine.components.UIComponents;
 using NewEngine.Engine.Core;
 using NewEngine.Engine.Rendering;
 using NewEngine.Engine.Rendering.Shading;
 using OpenTK;
 using OpenTK.Input;
+using Image = NewEngine.Engine.components.UIComponents.Image;
 
 namespace Game {
     public class TestGame : NewEngine.Engine.Core.Game {
         private GameObject planeObject2;
         public override void Start() {
+
+
             const float fieldDepth = 100.0f;
             const float fieldWidth = 100.0f;
 
@@ -100,6 +104,11 @@ namespace Game {
             GameObject testMonkey2 = new GameObject().AddComponent(new MeshRenderer(new Mesh("monkey3.obj"), material));
             AddObject(testMonkey2);
             testMonkey2.Transform.Position = new Vector3(0, 5, 0);
+
+
+            Image t = new Image(new RectTransform(200, 20, 200, 100));
+            GameObject testObject = new GameObject().AddComponent(t);
+            AddObject(testObject);
         }
 
         private bool mouseLocked = false;

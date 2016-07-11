@@ -28,13 +28,18 @@ namespace NewEngine.Engine.Rendering {
             }
         }
 
+        public Texture(Bitmap image, TextureType type = TextureType.Linear) {
+            _resource = new TextureResource(LoadTexture(image, type));
+        }
+
         public void Bind() {
             GL.BindTexture(TextureTarget.Texture2D, _resource.Id);
         }
 
-        private static int LoadTexture(string filename, TextureType type) {
+        private static int LoadTexture(Bitmap image, TextureType type) {
             try {
-                Bitmap image = new Bitmap(Path.Combine("./res/textures", filename));
+                if (image == null)
+                    return 0;
 
                 var textureData = image.LockBits(new Rectangle(
                             0, 0, image.Width, image.Height),
@@ -71,6 +76,11 @@ namespace NewEngine.Engine.Rendering {
             }
 
             return 0;
+        }
+
+        private static int LoadTexture(string filename, TextureType type) {
+            Bitmap image = new Bitmap(Path.Combine("./res/textures", filename));
+            return LoadTexture(image, type);
         }
 
         public void Dispose() {

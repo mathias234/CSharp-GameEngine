@@ -20,6 +20,10 @@ namespace NewEngine.Engine.components {
             return cameraMatrix * _projection;
         }
 
+        public Matrix4 GetOrtographicProjection() {
+            return Matrix4.CreateOrthographic(800, 600, 0.1f, 1000.0f);
+        }
+
 
         public override void AddToRenderingEngine(RenderingEngine renderingEngine) {
             renderingEngine.AddCamera(this);

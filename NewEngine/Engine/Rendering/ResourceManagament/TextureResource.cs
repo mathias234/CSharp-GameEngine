@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering.ResourceManagament {
-    class TextureResource : IDisposable {
+   public class TextureResource : IDisposable {
         private int _id;
         private int _refCount;
 

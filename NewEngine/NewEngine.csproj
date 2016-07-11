@@ -65,7 +65,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Engine\components\GameComponent.cs" />
+    <Compile Include="Engine\components\UIComponents\Image.cs" />
+    <Compile Include="Engine\components\UIComponents\UiComponent.cs" />
     <Compile Include="Engine\Core\GameObject.cs" />
+    <Compile Include="Engine\Core\RectTransform.cs" />
     <Compile Include="Engine\Physics\PhysicsComponents\MeshCollider.cs" />
     <Compile Include="Engine\Physics\PhysicsComponents\BoxCollider.cs" />
     <Compile Include="Engine\Physics\PhysicsComponents\PhysicsComponent.cs" />
@@ -94,6 +97,7 @@
     <Compile Include="Engine\components\DirectionalLight.cs" />
     <Compile Include="Engine\components\PointLight.cs" />
     <Compile Include="Engine\components\SpotLight.cs" />
+    <Compile Include="Engine\Rendering\Shading\UI\UIImage.cs" />
     <Compile Include="Engine\Rendering\Texture.cs" />
     <Compile Include="Engine\Core\Transform.cs" />
     <Compile Include="Engine\Core\LogManager.cs" />

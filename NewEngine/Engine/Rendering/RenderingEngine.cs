@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
 using NewEngine.Engine.components;
+using NewEngine.Engine.components.UIComponents;
 using NewEngine.Engine.Core;
 using NewEngine.Engine.Rendering.Shading;
+using NewEngine.Engine.Rendering.Shading.UI;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
@@ -40,6 +42,7 @@ namespace NewEngine.Engine.Rendering {
 
         public void Render(GameObject gameObject) {
             ClearScreen();
+
             _lights.Clear();
 
             gameObject.AddToRenderingEngine(this);
@@ -57,7 +60,6 @@ namespace NewEngine.Engine.Rendering {
                 _activeLight = light;
                 gameObject.Render(light.Shader, this);
             }
-
 
             GL.DepthFunc(DepthFunction.Less);
             GL.DepthMask(true);

@@ -268,6 +268,9 @@ namespace NewEngine.Engine.Rendering.Shading {
         public void SetUniform(string uniformName, Vector3 value) {
             GL.Uniform3(_uniforms[uniformName], value);
         }
+        public void SetUniform(string uniformName, Vector4 value) {
+            GL.Uniform4(_uniforms[uniformName], value);
+        }
         public void SetUniform(string uniformName, Color value) {
             GL.Uniform4(_uniforms[uniformName], value);
         }
