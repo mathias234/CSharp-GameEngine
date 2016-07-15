@@ -7,7 +7,7 @@ namespace NewEngine.Engine.components {
         private Mesh _mesh;
         private Material _material;
 
-        public MeshRenderer(Mesh mesh, Material material) {
+        public MeshRenderer(Mesh mesh, Material material = null) {
             _mesh = mesh;
             _material = material;
         }

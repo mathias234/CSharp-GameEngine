@@ -21,12 +21,13 @@ namespace NewEngine.Engine.Core {
         private static CoreEngine _getCoreEngine;
 
 
-        public CoreEngine(int width, int height, VSyncMode vSync, Game game) : base(width, height, new GraphicsMode(32,24,0,32)) {
+        public CoreEngine(int width, int height, VSyncMode vSync, Game game) : base(width, height, new GraphicsMode(32,24,0,16)) {
             _getCoreEngine = this;
             _width = width;
             _height = height;
             _game = game;
             _vSync = vSync;
+            game.SetEngine(this);
         }
 
         public Game Game {
@@ -36,6 +37,11 @@ namespace NewEngine.Engine.Core {
 
         public static CoreEngine GetCoreEngine {
             get { return _getCoreEngine; }
+        }
+
+        public RenderingEngine RenderingEngine {
+            get { return _renderingEngine; }
+            set { _renderingEngine = value; }
         }
 
         public void CreateWindow(string title) {
@@ -53,10 +59,11 @@ namespace NewEngine.Engine.Core {
             RenderFrame += Render;
             Resize += ResizeWindow;
             VSync = _vSync;
-            Run(60);
+            Run(70, 100);
         }
 
         private void Run(object sender, FrameEventArgs e) {
+            LogManager.Debug(Fps.GetFps(e.Time).ToString());
             _game.Update((float)e.Time);
 
             PhysicsEngine.Update((float)e.Time);
@@ -65,7 +72,6 @@ namespace NewEngine.Engine.Core {
         }
 
         private void Render(object sender, FrameEventArgs e) {
-           // LogManager.Debug(Fps.GetFps(e.Time).ToString());
             _game.Render(_renderingEngine);
             SwapBuffers();
         }

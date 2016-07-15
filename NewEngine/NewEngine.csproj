@@ -9,12 +9,13 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NewEngine</RootNamespace>
     <AssemblyName>NewEngine</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -36,6 +37,12 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ArcManagedFBX">
+      <HintPath>..\packages\ArcManagedFBX.dll</HintPath>
+    </Reference>
+    <Reference Include="ArcManagedFBX.Shared">
+      <HintPath>..\packages\ArcManagedFBX.Shared.dll</HintPath>
+    </Reference>
     <Reference Include="BEPUik, Version=1.4.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\BEPUphysics.1.4.0\lib\net40\BEPUik.dll</HintPath>
       <Private>True</Private>
@@ -64,10 +71,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Engine\components\FreeLook.cs" />
+    <Compile Include="Engine\components\FreeMove.cs" />
     <Compile Include="Engine\components\GameComponent.cs" />
+    <Compile Include="Engine\components\LookAtComponent.cs" />
     <Compile Include="Engine\components\UIComponents\Image.cs" />
     <Compile Include="Engine\components\UIComponents\UiComponent.cs" />
     <Compile Include="Engine\Core\GameObject.cs" />
+    <Compile Include="Engine\Core\QuaternionExtensions.cs" />
     <Compile Include="Engine\Core\RectTransform.cs" />
     <Compile Include="Engine\Physics\PhysicsComponents\MeshCollider.cs" />
     <Compile Include="Engine\Physics\PhysicsComponents\BoxCollider.cs" />
@@ -76,22 +87,22 @@
     <Compile Include="Engine\Physics\Ray.cs" />
     <Compile Include="Engine\Physics\RayCastResult.cs" />
     <Compile Include="Engine\Physics\RayHit.cs" />
+    <Compile Include="Engine\Rendering\Attenuation.cs" />
+    <Compile Include="Engine\Rendering\MeshLoading\FBX\FbxModel.cs" />
     <Compile Include="Engine\Rendering\MeshLoading\IndexedModel.cs" />
-    <Compile Include="Engine\Rendering\MeshLoading\ObjIndex.cs" />
-    <Compile Include="Engine\Rendering\MeshLoading\ObjModel.cs" />
+    <Compile Include="Engine\Rendering\MeshLoading\Obj\ObjIndex.cs" />
+    <Compile Include="Engine\Rendering\MeshLoading\Obj\ObjModel.cs" />
+    <Compile Include="Engine\Rendering\ResourceManagament\ShaderResource.cs" />
     <Compile Include="Engine\Rendering\RenderingEngine.cs" />
     <Compile Include="Engine\components\MeshRenderer.cs" />
     <Compile Include="Engine\components\Camera.cs" />
     <Compile Include="Engine\Core\Fps.cs" />
     <Compile Include="Engine\Core\CoreEngine.cs" />
+    <Compile Include="Engine\Rendering\ResourceManagament\MappedValues.cs" />
     <Compile Include="Engine\Rendering\ResourceManagament\MeshResource.cs" />
     <Compile Include="Engine\Rendering\ResourceManagament\TextureResource.cs" />
-    <Compile Include="Engine\Rendering\Shading\ForwardAmbient.cs" />
     <Compile Include="Engine\Rendering\Material.cs" />
     <Compile Include="Engine\Rendering\Mesh.cs" />
-    <Compile Include="Engine\Rendering\Shading\ForwardSpot.cs" />
-    <Compile Include="Engine\Rendering\Shading\ForwardPoint.cs" />
-    <Compile Include="Engine\Rendering\Shading\ForwardDirectional.cs" />
     <Compile Include="Engine\Rendering\Shading\Shader.cs" />
     <Compile Include="Engine\components\BaseLight.cs" />
     <Compile Include="Engine\components\DirectionalLight.cs" />
@@ -103,7 +114,7 @@
     <Compile Include="Engine\Core\LogManager.cs" />
     <Compile Include="Engine\Core\StringExtensions.cs" />
     <Compile Include="Engine\Core\Util.cs" />
-    <Compile Include="Engine\Core\Vertex.cs" />
+    <Compile Include="Engine\Rendering\Vertex.cs" />
     <Compile Include="Engine\Core\Input.cs" />
     <Compile Include="Engine\Core\Game.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -113,6 +124,7 @@
     <None Include="Configs\packages.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -14,23 +14,31 @@ namespace NewEngine.Engine.Physics {
     public static class PhysicsEngine {
         private static Space _physicsSpace;
 
+        public static void Start() {
+
+        }
+
         public static void Update(float deltaTime) {
             if (_physicsSpace == null) {
-                _physicsSpace = new Space(new ParallelLooper());
-                _physicsSpace.ForceUpdater.Gravity = new BEPUutilities.Vector3(0, -9.81f, 0);
+                return;
             }
 
             _physicsSpace.Update(deltaTime);
         }
 
         public static void AddToPhysicsEngine(ISpaceObject obj) {
-            if(obj == null)
+            if (_physicsSpace == null) {
+                _physicsSpace = new Space(new ParallelLooper());
+                _physicsSpace.ForceUpdater.Gravity = new BEPUutilities.Vector3(0, -9.81f, 0);
+            }
+
+            if (obj == null)
                 return;
             _physicsSpace.Add(obj);
         }
 
         public static void RemoveFromPhysicsEngine(ISpaceObject obj) {
-            if(obj == null)
+            if (obj == null)
                 return;
             _physicsSpace.Remove(obj);
         }
@@ -50,28 +58,26 @@ namespace NewEngine.Engine.Physics {
                 T = tempResult.HitData.T
             };
 
-            //GameObject hitObject = IsMe((ISpaceObject)tempResult.HitObject, CoreEngine.GetCoreEngine.Game.GetRootObject);
+            GameObject hitObject = GetOwner((ISpaceObject)tempResult.HitObject, CoreEngine.GetCoreEngine.Game.GetRootObject);
 
-            result = new RayCastResult(hit, null);
+            result = new RayCastResult(hit, hitObject);
         }
 
         // not sure if this will work
-        public static GameObject IsMe(ISpaceObject obj, GameObject gameObject) {
-            foreach (var component in gameObject.GetComponents()) {
-                var collider = component as PhysicsComponent;
+        public static GameObject GetOwner(ISpaceObject obj, GameObject gameObject) {
+            foreach (var gObj in gameObject.GetAllAttached()) {
+                foreach (var gameComponent in gObj.GetComponents()) {
+                    var collider = gameComponent as PhysicsComponent;
 
-                if (collider == null) continue;
+                    if (collider == null) continue;
 
-                var tempComponent = collider;
-                if (Equals(obj, tempComponent.PhysicsObject)) {
-                    return gameObject;
+                    var tempComponent = collider;
+                    if (Equals(obj, tempComponent.PhysicsObject)) {
+                        return gObj;
+                    }
                 }
-                else {
-                    IsMe(obj, gameObject);
-                }
-
             }
-                return null;
+            return null;
         }
 
         static BEPUutilities.Vector3 ToBepuVector3(Vector3 vector3) {

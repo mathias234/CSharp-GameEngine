@@ -30,7 +30,7 @@ namespace NewEngine.Engine.Physics.PhysicsComponents {
             PhysicsEngine.AddToPhysicsEngine(PhysicsObject);
         }
 
-        public override void Update() {
+        public override void Update(float deltaTime) {
             var obj = (Box)PhysicsObject;
             Parent.Transform.Position = FromBepuVector3(obj.Position);
         }

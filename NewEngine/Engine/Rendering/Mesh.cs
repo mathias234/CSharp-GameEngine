@@ -6,6 +6,8 @@ using NewEngine.Engine.Rendering.MeshLoading;
 using NewEngine.Engine.Rendering.ResourceManagament;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using System.Runtime.InteropServices;
+using NewEngine.Engine.Rendering.MeshLoading.FBX;
 
 namespace NewEngine.Engine.Rendering {
     public class Mesh : IDisposable {
@@ -21,7 +23,6 @@ namespace NewEngine.Engine.Rendering {
             }
             else {
                 _resource = new MeshResource();
-                LogManager.Debug(filename);
                 LoadMesh(filename);
                 _loadedModels.Add(filename, _resource);
             }
@@ -51,7 +52,7 @@ namespace NewEngine.Engine.Rendering {
             _resource.Size = indices.Length;
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, _resource.Vbo);
-            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(vertices.Length * (Vertex.Size * 4)), vertices, BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(vertices.Length * Vertex.SizeInBytes), vertices, BufferUsageHint.StaticDraw);
 
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, _resource.Ibo);
 
@@ -65,11 +66,13 @@ namespace NewEngine.Engine.Rendering {
             GL.EnableVertexAttribArray(0);
             GL.EnableVertexAttribArray(1);
             GL.EnableVertexAttribArray(2);
+            GL.EnableVertexAttribArray(3);
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, _resource.Vbo);
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, Vertex.Size * 4, 0);
-            GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, Vertex.Size * 4, 12);
-            GL.VertexAttribPointer(2, 3, VertexAttribPointerType.Float, false, Vertex.Size * 4, 20);
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, 0);
+            GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, Vector3.SizeInBytes);
+            GL.VertexAttribPointer(2, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, Vector3.SizeInBytes + Vector2.SizeInBytes);
+            GL.VertexAttribPointer(3, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, Vector3.SizeInBytes + Vector2.SizeInBytes + Vector3.SizeInBytes );
 
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, _resource.Ibo);
 
@@ -78,6 +81,7 @@ namespace NewEngine.Engine.Rendering {
             GL.DisableVertexAttribArray(0);
             GL.DisableVertexAttribArray(1);
             GL.DisableVertexAttribArray(2);
+            GL.DisableVertexAttribArray(3);
         }
 
         private void CalculateNormals(Vertex[] vertices, int[] indices) {
@@ -103,26 +107,71 @@ namespace NewEngine.Engine.Rendering {
         }
 
 
+        public void CalculateTangents(Vertex[] vertices) {
+            for (var i = 0; i < vertices.Length; i += 3) {
+                Vector3 v0 = vertices[i + 0].Position;
+
+                Vector3 v1 = Vector3.One;
+                if (i + 1 < vertices.Length)
+                    v1 = vertices[i + 1].Position;
+
+                Vector3 v2 = Vector3.One;
+                if (i + 2 < vertices.Length)
+                    v2 = vertices[i + 2].Position;
+
+                Vector2 uv0 = vertices[i].TexCoord;
+
+                Vector2 uv1 = Vector2.One;
+                if (i + 1 < vertices.Length)
+                    uv1 = vertices[i+1].TexCoord;
+
+                Vector2 uv2 = Vector2.One;
+                if (i + 2 < vertices.Length)
+                    uv2 = vertices[i+2].TexCoord;
+
+                Vector3 deltaPos1 = v1 - v0;
+                Vector3 deltaPos2 = v2 - v0;
+
+                Vector2 deltaUV1 = uv1 - uv0;
+                Vector2 deltaUV2 = uv2 - uv0;
+
+                float r = 1.0f / (deltaUV1.X * deltaUV2.Y - deltaUV1.Y * deltaUV2.X);
+                Vector3 tangent = (deltaPos1 * deltaUV2.Y - deltaPos2 * deltaUV1.Y) * r;
+                Vector3 bitangent = (deltaPos2 * deltaUV1.X - deltaPos1 * deltaUV2.X) * r;
+                vertices[i].Tangent = tangent;
+                if (i + 1 < vertices.Length)
+                    vertices[i+1].Tangent = tangent;
+                if (i + 2 < vertices.Length)
+                    vertices[i+2].Tangent = tangent;
+            }
+        }
+
         private void LoadMesh(string filename) {
             string[] splitArray = filename.Split('.');
             string ext = splitArray[splitArray.Length - 1];
 
+            LogManager.Debug("Loading Mesh: " + filename);
 
-            if (ext != "obj") {
-                LogManager.Error("Error: File format not supported for mesh data: " + ext);
+            switch (ext) {
+                case "obj":
+                    ObjModel test = new ObjModel(Path.Combine("./res/models", filename));
+                    IndexedModel model = test.ToIndexedModel();
+
+                    List<Vertex> vertices = new List<Vertex>();
+                    for (int i = 0; i < model.Positions.Count; i++) {
+                        vertices.Add(new Vertex(model.Positions[i], model.TexCoords[i], model.Normals[i], model.Tangents[i]));
+                    }
+
+                    AddVertices(vertices.ToArray(), Util.FromNullableIntArray(model.Indices.ToArray()), false);
+                    break;
+                case "fbx":
+                    FbxModel fbxModel = new FbxModel(Path.Combine("./res", "models", filename));
+                    break;
+                default:
+                    LogManager.Error("Error: File format not supported for mesh data: " + ext);
+                    break;
             }
 
-            ObjModel test = new ObjModel(Path.Combine("./res/models", filename));
-            IndexedModel model = test.ToIndexedModel();
-            model.CalculateNormals();
-
-            List<Vertex> vertices = new List<Vertex>();
-            for (int i = 0; i < model.Positions.Count; i++) {
-                vertices.Add(new Vertex(model.Positions[i], model.TexCoords[i], model.Normals[i]));
-            }
-
-
-            AddVertices(vertices.ToArray(), Util.FromNullableIntArray(model.Indices.ToArray()), false);
         }
 
         public void Dispose() {

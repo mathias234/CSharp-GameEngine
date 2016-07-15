@@ -3,23 +3,35 @@ using System.Drawing;
 using NewEngine.Engine.components;
 using NewEngine.Engine.components.UIComponents;
 using NewEngine.Engine.Core;
+using NewEngine.Engine.Rendering.ResourceManagament;
 using NewEngine.Engine.Rendering.Shading;
 using NewEngine.Engine.Rendering.Shading.UI;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering {
-    public class RenderingEngine {
+    public class RenderingEngine : MappedValues {
         private Camera _mainCamera;
-        private Vector3 _ambientLight;
 
         private List<BaseLight> _lights;
         private BaseLight _activeLight;
+        private Dictionary<string, int> _samplerMap;
 
-        public RenderingEngine() {
+        private Shader forwardAmbient;
+
+        public RenderingEngine() : base() {
+
             _lights = new List<BaseLight>();
+            _samplerMap = new Dictionary<string, int>();
 
-            GL.ClearColor(0.37f, 0.59f, 1, 1);
+            _samplerMap.Add("diffuse", 0);
+            _samplerMap.Add("normalMap", 1);
+
+            AddVector3("ambient", new Vector3(0.3f));
+
+            forwardAmbient = new Shader("forward-ambient");
+
+            GL.ClearColor(0,0,0,0);
 
             GL.FrontFace(FrontFaceDirection.Cw);
             GL.CullFace(CullFaceMode.Back);
@@ -30,26 +42,16 @@ namespace NewEngine.Engine.Rendering {
 
             GL.Enable(EnableCap.Texture2D);
 
-            //_mainCamera = new Camera(MathHelper.DegreesToRadians(70.0f), (float)CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000);
-
-            _ambientLight = new Vector3(0.3f);
         }
 
-        public Vector3 GetAmbientLight
-        {
-            get { return _ambientLight; }
+        public virtual void UpdateUniformStruct(Transform transform, Material material, Shader shader, string uniformName, string uniformType) {
+            LogManager.Error("Failed to update uniform: " + uniformName + ", not a valid type in Rendering Engine");
         }
 
         public void Render(GameObject gameObject) {
-            ClearScreen();
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
 
-            _lights.Clear();
-
-            gameObject.AddToRenderingEngine(this);
-
-            Shader forwardAmbient = ForwardAmbient.Instance;
-
-            gameObject.Render(forwardAmbient, this);
+            gameObject.RenderAll(forwardAmbient, this);
 
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.One);
@@ -58,33 +60,12 @@ namespace NewEngine.Engine.Rendering {
 
             foreach (var light in _lights) {
                 _activeLight = light;
-                gameObject.Render(light.Shader, this);
+                gameObject.RenderAll(light.Shader, this);
             }
 
             GL.DepthFunc(DepthFunction.Less);
             GL.DepthMask(true);
             GL.Disable(EnableCap.Blend);
-        }
-
-        private static void ClearScreen() {
-            //TODO: Stencil Buffer
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
-        }
-
-        private static void SetTextures(bool enabled) {
-            if (enabled)
-                GL.Enable(EnableCap.Texture2D);
-            else
-                GL.Disable(EnableCap.Texture2D);
-
-        }
-
-        private static void UnbindTextures() {
-            GL.BindTexture(TextureTarget.Texture2D, 0);
-        }
-
-        private static void SetClearColor(Color color) {
-            GL.ClearColor(color);
         }
 
         public static string GetOpenGlVersion() {
@@ -95,7 +76,8 @@ namespace NewEngine.Engine.Rendering {
             _lights.Add(light);
         }
 
-        public BaseLight GetActiveLight {
+        public BaseLight GetActiveLight
+        {
             get { return _activeLight; }
         }
 
@@ -107,6 +89,10 @@ namespace NewEngine.Engine.Rendering {
 
         public void AddCamera(Camera camera) {
             MainCamera = camera;
+        }
+
+        public int GetSamplerSlot(string samplerName) {
+            return _samplerMap[samplerName];
         }
     }
 }

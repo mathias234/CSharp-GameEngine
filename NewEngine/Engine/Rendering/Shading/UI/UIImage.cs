@@ -26,19 +26,5 @@ namespace NewEngine.Engine.Rendering.Shading.UI {
         public UIImage() : base("UIImage") {
 
         }
-
-        public override void UpdateUniforms(Transform transform, Material material, RenderingEngine renderingEngine) {
-            if (renderingEngine.MainCamera == null)
-                return;
-
-            Matrix4 worldMatrix = transform.GetTransformation();
-            Matrix4 projectedMatrix = renderingEngine.MainCamera.GetOrtographicProjection();
-
-
-            SetUniform("projectionMatrix", projectedMatrix);
-
-            material.GetTexture("diffuse").Bind();
-
-        }
     }
 }

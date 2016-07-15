@@ -1,14 +1,15 @@
-﻿using NewEngine.Engine.Rendering.Shading;
+﻿using NewEngine.Engine.Rendering;
+using NewEngine.Engine.Rendering.Shading;
 using OpenTK;
 
 namespace NewEngine.Engine.components {
     public class SpotLight : PointLight {
         float _cutoff;
 
-        public SpotLight(Vector3 color, float intensity, Vector3 attenuation, float cutoff)
+        public SpotLight(Vector3 color, float intensity, Attenuation attenuation, float cutoff)
             :base(color, intensity, attenuation)  {
             _cutoff = cutoff;
-            Shader = ForwardSpot.Instance;
+            Shader = new Shader("forward-spot");
         }
 
         public float Cutoff {

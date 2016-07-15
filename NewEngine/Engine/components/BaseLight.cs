@@ -1,4 +1,5 @@
-﻿using NewEngine.Engine.Rendering;
+﻿using NewEngine.Engine.Core;
+using NewEngine.Engine.Rendering;
 using NewEngine.Engine.Rendering.Shading;
 using OpenTK;
 
@@ -13,8 +14,8 @@ namespace NewEngine.Engine.components {
             this._color = color;
         }
 
-        public override void AddToRenderingEngine(RenderingEngine renderingEngine) {
-            renderingEngine.AddLight(this);
+        public override void AddToEngine(CoreEngine engine) {
+            engine.RenderingEngine.AddLight(this);
         }
 
         public float Intensity {

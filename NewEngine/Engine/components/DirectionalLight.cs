@@ -7,7 +7,7 @@ namespace NewEngine.Engine.components {
 
         public DirectionalLight(Vector3 color, float intensity) : base(color, intensity) {
 
-            Shader = ForwardDirectional.Instance;
+            Shader = new Shader("forward-directional");
         }
 
         public Vector3 Direction

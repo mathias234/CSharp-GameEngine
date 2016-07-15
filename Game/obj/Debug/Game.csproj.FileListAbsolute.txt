@@ -26,3 +26,10 @@ C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\Game\bin\Debug\
 C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\Game\obj\Debug\Game.csprojResolveAssemblyReference.cache
 C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\Game\obj\Debug\Game.exe
 C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\Game\obj\Debug\Game.pdb
+C:\MonoGameEngine\Game\bin\Debug\Game.exe.config
+C:\MonoGameEngine\Builds\Debug\Game.exe.config
+C:\MonoGameEngine\Builds\Debug\Game.exe
+C:\MonoGameEngine\Builds\Debug\Game.pdb
+C:\MonoGameEngine\Game\obj\Debug\Game.csprojResolveAssemblyReference.cache
+C:\MonoGameEngine\Game\obj\Debug\Game.exe
+C:\MonoGameEngine\Game\obj\Debug\Game.pdb

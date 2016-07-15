@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Data.Voxel;
 using Data.Voxel.Map;
+using NewEngine;
 using NewEngine.Engine.components;
 using NewEngine.Engine.Core;
 using NewEngine.Engine.Physics.PhysicsComponents;
@@ -297,7 +298,7 @@ namespace MinecraftClone {
 
         public int updatesSinceLastSimulation;
 
-        public override void Update() {
+        public override void Update(float deltaTime) {
             if (_worldReady && HasGeneratedMesh == false) {
                 StartChunkGeneration();
             }

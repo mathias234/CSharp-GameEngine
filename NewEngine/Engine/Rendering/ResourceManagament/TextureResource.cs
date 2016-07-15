@@ -10,8 +10,8 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
         private int _id;
         private int _refCount;
 
-        public TextureResource(int id) {
-            _id = id;
+        public TextureResource() {
+            GL.GenTextures(1, out _id);
         }
 
         public void AddReference() {

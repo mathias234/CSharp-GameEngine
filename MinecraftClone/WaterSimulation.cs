@@ -24,7 +24,6 @@ namespace MinecraftClone {
 
         public bool simulate;
 
-        private int updatesSinceLastSimulation = 0;
         public void Simulate() {
             while (true) {
                 if (simulate) {
@@ -168,8 +167,6 @@ namespace MinecraftClone {
                 }
             }
 
-            bool needsRegenration = false;
-
             for (int x = 0; x < size.X; x++) {
                 for (int y = 0; y < size.Y; y++) {
                     for (int z = 0; z < size.Z; z++) {
@@ -180,14 +177,12 @@ namespace MinecraftClone {
                             if (GameCode.GetBlockAt(x, y, z).Type == BlockTypes.Water) { }
                             else {
                                 GameCode.SetBlockAt(x, y, z, BlockTypes.Water);
-                                needsRegenration = true;
                             }
                         }
                         else {
                             if (GameCode.GetBlockAt(x, y, z).Type == BlockTypes.Air) { }
                             else {
                                 GameCode.SetBlockAt(x, y, z, BlockTypes.Air);
-                                needsRegenration = true;
                             }
                         }
                     }

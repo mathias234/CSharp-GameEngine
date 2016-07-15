@@ -1,5 +1,6 @@
 ﻿using System;
 using NewEngine.Engine.Core;
+using NewEngine.Engine.Rendering;
 using NewEngine.Engine.Rendering.Shading;
 using OpenTK;
 
@@ -8,15 +9,15 @@ namespace NewEngine.Engine.components {
         private const int ColorDepth = 256;
 
         private float _range;
-        private Vector3 _attenuation;
+        private Attenuation _attenuation;
 
-        public PointLight(Vector3 color, float intensity, Vector3 attenuation) : base(color, intensity) {
+        public PointLight(Vector3 color, float intensity, Attenuation attenuation) : base(color, intensity) {
             _attenuation = attenuation;
-            Shader = ForwardPoint.Instance;
+            Shader = new Shader("forward-point");
 
-            var a = attenuation.Z;
-            var b = attenuation.Y;
-            var c = attenuation.X - ColorDepth * Intensity * Util.MaxOfVector3(color);
+            var a = attenuation.Constant;
+            var b = attenuation.Linear;
+            var c = attenuation.Exponent - ColorDepth * Intensity * Util.MaxOfVector3(color);
 
             _range = (float)(-b + Math.Sqrt(b * b - 4 * a * c))/(2*a);
         }
@@ -26,19 +27,9 @@ namespace NewEngine.Engine.components {
             set { _range = value; }
         }
 
-        public float Constant {
-            get { return _attenuation.X; }
-            set { _attenuation.X = value; }
-        }
-
-        public float Linear {
-            get { return _attenuation.Y; }
-            set { _attenuation.Y = value; }
-        }
-
-        public float Exponent {
-            get { return _attenuation.Z; }
-            set { _attenuation.Z = value; }
+        public Attenuation Attenuation {
+            get { return _attenuation; }
+            set { _attenuation = value; }
         }
     }
 }

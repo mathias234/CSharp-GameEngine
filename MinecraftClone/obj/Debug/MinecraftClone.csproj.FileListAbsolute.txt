@@ -59,3 +59,11 @@ C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\MinecraftClone\
 C:\Users\matha\OneDrive\Documents\GameDevelopment\backupengine\MinecraftClone\bin\Debug\MinecraftClone.exe.config
 C:\Users\matha\OneDrive\Documents\GameDevelopment\backupengine\MinecraftClone\obj\Debug\MinecraftClone.exe
 C:\Users\matha\OneDrive\Documents\GameDevelopment\backupengine\MinecraftClone\obj\Debug\MinecraftClone.pdb
+C:\MonoGameEngine\Builds\Debug\MinecraftClone.exe.config
+C:\MonoGameEngine\Builds\Debug\MinecraftClone.exe
+C:\MonoGameEngine\Builds\Debug\MinecraftClone.pdb
+C:\MonoGameEngine\MinecraftClone\obj\Debug\MinecraftClone.csprojResolveAssemblyReference.cache
+C:\MonoGameEngine\MinecraftClone\obj\Debug\MinecraftClone.Properties.Resources.resources
+C:\MonoGameEngine\MinecraftClone\obj\Debug\MinecraftClone.csproj.GenerateResource.Cache
+C:\MonoGameEngine\MinecraftClone\obj\Debug\MinecraftClone.exe
+C:\MonoGameEngine\MinecraftClone\obj\Debug\MinecraftClone.pdb

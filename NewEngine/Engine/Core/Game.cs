@@ -8,7 +8,7 @@ namespace NewEngine.Engine.Core {
         }
 
         public virtual void Update(float deltaTime) {
-            GetRootObject.Update();
+            GetRootObject.UpdateAll(deltaTime);
         }
 
         public virtual void Render(RenderingEngine renderingEngine) {
@@ -19,7 +19,7 @@ namespace NewEngine.Engine.Core {
             _root.AddChild(gObj);
         }
 
-        private GameObject GetRootObject
+        public GameObject GetRootObject
         {
             get
             {
@@ -27,6 +27,10 @@ namespace NewEngine.Engine.Core {
                     _root = new GameObject();
                 return _root;
             }
+        }
+
+        public void SetEngine(CoreEngine coreEngine) {
+            GetRootObject.Engine = coreEngine;
         }
     }
 }

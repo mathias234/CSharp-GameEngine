@@ -10,15 +10,18 @@ namespace NewEngine.Engine.Core {
         private List<GameObject> _children;
         private List<GameComponent> _components;
         private Transform _transform;
+        private CoreEngine _engine;
 
         public GameObject() {
             _children = new List<GameObject>();
             _components = new List<GameComponent>();
             _transform = new Transform();
+            Engine = null;
         }
 
         public void AddChild(GameObject child) {
             _children.Add(child);
+            child.Engine = Engine;
             child.Transform.Parent = Transform;
         }
 
@@ -37,7 +40,9 @@ namespace NewEngine.Engine.Core {
             _components.Remove(component);
         }
 
-        public void Update() {
+        public void UpdateAll(float deltaTime) {
+            Update(deltaTime);
+
             //TODO: find a more elegant solution
             for (int i = 0; i < _components.Count; i++) {
                 if (_components[i].IsEnabled == false) {
@@ -46,13 +51,21 @@ namespace NewEngine.Engine.Core {
                 }
             }
 
-
-            for (int i = 0; i < _components.Count; i++) {
-                _components[i].Update();
-            }
-
             for (int i = 0; i < _children.Count; i++) {
-                _children[i].Update();
+                _children[i].UpdateAll(deltaTime);
+            }
+        }
+
+        public void RenderAll(Shader shader, RenderingEngine renderingEngine) {
+            Render(shader, renderingEngine);
+            for (int i = 0; i < _children.Count; i++) {
+                _children[i].RenderAll(shader, renderingEngine);
+            }
+        }
+
+        public void Update(float delta) {
+            for (int i = 0; i < _components.Count; i++) {
+                _components[i].Update(delta);
             }
         }
 
@@ -60,11 +73,18 @@ namespace NewEngine.Engine.Core {
             for (int i = 0; i < _components.Count; i++) {
                 _components[i].Render(shader, renderingEngine);
             }
-
-            for (int i = 0; i < _children.Count; i++) {
-                _children[i].Render(shader, renderingEngine);
-            }
         }
+
+
+        public List<GameObject> GetAllAttached() {
+            List<GameObject> result = new List<GameObject> {this};
+            for (int i = 0; i < _children.Count; i++) {
+                GameObject child = _children[i];
+                result.AddRange(child.GetAllAttached());
+            }
+            return result;
+        }
+
 
         public List<GameObject> GetChildren() {
             return _children;
@@ -74,21 +94,29 @@ namespace NewEngine.Engine.Core {
             return _components;
         }
 
-        public void AddToRenderingEngine(RenderingEngine renderingEngine) {
-            for (int i = 0; i < _components.Count; i++) {
-                _components[i].AddToRenderingEngine(renderingEngine);
-            }
-
-            for (int i = 0; i < _children.Count; i++) {
-                _children[i].AddToRenderingEngine(renderingEngine);
-            }
-        }
-
         public Transform Transform
         {
             get { return _transform; }
             set { _transform = value; }
         }
 
+        public CoreEngine Engine
+        {
+            get { return _engine; }
+            set
+            {
+                if (this._engine != value) {
+
+                    _engine = value;
+                    for (int i = 0; i < _components.Count; i++) {
+                        _components[i].AddToEngine(_engine);
+                    }
+
+                    for (int i = 0; i < _children.Count; i++) {
+                        _children[i].Engine = _engine;
+                    }
+                }
+            }
+        }
     }
 }

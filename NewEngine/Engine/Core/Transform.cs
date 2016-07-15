@@ -23,6 +23,15 @@ namespace NewEngine.Engine.Core {
             _rotation = (Quaternion.FromAxisAngle(axis, angle) * _rotation).Normalized();
         }
 
+        public void LookAt(Vector3 point, Vector3 up) {
+            _rotation = GetLookAtDirection(point, up);
+        }
+
+        public Quaternion GetLookAtDirection(Vector3 point, Vector3 up) {
+            return Matrix4.LookAt(Position, point, up).ExtractRotation();
+        }
+
+
         public Matrix4 GetTransformation() {
             var translationMatrix = Matrix4.CreateTranslation(Position);
             Matrix4 rotationMatrix = Matrix4.CreateFromQuaternion(Rotation);

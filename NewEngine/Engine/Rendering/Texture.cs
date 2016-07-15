@@ -23,33 +23,37 @@ namespace NewEngine.Engine.Rendering {
                 _resource.AddReference();
             }
             else {
-                _resource = new TextureResource(LoadTexture(filename, type));
+                _resource = LoadTexture(filename, type);
                 _loadedTextures.Add(filename, _resource);
             }
         }
 
         public Texture(Bitmap image, TextureType type = TextureType.Linear) {
-            _resource = new TextureResource(LoadTexture(image, type));
+            _resource = LoadTexture(image, type);
         }
 
         public void Bind() {
+            Bind(0);
+        }
+
+        public void Bind(int samplerSlot) {
+            GL.ActiveTexture(TextureUnit.Texture0 + samplerSlot);
             GL.BindTexture(TextureTarget.Texture2D, _resource.Id);
         }
 
-        private static int LoadTexture(Bitmap image, TextureType type) {
+        private static TextureResource LoadTexture(Bitmap image, TextureType type) {
             try {
                 if (image == null)
-                    return 0;
+                    return null;
 
                 var textureData = image.LockBits(new Rectangle(
                             0, 0, image.Width, image.Height),
                             System.Drawing.Imaging.ImageLockMode.ReadOnly,
                             System.Drawing.Imaging.PixelFormat.Format32bppRgb);
 
-                int id;
+                TextureResource resource = new TextureResource();
 
-                GL.GenTextures(1, out id);
-                GL.BindTexture(TextureTarget.Texture2D, id);
+                GL.BindTexture(TextureTarget.Texture2D, resource.Id);
 
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
@@ -69,17 +73,23 @@ namespace NewEngine.Engine.Rendering {
 
                 image.UnlockBits(textureData);
 
-                return id;
+                return resource;
             }
             catch (Exception e) {
                 LogManager.Error("Failed to load texture: " + e.Message);
             }
 
-            return 0;
+            return null;
         }
 
-        private static int LoadTexture(string filename, TextureType type) {
-            Bitmap image = new Bitmap(Path.Combine("./res/textures", filename));
+        private static TextureResource LoadTexture(string filename, TextureType type) {
+            Bitmap image;
+            if (File.Exists(Path.Combine("./res/textures", filename)))
+                image = new Bitmap(Path.Combine("./res/textures", filename));
+            else {
+                image = new Bitmap(Path.Combine("./res/textures", "default_normal.png"));
+
+            }
             return LoadTexture(image, type);
         }
 

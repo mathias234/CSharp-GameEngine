@@ -3,43 +3,113 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text;
+using NewEngine.Engine.components;
 using NewEngine.Engine.Core;
+using NewEngine.Engine.Rendering.ResourceManagament;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering.Shading {
-    public class Shader {
-        private int _program;
+    public class Shader : IDisposable {
+        private static Dictionary<string, ShaderResource> _loadedShaders = new Dictionary<string, ShaderResource>();
 
-        private Dictionary<string, int> _uniforms;
+        private ShaderResource _resource;
+
+        private string _filename;
 
         public Shader(string filename) {
-            _program = GL.CreateProgram();
-            _uniforms = new Dictionary<string, int>();
+            this._filename = filename;
 
-            if (_program == 0) {
-                LogManager.Error("Shader creation failed: could not find valid memory location in constructor");
+            if (_loadedShaders.ContainsKey(filename)) {
+                _resource = _loadedShaders[filename];
+                _resource.AddReference();
+            }
+            else {
+                _resource = new ShaderResource();
+
+                string vertexShaderText = LoadShader(filename + ".vs");
+                string fragmentShaderText = LoadShader(filename + ".fs");
+
+                AddVertexShader(vertexShaderText);
+                AddFragmentShader(fragmentShaderText);
+
+                CompileShader();
+
+                AddAllUniforms(vertexShaderText);
+                AddAllUniforms(fragmentShaderText);
+
+                _loadedShaders.Add(filename, _resource);
             }
 
-            string vertexShaderText = LoadShader(filename + ".vs");
-            string fragmentShaderText = LoadShader(filename + ".fs");
-
-            AddVertexShader(vertexShaderText);
-            AddFragmentShader(fragmentShaderText);
-
-            CompileShader();
-
-            AddAllUniforms(vertexShaderText);
-            AddAllUniforms(fragmentShaderText);
         }
 
 
         public void Bind() {
-            GL.UseProgram(_program);
+            GL.UseProgram(_resource.Program);
         }
 
         public virtual void UpdateUniforms(Transform transform, Material material, RenderingEngine renderingEngine) {
+            if(renderingEngine.MainCamera == null)
+                return;
 
+            Matrix4 modelMatrix = transform.GetTransformation();
+            Matrix4 mvpMatrix = modelMatrix * renderingEngine.MainCamera.GetViewProjection();
+            Matrix4 orthoMatrix = renderingEngine.MainCamera.GetOrtographicProjection();
+
+
+            for (int i = 0; i < _resource.UniformNames.Count; i++) {
+                string uniformName = _resource.UniformNames[i];
+                string uniformType = _resource.UniformTypes[i];
+
+                if (uniformType == "sampler2D") {
+                    int samplerSlot = renderingEngine.GetSamplerSlot(uniformName);
+                    material.GetTexture(uniformName).Bind(samplerSlot);
+                    SetUniform(uniformName, samplerSlot);
+                }
+                else if (uniformName.StartsWith("T_")) {
+                    if (uniformName == "T_MVP")
+                        SetUniform(uniformName, mvpMatrix);
+                    else if (uniformName == "T_ORTHO")
+                        SetUniform(uniformName, orthoMatrix);
+                    else if (uniformName == "T_model")
+                        SetUniform(uniformName, modelMatrix);
+                    else
+                        LogManager.Error("Failed to update uniform: " + uniformName + ", not a valid argument of Transform");
+                }
+                else if (uniformName.StartsWith("R_")) {
+                    string unprefixedUniformName = uniformName.Substring(2);
+
+                    if (uniformType == "vec3")
+                        SetUniform(uniformName, renderingEngine.GetVector3(unprefixedUniformName));
+                    else if (uniformType == "float")
+                        SetUniform(uniformName, renderingEngine.GetFloat(unprefixedUniformName));
+                    else if (uniformType == "DirectionalLight")
+                        SetUniformDirectionalLight(uniformName, (DirectionalLight)renderingEngine.GetActiveLight);
+                    else if (uniformType == "PointLight")
+                        SetUniformPointLight(uniformName, (PointLight)renderingEngine.GetActiveLight);
+                    else if (uniformType == "SpotLight")
+                        SetUniformSpotLight(uniformName, (SpotLight)renderingEngine.GetActiveLight);
+                    else
+                        renderingEngine.UpdateUniformStruct(transform, material, this, uniformName, uniformType);
+                }
+                else if (uniformName.StartsWith("C_")) {
+                    if (uniformName == "C_eyePos") {
+                        SetUniform(uniformName, renderingEngine.MainCamera.Transform.GetTransformedPosition());
+                    }
+                    else
+                        LogManager.Error("Failed to update uniform: " + uniformName + ", not a valid argument of Camera");
+                }
+                else {
+                    if (uniformType == "vec3") {
+                        SetUniform(uniformType, material.GetVector3(uniformName));
+                    }
+                    else if (uniformType == "float") {
+                        SetUniform(uniformName, material.GetFloat(uniformName));
+                    }
+                    else
+                        LogManager.Error("Failed to update uniform: " + uniformName + ", not a valid type in Material");
+                }
+            }
         }
 
         private void AddAllUniforms(string shaderText) {
@@ -63,14 +133,16 @@ namespace NewEngine.Engine.Rendering.Shading {
                 string uniformName = uniformLine.Substring(whiteSpacePos + 1, uniformLine.Length - (uniformLine.IndexOf(' ') + 2)).Trim();
                 string uniformType = uniformLine.Substring(0, whiteSpacePos).Trim();
 
+                _resource.UniformNames.Add(uniformName);
+                _resource.UniformTypes.Add(uniformType);
+                AddUniform(uniformName, uniformType, structs);
 
-                AddUniformWithStructCheck(uniformName, uniformType, structs);
 
                 uniformStartLocation = shaderText.IndexOf(uniformKeyWord, uniformStartLocation + uniformKeyWord.Length, StringComparison.Ordinal);
             }
         }
 
-        private void AddUniformWithStructCheck(string uniformName, string uniformType,
+        private void AddUniform(string uniformName, string uniformType,
             Dictionary<string, List<GLSLStruct>> structs) {
 
             bool addThis = true;
@@ -85,12 +157,24 @@ namespace NewEngine.Engine.Rendering.Shading {
                 addThis = false;
 
                 foreach (var glslStruct in structComponents) {
-                    AddUniformWithStructCheck(uniformName + "." + glslStruct.name, glslStruct.type, structs);
+                    AddUniform(uniformName + "." + glslStruct.name, glslStruct.type, structs);
                 }
             }
 
-            if(addThis)
-                AddUniform(uniformName);
+            if (!addThis)
+                return;
+
+            var uniformLocation = GL.GetUniformLocation(_resource.Program, uniformName);
+
+            if (uniformLocation == -1) {
+                LogManager.Error("ERROR: Could not find uniform " + uniformName);
+            }
+            if (!_resource.Uniforms.ContainsKey(uniformName))
+                _resource.Uniforms.Add(uniformName, uniformLocation);
+            else {
+                _resource.Uniforms[uniformName] = uniformLocation;
+            }
+
 
         }
 
@@ -105,9 +189,9 @@ namespace NewEngine.Engine.Rendering.Shading {
             string structKeyword = "struct";
             int structStartLocation = shaderText.IndexOf(structKeyword, StringComparison.Ordinal);
             while (structStartLocation != -1) {
-                if(structStartLocation == 0 &&
-                    (char.IsWhiteSpace(shaderText[structStartLocation-1]) || shaderText[structStartLocation-1] == ';')
-                    && char.IsWhiteSpace((shaderText[structStartLocation+structKeyword.Length])))
+                if (structStartLocation == 0 &&
+                    (char.IsWhiteSpace(shaderText[structStartLocation - 1]) || shaderText[structStartLocation - 1] == ';')
+                    && char.IsWhiteSpace((shaderText[structStartLocation + structKeyword.Length])))
                     continue;
 
                 int nameBegin = structStartLocation + structKeyword.Length + 1;
@@ -187,19 +271,6 @@ namespace NewEngine.Engine.Rendering.Shading {
         }
 
 
-        private void AddUniform(string uniform) {
-            var uniformLocation = GL.GetUniformLocation(_program, uniform);
-
-            if (uniformLocation == -1) {
-                LogManager.Error("ERROR: Could not find uniform " + uniform);
-            }
-            if (!_uniforms.ContainsKey(uniform))
-                _uniforms.Add(uniform, uniformLocation);
-            else {
-                _uniforms[uniform] = uniformLocation;
-            }
-
-        }
 
         private void AddVertexShader(string text) {
             AddProgram(text, ShaderType.VertexShader);
@@ -215,26 +286,26 @@ namespace NewEngine.Engine.Rendering.Shading {
 
 
         private void SetAttribLocation(string attributeName, int location) {
-            GL.BindAttribLocation(_program, location, attributeName);
+            GL.BindAttribLocation(_resource.Program, location, attributeName);
         }
 
         private void CompileShader() {
-            GL.LinkProgram(_program);
+            GL.LinkProgram(_resource.Program);
 
             int programLinkStatus;
-            GL.GetProgram(_program, ProgramParameter.LinkStatus, out programLinkStatus);
+            GL.GetProgram(_resource.Program, ProgramParameter.LinkStatus, out programLinkStatus);
 
             if (programLinkStatus == 0) {
-                LogManager.Error(GL.GetProgramInfoLog(_program));
+                LogManager.Error(GL.GetProgramInfoLog(_resource.Program));
             }
 
-            GL.ValidateProgram(_program);
+            GL.ValidateProgram(_resource.Program);
 
             int programValidateStatus;
-            GL.GetProgram(_program, ProgramParameter.ValidateStatus, out programValidateStatus);
+            GL.GetProgram(_resource.Program, ProgramParameter.ValidateStatus, out programValidateStatus);
 
             if (programValidateStatus == 0) {
-                LogManager.Error(GL.GetProgramInfoLog(_program));
+                LogManager.Error(GL.GetProgramInfoLog(_resource.Program));
             }
 
         }
@@ -256,26 +327,57 @@ namespace NewEngine.Engine.Rendering.Shading {
                 LogManager.Error(GL.GetShaderInfoLog(shader));
             }
 
-            GL.AttachShader(_program, shader);
+            GL.AttachShader(_resource.Program, shader);
         }
 
         public void SetUniform(string uniformName, int value) {
-            GL.Uniform1(_uniforms[uniformName], value);
+            GL.Uniform1(_resource.Uniforms[uniformName], value);
         }
         public void SetUniform(string uniformName, float value) {
-            GL.Uniform1(_uniforms[uniformName], value);
+            GL.Uniform1(_resource.Uniforms[uniformName], value);
         }
         public void SetUniform(string uniformName, Vector3 value) {
-            GL.Uniform3(_uniforms[uniformName], value);
+            GL.Uniform3(_resource.Uniforms[uniformName], value);
         }
         public void SetUniform(string uniformName, Vector4 value) {
-            GL.Uniform4(_uniforms[uniformName], value);
+            GL.Uniform4(_resource.Uniforms[uniformName], value);
         }
         public void SetUniform(string uniformName, Color value) {
-            GL.Uniform4(_uniforms[uniformName], value);
+            GL.Uniform4(_resource.Uniforms[uniformName], value);
         }
         public void SetUniform(string uniformName, Matrix4 value) {
-            GL.UniformMatrix4(_uniforms[uniformName], false, ref value);
+            GL.UniformMatrix4(_resource.Uniforms[uniformName], false, ref value);
+        }
+
+        public void SetUniformBaseLight(string uniformName, BaseLight baseLight) {
+            SetUniform(uniformName + ".color", baseLight.Color);
+            SetUniform(uniformName + ".intensity", baseLight.Intensity);
+        }
+
+        public void SetUniformDirectionalLight(string uniformName, DirectionalLight directionalLight) {
+            SetUniformBaseLight(uniformName + ".base", directionalLight);
+            SetUniform(uniformName + ".direction", directionalLight.Direction);
+        }
+
+        public void SetUniformPointLight(string uniformName, PointLight pointLight) {
+            SetUniformBaseLight(uniformName + ".base", pointLight);
+            SetUniform(uniformName + ".atten.constant", pointLight.Attenuation.Constant);
+            SetUniform(uniformName + ".atten.linear", pointLight.Attenuation.Linear);
+            SetUniform(uniformName + ".atten.exponent", pointLight.Attenuation.Exponent);
+            SetUniform(uniformName + ".position", pointLight.Transform.GetTransformedPosition());
+            SetUniform(uniformName + ".range", pointLight.Range);
+        }
+
+        public void SetUniformSpotLight(string uniformName, SpotLight spotLight) {
+            SetUniformPointLight(uniformName + ".pointLight", spotLight);
+            SetUniform(uniformName + ".direction", spotLight.Direction);
+            SetUniform(uniformName + ".cutoff", spotLight.Cutoff);
+        }
+
+        public void Dispose() {
+            if (_resource.RemoveReference() && _filename != "") {
+                _loadedShaders.Remove(_filename);
+            }
         }
 
         private static string LoadShader(string filename) {

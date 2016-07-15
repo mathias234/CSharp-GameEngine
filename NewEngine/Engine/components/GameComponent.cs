@@ -8,7 +8,7 @@ namespace NewEngine.Engine.components {
         private GameObject _parent;
         public bool IsEnabled;
 
-        public virtual void Update() {
+        public virtual void Update(float deltaTime) {
 
         }
 
@@ -29,11 +29,11 @@ namespace NewEngine.Engine.components {
             set { _parent = value; }
         }
 
-        public virtual void AddToRenderingEngine(RenderingEngine renderingEngine) {
-
+        public virtual void OnDestroyed() {
         }
 
-        public virtual void OnDestroyed() {
+        public virtual void AddToEngine(CoreEngine engine) {
+
         }
     }
 }
