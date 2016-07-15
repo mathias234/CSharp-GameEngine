@@ -40,8 +40,8 @@ namespace MinecraftClone {
             AddObject(crossHairY);
             AddObject(crossHairX);
 
-            camera = new GameObject().AddComponent(new Camera(MathHelper.DegreesToRadians(70.0f),
-                (float)CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000));
+            camera = new GameObject().AddComponent(new Camera(Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f),
+                (float)CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000)));
             AddObject(camera);
 
 

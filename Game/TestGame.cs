@@ -5,6 +5,7 @@ using NewEngine.Engine.components;
 using NewEngine.Engine.Core;
 using NewEngine.Engine.Rendering;
 using OpenTK;
+using OpenTK.Graphics.OpenGL;
 
 namespace Game {
     public class TestGame : NewEngine.Engine.Core.Game {
@@ -24,7 +25,7 @@ namespace Game {
             planeObject.Transform.Position = new Vector3(0, -1, 5);
             AddObject(planeObject);
 
-            AddObject(new GameObject().AddComponent(new FreeLook()).AddComponent(new FreeMove()).AddComponent(new Camera(MathHelper.DegreesToRadians(70.0f), (float)CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000)));
+            AddObject(new GameObject().AddComponent(new FreeLook()).AddComponent(new FreeMove()).AddComponent(new Camera(Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f), (float)CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000))));
 
             Mesh monkey = new Mesh("monkey3.obj");
 

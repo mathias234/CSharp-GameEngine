@@ -17,7 +17,7 @@ namespace NewEngine.Engine.Rendering {
         private TextureResource _resource;
         private string _filename;
 
-        public Texture(string filename, TextureFilter filter = TextureFilter.Linear) {
+        public Texture(string filename, TextureFilter filter = TextureFilter.Linear, FramebufferAttachment attachment = 0) {
             if (_loadedTextures.ContainsKey(filename)) {
                 _resource = _loadedTextures[filename];
                 _resource.AddReference();
@@ -34,12 +34,23 @@ namespace NewEngine.Engine.Rendering {
             }
         }
 
-        public Texture(Bitmap image, TextureFilter filter = TextureFilter.Linear) {
-            _resource = LoadTexture(image, filter);
+        public Texture(Bitmap image, TextureFilter filter = TextureFilter.Linear, FramebufferAttachment attachment = 0) {
+            _resource = LoadTexture(image, filter, attachment);
+        }
+
+        public Texture(IntPtr data, int width, int height, TextureFilter filter = TextureFilter.Linear,
+            FramebufferAttachment attachment = 0) {
+            _resource = LoadTexture(data, width, height, filter, attachment);
+        }
+
+
+        public Texture(char[] data, int width, int height, TextureFilter filter = TextureFilter.Linear,
+            FramebufferAttachment attachment = 0) {
+            _resource = LoadTexture(data, width, height, filter, attachment);
         }
 
         public void BindAsRenderTarget() {
-
+            _resource.BindAsRenderTarget();
         }
 
         public void Bind() {
@@ -51,20 +62,28 @@ namespace NewEngine.Engine.Rendering {
             _resource.Bind(0);
         }
 
-        private static TextureResource LoadTexture(Bitmap image, TextureFilter filter) {
+        private static TextureResource LoadTexture(Bitmap image, TextureFilter filter, FramebufferAttachment attachment) {
+            if (image == null)
+                return null;
+
+
+            var textureData = image.LockBits(new Rectangle(
+                        0, 0, image.Width, image.Height),
+                        System.Drawing.Imaging.ImageLockMode.ReadOnly,
+                        System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+
+            TextureResource resource = LoadTexture(textureData.Scan0, textureData.Width, textureData.Height, filter,
+                attachment);
+
+            image.UnlockBits(textureData);
+
+            return resource;
+        }
+
+        private static TextureResource LoadTexture(char[] data, int width, int height, TextureFilter filter,
+            FramebufferAttachment attachment) {
             try {
-                if (image == null)
-                    return null;
-
-                var textureData = image.LockBits(new Rectangle(
-                            0, 0, image.Width, image.Height),
-                            System.Drawing.Imaging.ImageLockMode.ReadOnly,
-                            System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-
-                TextureResource resource = new TextureResource(1, new[] { textureData }, new[] { filter });
-
-
-                image.UnlockBits(textureData);
+                TextureResource resource = new TextureResource(1, width, height, new List<char[]>() { data }, new[] { filter }, new[] { attachment });
 
                 return resource;
             }
@@ -73,9 +92,26 @@ namespace NewEngine.Engine.Rendering {
             }
 
             return null;
+
         }
 
-        private static TextureResource LoadTexture(string filename, TextureFilter filter) {
+
+        private static TextureResource LoadTexture(IntPtr data, int width, int height, TextureFilter filter,
+            FramebufferAttachment attachment) {
+            try {
+                TextureResource resource = new TextureResource(1, width, height, new IntPtr[]  { data }, new[] { filter }, new[] { attachment });
+
+                return resource;
+            }
+            catch (Exception e) {
+                LogManager.Error("Failed to load texture: " + e.Message);
+            }
+
+            return null;
+
+        }
+
+        private static TextureResource LoadTexture(string filename, TextureFilter filter, FramebufferAttachment attachment = 0) {
             Bitmap image;
             if (File.Exists(Path.Combine("./res/textures", filename)))
                 image = new Bitmap(Path.Combine("./res/textures", filename));
@@ -83,9 +119,9 @@ namespace NewEngine.Engine.Rendering {
                 image = new Bitmap(Path.Combine("./res/textures", "default_normal.png"));
 
             }
-            return LoadTexture(image, filter);
+            return LoadTexture(image, filter, attachment);
         }
 
-   
+
     }
 }

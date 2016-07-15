@@ -7,8 +7,8 @@ namespace NewEngine.Engine.components {
     public class Camera : GameComponent {
         private Matrix4 _projection;
 
-        public Camera(float fov, float aspect, float zNear, float zFar) {
-            _projection = Matrix4.CreatePerspectiveFieldOfView(fov, aspect, zNear, zFar);
+        public Camera(Matrix4 projection) {
+            _projection = projection; //Matrix4.CreatePerspectiveFieldOfView(fov, aspect, zNear, zFar);
 
         }
 

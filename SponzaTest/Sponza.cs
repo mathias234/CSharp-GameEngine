@@ -10,7 +10,7 @@ namespace Game {
         private GameObject PointLight2;
         private GameObject directionalLightObj;
         public override void Start() {
-            AddObject(new GameObject().AddComponent(new FreeLook()).AddComponent(new FreeMove()).AddComponent(new Camera(MathHelper.DegreesToRadians(70.0f), (float)CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000)));
+            AddObject(new GameObject().AddComponent(new FreeLook()).AddComponent(new FreeMove()).AddComponent(new Camera(Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f), (float)CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000))));
 
             //directionalLightObj = new GameObject();
             //DirectionalLight directionalLight = new DirectionalLight(new Vector3(1), 0.7f);
