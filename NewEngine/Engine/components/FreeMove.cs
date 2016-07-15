@@ -27,6 +27,8 @@ namespace NewEngine.Engine.components {
             Vector3 move = (Transform.Forward * input.Z + Transform.Right * input.X) * movAmt;
 
             Transform.Position += move;
+
+            LogManager.Debug(Transform.Position.ToString());
         }
     }
 }

@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 using NewEngine.Engine.Rendering.MeshLoading.FBX;
 
 namespace NewEngine.Engine.Rendering {
-    public class Mesh : IDisposable {
+    public class Mesh {
         private static Dictionary<string, MeshResource> _loadedModels = new Dictionary<string, MeshResource>();
         private MeshResource _resource;
         private string _filename;
@@ -43,6 +43,11 @@ namespace NewEngine.Engine.Rendering {
             AddVertices(vertices, indices, calcNormals);
         }
 
+        ~Mesh() {
+            if (_resource.RemoveReference() && _filename != "") {
+                _loadedModels.Remove(_filename);
+            }
+        }
 
         private void AddVertices(Vertex[] vertices, int[] indices, bool calcNormals) {
             if (calcNormals) {
@@ -172,12 +177,6 @@ namespace NewEngine.Engine.Rendering {
                     break;
             }
 
-        }
-
-        public void Dispose() {
-            if (_resource.RemoveReference() && _filename != "") {
-                _loadedModels.Remove(_filename);
-            }
         }
     }
 }

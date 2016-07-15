@@ -80,6 +80,11 @@ namespace NewEngine.Engine.Core {
             GL.Viewport(0, 0, _width, _height);
         }
 
+        public static void BindAsRenderTarget() {
+            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
+            GL.Viewport(0,0, GetWidth(), GetHeight());
+        }
+
         public static int GetWidth() {
             return _width;
         }

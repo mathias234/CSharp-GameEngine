@@ -7,29 +7,39 @@ using NewEngine.Engine.Rendering.ResourceManagament;
 using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering {
-    public enum TextureType {
+    public enum TextureFilter {
         Linear,
         Point
     }
 
-    public class Texture : IDisposable {
+    public class Texture {
         private static Dictionary<string, TextureResource> _loadedTextures = new Dictionary<string, TextureResource>();
         private TextureResource _resource;
         private string _filename;
 
-        public Texture(string filename, TextureType type = TextureType.Linear) {
+        public Texture(string filename, TextureFilter filter = TextureFilter.Linear) {
             if (_loadedTextures.ContainsKey(filename)) {
                 _resource = _loadedTextures[filename];
                 _resource.AddReference();
             }
             else {
-                _resource = LoadTexture(filename, type);
+                _resource = LoadTexture(filename, filter);
                 _loadedTextures.Add(filename, _resource);
             }
         }
 
-        public Texture(Bitmap image, TextureType type = TextureType.Linear) {
-            _resource = LoadTexture(image, type);
+        ~Texture() {
+            if (_resource.RemoveReference() && _filename != "") {
+                _loadedTextures.Remove(_filename);
+            }
+        }
+
+        public Texture(Bitmap image, TextureFilter filter = TextureFilter.Linear) {
+            _resource = LoadTexture(image, filter);
+        }
+
+        public void BindAsRenderTarget() {
+
         }
 
         public void Bind() {
@@ -38,10 +48,10 @@ namespace NewEngine.Engine.Rendering {
 
         public void Bind(int samplerSlot) {
             GL.ActiveTexture(TextureUnit.Texture0 + samplerSlot);
-            GL.BindTexture(TextureTarget.Texture2D, _resource.Id);
+            _resource.Bind(0);
         }
 
-        private static TextureResource LoadTexture(Bitmap image, TextureType type) {
+        private static TextureResource LoadTexture(Bitmap image, TextureFilter filter) {
             try {
                 if (image == null)
                     return null;
@@ -51,25 +61,8 @@ namespace NewEngine.Engine.Rendering {
                             System.Drawing.Imaging.ImageLockMode.ReadOnly,
                             System.Drawing.Imaging.PixelFormat.Format32bppRgb);
 
-                TextureResource resource = new TextureResource();
+                TextureResource resource = new TextureResource(1, new[] { textureData }, new[] { filter });
 
-                GL.BindTexture(TextureTarget.Texture2D, resource.Id);
-
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
-
-                switch (type) {
-                    case TextureType.Linear:
-                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Linear);
-                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Linear);
-                        break;
-                    case TextureType.Point:
-                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Nearest);
-                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Nearest);
-                        break;
-                }
-
-                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb8, textureData.Width, textureData.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, textureData.Scan0);
 
                 image.UnlockBits(textureData);
 
@@ -82,7 +75,7 @@ namespace NewEngine.Engine.Rendering {
             return null;
         }
 
-        private static TextureResource LoadTexture(string filename, TextureType type) {
+        private static TextureResource LoadTexture(string filename, TextureFilter filter) {
             Bitmap image;
             if (File.Exists(Path.Combine("./res/textures", filename)))
                 image = new Bitmap(Path.Combine("./res/textures", filename));
@@ -90,13 +83,9 @@ namespace NewEngine.Engine.Rendering {
                 image = new Bitmap(Path.Combine("./res/textures", "default_normal.png"));
 
             }
-            return LoadTexture(image, type);
+            return LoadTexture(image, filter);
         }
 
-        public void Dispose() {
-            if (_resource.RemoveReference() && _filename != "") {
-                _loadedTextures.Remove(_filename);
-            }
-        }
+   
     }
 }

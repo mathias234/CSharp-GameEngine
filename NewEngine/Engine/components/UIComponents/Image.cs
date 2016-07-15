@@ -17,8 +17,7 @@ namespace NewEngine.Engine.components.UIComponents {
         public Image(RectTransform rect, Texture texture) {
             _rectTransform = rect;
             _texture = texture;
-            _material = new Material();
-            _material.AddTexture("diffuse", _texture);
+            _material = new Material(_texture);
 
             float texCoordY = 1.0f- (1/Biggest(rect.size.X, rect.size.Y) * (Biggest(rect.size.X, rect.size.Y) - rect.size.Y));
             float texCoordX = 1.0f - (1 / Biggest(rect.size.X, rect.size.Y) * (Biggest(rect.size.X, rect.size.Y) - rect.size.X));

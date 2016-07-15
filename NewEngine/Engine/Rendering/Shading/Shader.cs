@@ -10,7 +10,7 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering.Shading {
-    public class Shader : IDisposable {
+    public class Shader {
         private static Dictionary<string, ShaderResource> _loadedShaders = new Dictionary<string, ShaderResource>();
 
         private ShaderResource _resource;
@@ -43,6 +43,11 @@ namespace NewEngine.Engine.Rendering.Shading {
 
         }
 
+        ~Shader() {
+            if (_resource.RemoveReference() && _filename != "") {
+                _loadedShaders.Remove(_filename);
+            }
+        }
 
         public void Bind() {
             GL.UseProgram(_resource.Program);
@@ -372,12 +377,6 @@ namespace NewEngine.Engine.Rendering.Shading {
             SetUniformPointLight(uniformName + ".pointLight", spotLight);
             SetUniform(uniformName + ".direction", spotLight.Direction);
             SetUniform(uniformName + ".cutoff", spotLight.Cutoff);
-        }
-
-        public void Dispose() {
-            if (_resource.RemoveReference() && _filename != "") {
-                _loadedShaders.Remove(_filename);
-            }
         }
 
         private static string LoadShader(string filename) {

@@ -20,14 +20,16 @@ namespace NewEngine.Engine.Rendering {
         private Shader forwardAmbient;
 
         public RenderingEngine() : base() {
+            CoreEngine.BindAsRenderTarget();
 
             _lights = new List<BaseLight>();
             _samplerMap = new Dictionary<string, int>();
 
             _samplerMap.Add("diffuse", 0);
             _samplerMap.Add("normalMap", 1);
+            _samplerMap.Add("dispMap", 2);
 
-            AddVector3("ambient", new Vector3(0.3f));
+            AddVector3("ambient", new Vector3(0.1f));
 
             forwardAmbient = new Shader("forward-ambient");
 

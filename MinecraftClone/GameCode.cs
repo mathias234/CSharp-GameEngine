@@ -45,10 +45,7 @@ namespace MinecraftClone {
             AddObject(camera);
 
 
-            terrainMaterial = new Material();
-            terrainMaterial.AddTexture("diffuse", new Texture("terrain.png", TextureType.Point));
-            terrainMaterial.AddFloat("specularIntensity", 1);
-            terrainMaterial.AddFloat("specularPower", 16);
+            terrainMaterial = new Material(new Texture("terrain.png", TextureFilter.Point), 1, 16);
 
 
             GameObject directionalLightObj = new GameObject();
@@ -206,7 +203,7 @@ namespace MinecraftClone {
             if (Input.GetKeyDown(Key.B)) {
                 GameObject gObj = new GameObject();
                 gObj.Transform.Position = camera.Transform.Position;
-                gObj.AddComponent(new MeshRenderer(new Mesh("monkey3.obj"), new Material().AddTexture("diffuse", new Texture("test.png"))));
+                gObj.AddComponent(new MeshRenderer(new Mesh("monkey3.obj"), new Material(new Texture("test.png"))));
                 gObj.AddComponent(new BoxCollider(2, 2, 2, 2));
                 AddObject(gObj);
             }

@@ -4,7 +4,7 @@ using NewEngine.Engine.Core;
 using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering.ResourceManagament {
-    public class ShaderResource : IDisposable {
+    public class ShaderResource {
         private int _program;
         private Dictionary<string, int> _uniforms;
         private List<string> _uniformNames;
@@ -22,6 +22,10 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
                 LogManager.Error("Shader creation failed: could not find valid memory location in constructor");
             }
 
+        }
+
+        ~ShaderResource() {
+            GL.DeleteBuffers(1, ref _program);
         }
 
         public void AddReference() {
@@ -51,10 +55,6 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
         public List<string> UniformTypes {
             get { return _uniformTypes; }
             set { _uniformTypes = value; }
-        }
-
-        public void Dispose() {
-            GL.DeleteBuffers(1, ref _program);
         }
     }
 }

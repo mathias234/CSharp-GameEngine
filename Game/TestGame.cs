@@ -14,11 +14,8 @@ namespace Game {
         public override void Start() {
             Mesh mesh = new Mesh("plane.obj");
 
-            Material material = new Material();
-            material.AddTexture("diffuse", new Texture("test.png"));
-            material.AddTexture("normalMap", new Texture("default_normal.png"));
-            material.AddFloat("specularIntensity", 0.9f);
-            material.AddFloat("specularPower", 32);
+            Material material = new Material(new Texture("test.png"));
+
 
             MeshRenderer meshRenderer = new MeshRenderer(mesh, material);
 
@@ -45,6 +42,12 @@ namespace Game {
 
             PointLight2 = new GameObject().AddComponent(new PointLight(new Vector3(0, 1, 0), 0.9f, new Attenuation(0, 1, 0.1f)));
             AddObject(PointLight2);
+
+            GameObject directionalLightObj = new GameObject();
+            DirectionalLight directionalLight = new DirectionalLight(new Vector3(1), 0.7f);
+            directionalLightObj.AddComponent(directionalLight);
+            directionalLightObj.Transform.Rotation = Quaternion.FromAxisAngle(new Vector3(1, 0, 0), MathHelper.DegreesToRadians(-30f));
+            AddObject(directionalLightObj);
         }
 
 

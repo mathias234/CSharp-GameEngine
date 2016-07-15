@@ -67,3 +67,11 @@ C:\MonoGameEngine\MinecraftClone\obj\Debug\MinecraftClone.Properties.Resources.r
 C:\MonoGameEngine\MinecraftClone\obj\Debug\MinecraftClone.csproj.GenerateResource.Cache
 C:\MonoGameEngine\MinecraftClone\obj\Debug\MinecraftClone.exe
 C:\MonoGameEngine\MinecraftClone\obj\Debug\MinecraftClone.pdb
+C:\engine\Builds\Debug\MinecraftClone.exe.config
+C:\engine\Builds\Debug\MinecraftClone.exe
+C:\engine\Builds\Debug\MinecraftClone.pdb
+C:\engine\MinecraftClone\obj\Debug\MinecraftClone.csprojResolveAssemblyReference.cache
+C:\engine\MinecraftClone\obj\Debug\MinecraftClone.Properties.Resources.resources
+C:\engine\MinecraftClone\obj\Debug\MinecraftClone.csproj.GenerateResource.Cache
+C:\engine\MinecraftClone\obj\Debug\MinecraftClone.exe
+C:\engine\MinecraftClone\obj\Debug\MinecraftClone.pdb

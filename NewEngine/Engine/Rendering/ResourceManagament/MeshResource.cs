@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering.ResourceManagament {
-    public class MeshResource : IDisposable {
+    public class MeshResource {
         private int _vbo;
         private int _ibo;
         private int _size;
@@ -18,13 +18,19 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
             _size = 0;
             _refCount = 1;
         }
+        ~MeshResource() {
+            GL.DeleteBuffers(1, ref _vbo);
+            GL.DeleteBuffers(1, ref _ibo);
+        }
 
-        public int Vbo {
+        public int Vbo
+        {
             get { return _vbo; }
             set { _vbo = value; }
         }
 
-        public int Ibo {
+        public int Ibo
+        {
             get { return _ibo; }
             set { _ibo = value; }
         }
@@ -38,14 +44,10 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
             return _refCount == 0;
         }
 
-        public int Size {
+        public int Size
+        {
             get { return _size; }
             set { _size = value; }
-        }
-
-        public void Dispose() {
-            GL.DeleteBuffers(1, ref _vbo);
-            GL.DeleteBuffers(1, ref _ibo);
         }
     }
 }
