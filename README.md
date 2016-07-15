@@ -8,10 +8,12 @@ use mklink /J in each game folder to link to the res folder that contains all th
  mklink /J "C:\engine\builds\debug\res" "C:\engine\res"
 ```
 
+**Known Issues:**
+- Adding UI crashes the game
+
 **Future Plans:**
 
 - Shadow Mapping
-- Parallax Displacement Mapping
 - FXAA or other anti aliasing techniques
 
 

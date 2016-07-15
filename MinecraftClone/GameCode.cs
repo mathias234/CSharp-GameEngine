@@ -35,15 +35,11 @@ namespace MinecraftClone {
         private WaterSimulation _waterSimulation;
 
         public override void Start() {
-            var crossHairY = new GameObject().AddComponent(new Image(new RectTransform(2.5f, 20, 1.25f, 10), new Texture((Bitmap)null)));
-            var crossHairX = new GameObject().AddComponent(new Image(new RectTransform(20, 2.5f, 10, 1.25f), new Texture((Bitmap)null)));
-            AddObject(crossHairY);
-            AddObject(crossHairX);
-
-            camera = new GameObject().AddComponent(new Camera(Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f),
-                (float)CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000)));
-            AddObject(camera);
-
+            //var crossHairY = new GameObject().AddComponent(new Image(new RectTransform(2.5f, 20, 1.25f, 10), new Texture((Bitmap)null)));
+            //var crossHairX = new GameObject().AddComponent(new Image(new RectTransform(20, 2.5f, 10, 1.25f), new Texture((Bitmap)null)));
+            //AddObject(crossHairY);
+            //AddObject(crossHairX);
+            AddObject(new GameObject().AddComponent(new FreeLook()).AddComponent(new FreeMove()).AddComponent(new Camera(Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f), (float)CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000))));
 
             terrainMaterial = new Material(new Texture("terrain.png", TextureFilter.Point), 1, 16);
 
@@ -57,9 +53,6 @@ namespace MinecraftClone {
             StartWorldGen();
 
             Debug.WriteLine("init done");
-            _waterSimulation = new WaterSimulation();
-            Thread t = new Thread(_waterSimulation.Simulate);
-            t.Start();
         }
 
         public void StartWorldGen() {
@@ -168,45 +161,39 @@ namespace MinecraftClone {
         private int _updatesSinceLastSimulation = 0;
 
         public override void Update(float deltaTime) {
-            if (_updatesSinceLastSimulation == 50) {
-                _waterSimulation.simulate = true;
-                _updatesSinceLastSimulation = 0;
-            }
-
-            _updatesSinceLastSimulation ++;
-
             base.Update(deltaTime);
-            if (Input.GetMouseDown(MouseButton.Left)) {
-                Ray ray = new Ray(camera.Transform.Position, camera.Transform.Forward);
-                RayCastResult hitResult = null;
-                PhysicsEngine.Raycast(ray, 5000, out hitResult);
+
+            //if (Input.GetMouseDown(MouseButton.Left)) {
+            //    Ray ray = new Ray(camera.Transform.Position, camera.Transform.Forward);
+            //    RayCastResult hitResult = null;
+            //    PhysicsEngine.Raycast(ray, 5000, out hitResult);
 
 
-                Vector3 position = hitResult.HitData.Location;
-                position += (hitResult.HitData.Normal * -0.5f);
+            //    Vector3 position = hitResult.HitData.Location;
+            //    position += (hitResult.HitData.Normal * -0.5f);
 
-                Debug.WriteLine(hitResult.HitData.Normal);
-                SetBlockAt(position, BlockTypes.Air);
-            }
-            if (Input.GetMouseDown(MouseButton.Right)) {
-                Ray ray = new Ray(camera.Transform.Position, camera.Transform.Forward);
-                RayCastResult hitResult = null;
-                PhysicsEngine.Raycast(ray, 5000, out hitResult);
+            //    Debug.WriteLine(hitResult.HitData.Normal);
+            //    SetBlockAt(position, BlockTypes.Air);
+            //}
+            //if (Input.GetMouseDown(MouseButton.Right)) {
+            //    Ray ray = new Ray(camera.Transform.Position, camera.Transform.Forward);
+            //    RayCastResult hitResult = null;
+            //    PhysicsEngine.Raycast(ray, 5000, out hitResult);
 
 
-                Vector3 position = hitResult.HitData.Location;
-                position += (hitResult.HitData.Normal * 0.5f);
+            //    Vector3 position = hitResult.HitData.Location;
+            //    position += (hitResult.HitData.Normal * 0.5f);
 
-                Debug.WriteLine(hitResult.HitData.Normal);
-                SetBlockAt(position, BlockTypes.Sand);
-            }
-            if (Input.GetKeyDown(Key.B)) {
-                GameObject gObj = new GameObject();
-                gObj.Transform.Position = camera.Transform.Position;
-                gObj.AddComponent(new MeshRenderer(new Mesh("monkey3.obj"), new Material(new Texture("test.png"))));
-                gObj.AddComponent(new BoxCollider(2, 2, 2, 2));
-                AddObject(gObj);
-            }
+            //    Debug.WriteLine(hitResult.HitData.Normal);
+            //    SetBlockAt(position, BlockTypes.Sand);
+            //}
+            //if (Input.GetKeyDown(Key.B)) {
+            //    GameObject gObj = new GameObject();
+            //    gObj.Transform.Position = camera.Transform.Position;
+            //    gObj.AddComponent(new MeshRenderer(new Mesh("monkey3.obj"), new Material(new Texture("test.png"))));
+            //    gObj.AddComponent(new BoxCollider(2, 2, 2, 2));
+            //    AddObject(gObj);
+            //}
         }
 
 

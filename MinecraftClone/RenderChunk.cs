@@ -279,7 +279,6 @@ namespace MinecraftClone {
         }
 
         void UpdateMesh() {
-
             _mesh = new Mesh(_vertices.ToArray(), _indices.ToArray(), false);
 
             if (Parent.GetComponent<MeshRenderer>() != null)

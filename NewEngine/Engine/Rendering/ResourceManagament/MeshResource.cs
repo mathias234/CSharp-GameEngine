@@ -18,9 +18,12 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
             _size = 0;
             _refCount = 1;
         }
+
         ~MeshResource() {
-            GL.DeleteBuffers(1, ref _vbo);
-            GL.DeleteBuffers(1, ref _ibo);
+            if (_refCount == 0) {
+                GL.DeleteBuffers(1, ref _vbo);
+                GL.DeleteBuffers(1, ref _ibo);
+            }
         }
 
         public int Vbo
