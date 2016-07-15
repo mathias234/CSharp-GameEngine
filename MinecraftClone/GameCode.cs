@@ -39,8 +39,9 @@ namespace MinecraftClone {
             //var crossHairX = new GameObject().AddComponent(new Image(new RectTransform(20, 2.5f, 10, 1.25f), new Texture((Bitmap)null)));
             //AddObject(crossHairY);
             //AddObject(crossHairX);
-            AddObject(new GameObject().AddComponent(new FreeLook()).AddComponent(new FreeMove()).AddComponent(new Camera(Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f), (float)CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000))));
 
+            camera = new GameObject().AddComponent(new FreeLook()).AddComponent(new FreeMove()).AddComponent(new Camera(Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f), (float)CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000)));
+            AddObject(camera);
             terrainMaterial = new Material(new Texture("terrain.png", TextureFilter.Point), 1, 16);
 
 
@@ -163,37 +164,37 @@ namespace MinecraftClone {
         public override void Update(float deltaTime) {
             base.Update(deltaTime);
 
-            //if (Input.GetMouseDown(MouseButton.Left)) {
-            //    Ray ray = new Ray(camera.Transform.Position, camera.Transform.Forward);
-            //    RayCastResult hitResult = null;
-            //    PhysicsEngine.Raycast(ray, 5000, out hitResult);
+            if (Input.GetMouseDown(MouseButton.Left)) {
+                Ray ray = new Ray(camera.Transform.Position, camera.Transform.Forward);
+                RayCastResult hitResult = null;
+                PhysicsEngine.Raycast(ray, 5000, out hitResult);
 
 
-            //    Vector3 position = hitResult.HitData.Location;
-            //    position += (hitResult.HitData.Normal * -0.5f);
+                Vector3 position = hitResult.HitData.Location;
+                position += (hitResult.HitData.Normal * -0.5f);
 
-            //    Debug.WriteLine(hitResult.HitData.Normal);
-            //    SetBlockAt(position, BlockTypes.Air);
-            //}
-            //if (Input.GetMouseDown(MouseButton.Right)) {
-            //    Ray ray = new Ray(camera.Transform.Position, camera.Transform.Forward);
-            //    RayCastResult hitResult = null;
-            //    PhysicsEngine.Raycast(ray, 5000, out hitResult);
+                Debug.WriteLine(hitResult.HitData.Normal);
+                SetBlockAt(position, BlockTypes.Air);
+            }
+            if (Input.GetMouseDown(MouseButton.Right)) {
+                Ray ray = new Ray(camera.Transform.Position, camera.Transform.Forward);
+                RayCastResult hitResult = null;
+                PhysicsEngine.Raycast(ray, 5000, out hitResult);
 
 
-            //    Vector3 position = hitResult.HitData.Location;
-            //    position += (hitResult.HitData.Normal * 0.5f);
+                Vector3 position = hitResult.HitData.Location;
+                position += (hitResult.HitData.Normal * 0.5f);
 
-            //    Debug.WriteLine(hitResult.HitData.Normal);
-            //    SetBlockAt(position, BlockTypes.Sand);
-            //}
-            //if (Input.GetKeyDown(Key.B)) {
-            //    GameObject gObj = new GameObject();
-            //    gObj.Transform.Position = camera.Transform.Position;
-            //    gObj.AddComponent(new MeshRenderer(new Mesh("monkey3.obj"), new Material(new Texture("test.png"))));
-            //    gObj.AddComponent(new BoxCollider(2, 2, 2, 2));
-            //    AddObject(gObj);
-            //}
+                Debug.WriteLine(hitResult.HitData.Normal);
+                SetBlockAt(position, BlockTypes.Sand);
+            }
+            if (Input.GetKeyDown(Key.B)) {
+                GameObject gObj = new GameObject();
+                gObj.Transform.Position = camera.Transform.Position;
+                gObj.AddComponent(new MeshRenderer(new Mesh("monkey3.obj"), new Material(new Texture("test.png"))));
+                gObj.AddComponent(new BoxCollider(2, 2, 2, 2));
+                AddObject(gObj);
+            }
         }
 
 

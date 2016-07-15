@@ -25,7 +25,9 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
         }
 
         ~ShaderResource() {
-            GL.DeleteBuffers(1, ref _program);
+            if (GL.IsBuffer(_program)) {
+                GL.DeleteBuffers(1, ref _program);
+            }
         }
 
         public void AddReference() {
@@ -42,17 +44,20 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
             get { return _program; }
         }
 
-        public Dictionary<string, int> Uniforms {
+        public Dictionary<string, int> Uniforms
+        {
             get { return _uniforms; }
             set { _uniforms = value; }
         }
 
-        public List<string> UniformNames {
+        public List<string> UniformNames
+        {
             get { return _uniformNames; }
             set { _uniformNames = value; }
         }
 
-        public List<string> UniformTypes {
+        public List<string> UniformTypes
+        {
             get { return _uniformTypes; }
             set { _uniformTypes = value; }
         }

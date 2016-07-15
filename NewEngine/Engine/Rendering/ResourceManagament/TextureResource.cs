@@ -44,9 +44,11 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
 
         //Destructor
         ~TextureResource() {
-            GL.DeleteBuffers(_numTextures, _id);
-            GL.DeleteFramebuffers(1, ref _frameBuffer);
-            GL.DeleteRenderbuffer(_renderBuffer);
+            if (_refCount == 0) {
+                GL.DeleteBuffers(_numTextures, _id);
+                GL.DeleteFramebuffers(1, ref _frameBuffer);
+                GL.DeleteRenderbuffer(_renderBuffer);
+            }
         }
 
         private void InitRenderTargets(FramebufferAttachment[] attachments) {
