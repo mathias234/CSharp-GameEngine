@@ -1,15 +1,17 @@
 # MonoGameEngine
-Creating a more gameengine(very similar syntax to unity3d) feel when using monogame
+A Game Engine built with C# using OpenTK
 
 Usage:
-use mklink /J in each game folder to link to the NewEngine/res example
+use mklink /J in each game folder to link to the res folder that contains all the resources
 
 ```
- mklink /J "C:\path\to\folder\engine\MinecraftClone\bin\Debug\res" "C:\path\to\folder\engine\NewEngine\res"
+ mklink /J "C:\engine\builds\debug\res" "C:\engine\res"
 ```
 
 **Future Plans:**
 
-- Switch from MonoGame to lowerlevel DirectX or OpenGL
+- Shadow Mapping
+- Parallax Displacement Mapping
+- FXAA or other anti aliasing techniques
 
 
