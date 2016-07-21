@@ -15,7 +15,7 @@ using OpenTK.Input;
 
 namespace MinecraftClone {
     public class GameCode : Game {
-        public const int InitialChunkAmount = 2;
+        public const int InitialChunkAmount = 10;
 
         public static Vector3 _chunkSize = new Vector3(16, 50, 16);
 
