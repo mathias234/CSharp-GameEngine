@@ -30,3 +30,11 @@ C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\MinecraftClone\
 C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\MinecraftClone\bin\Release\OpenTK.dll
 C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\MinecraftClone\bin\Release\NewEngine.pdb
 C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\MinecraftClone\bin\Release\OpenTK.xml
+C:\engine\Builds\Release\MinecraftClone.exe.config
+C:\engine\Builds\Release\MinecraftClone.exe
+C:\engine\Builds\Release\MinecraftClone.pdb
+C:\engine\MinecraftClone\obj\Release\MinecraftClone.csprojResolveAssemblyReference.cache
+C:\engine\MinecraftClone\obj\Release\MinecraftClone.Properties.Resources.resources
+C:\engine\MinecraftClone\obj\Release\MinecraftClone.csproj.GenerateResource.Cache
+C:\engine\MinecraftClone\obj\Release\MinecraftClone.exe
+C:\engine\MinecraftClone\obj\Release\MinecraftClone.pdb

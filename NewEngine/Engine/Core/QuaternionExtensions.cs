@@ -21,14 +21,14 @@ namespace NewEngine.Engine.Core {
             if (Math.Abs(cos) >= 1 - EPSILON)
                 return Nlerp(quaternion, correctedDest, lerpFactor, false);
 
-            float sin = (float) Math.Sqrt(1.0f - cos*cos);
-            float angle = (float) Math.Atan2(sin, cos);
-            float invSin = 1.0f/sin;
+            float sin = (float)Math.Sqrt(1.0f - cos * cos);
+            float angle = (float)Math.Atan2(sin, cos);
+            float invSin = 1.0f / sin;
 
-            float srcFactor = Math.Sign((1.0f - lerpFactor)*angle)*invSin;
-            float destFactor = Math.Sign(lerpFactor*angle)*invSin;
+            float srcFactor = Math.Sign((1.0f - lerpFactor) * angle) * invSin;
+            float destFactor = Math.Sign(lerpFactor * angle) * invSin;
 
-            return quaternion*srcFactor + (correctedDest*destFactor);
+            return quaternion * srcFactor + (correctedDest * destFactor);
         }
 
         public static Quaternion Nlerp(this Quaternion quaternion, Quaternion dest, float lerpFactor, bool shortest) {
@@ -41,10 +41,20 @@ namespace NewEngine.Engine.Core {
             return ((correctedDest - quaternion) * lerpFactor + quaternion).Normalized();
         }
 
+        public static Matrix4 ToRotationMatrix(this Quaternion quaternion) {
+            Vector3 forward = new Vector3(2.0f * (quaternion.X * quaternion.Z - quaternion.W * quaternion.Y), 2.0f * (quaternion.Y * quaternion.Z + quaternion.W * quaternion.X), 1.0f - 2.0f * (quaternion.X * quaternion.X + quaternion.Y * quaternion.Y));
+            Vector3 up = new Vector3(2.0f * (quaternion.X * quaternion.Y + quaternion.W * quaternion.Z), 1.0f - 2.0f * (quaternion.X * quaternion.X + quaternion.Z * quaternion.Z), 2.0f * (quaternion.Y * quaternion.Z - quaternion.W * quaternion.X));
+            Vector3 right = new Vector3(1.0f - 2.0f * (quaternion.Y * quaternion.Y + quaternion.Z * quaternion.Z), 2.0f * (quaternion.X * quaternion.Y - quaternion.W * quaternion.Z), 2.0f * (quaternion.X * quaternion.Z + quaternion.W * quaternion.Y));
 
+            return new Matrix4().InitRotationFromVectors(forward, up, right);
+        }
+
+        public static Quaternion ConjugateExt(this Quaternion quaternion) {
+            return new Quaternion(-quaternion.X, -quaternion.Y, -quaternion.Z, quaternion.W);
+        }
 
         public static float Dot(this Quaternion quaternion, Quaternion r) {
-            return quaternion.X*r.X + quaternion.Y*r.Y + quaternion.Z*r.Z + quaternion.W*r.W;
+            return quaternion.X * r.X + quaternion.Y * r.Y + quaternion.Z * r.Z + quaternion.W * r.W;
         }
     }
 }

@@ -23,7 +23,7 @@ namespace NewEngine.Engine.components {
         }
 
         public override void Render(Shader shader, RenderingEngine renderingEngine) {
-            //this._renderingEngine = renderingEngine;
+            _renderingEngine = renderingEngine;
         }
     }
 }

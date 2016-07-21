@@ -1,66 +1,70 @@
 ﻿using System;
 using System.Drawing;
+using System.Threading;
 using NewEngine;
 using NewEngine.Engine.components;
 using NewEngine.Engine.Core;
+using NewEngine.Engine.Physics.PhysicsComponents;
 using NewEngine.Engine.Rendering;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Input;
 
 namespace Game {
     public class TestGame : NewEngine.Engine.Core.Game {
-        private GameObject PointLight1;
-        private GameObject PointLight2;
-
+        private GameObject directionalLightObj;
+        private GameObject camera;
         public override void Start() {
-            Mesh mesh = new Mesh("plane.obj");
+            Mesh terrainMesh = new Mesh("shadowTest.obj");
 
-            Material material = new Material(new Texture("test.png"));
+            GameObject shadowTest =
+                new GameObject().AddComponent(new MeshRenderer(terrainMesh,
+                    new Material(new Texture("bricks.png"), 0.5f, 32f, new Texture("bricks_nrm.png"), new Texture("bricks_disp.jpg"), 0.0134f)));
 
-
-            MeshRenderer meshRenderer = new MeshRenderer(mesh, material);
-
-            var planeObject = new GameObject();
-            planeObject.AddComponent(meshRenderer);
-            planeObject.Transform.Position = new Vector3(0, -1, 5);
-            AddObject(planeObject);
-
-            AddObject(new GameObject().AddComponent(new FreeLook()).AddComponent(new FreeMove()).AddComponent(new Camera(Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f), (float)CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000))));
-
-            Mesh monkey = new Mesh("monkey3.obj");
-
-            GameObject testMonkey = new GameObject().AddComponent(new MeshRenderer(monkey, material));
-            AddObject(testMonkey);
+            shadowTest.AddComponent(new MeshCollider(terrainMesh));
+            AddObject(shadowTest);
 
 
-            GameObject testMonkey2 = new GameObject().AddComponent(new MeshRenderer(new Mesh("monkey3.obj"), material));
-            AddObject(testMonkey2);
-            testMonkey2.Transform.Position = new Vector3(0, 5, 0);
+            camera = new GameObject().AddComponent(new FreeLook()).AddComponent(new FreeMove()).AddComponent(new Camera(Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f), (float)CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000)));
 
-            PointLight1 = new GameObject().AddComponent(new PointLight(new Vector3(1, 0, 0), 0.9f, new Attenuation(0, 1, 0.1f)));
-            AddObject(PointLight1);
+            camera.Transform.Position = new Vector3(0, 5, 0);
 
+            AddObject(camera);
 
-            PointLight2 = new GameObject().AddComponent(new PointLight(new Vector3(0, 1, 0), 0.9f, new Attenuation(0, 1, 0.1f)));
-            AddObject(PointLight2);
-
-            GameObject directionalLightObj = new GameObject();
+            directionalLightObj = new GameObject();
             DirectionalLight directionalLight = new DirectionalLight(new Vector3(1), 0.7f);
             directionalLightObj.AddComponent(directionalLight);
-            directionalLightObj.Transform.Rotation = Quaternion.FromAxisAngle(new Vector3(1, 0, 0), MathHelper.DegreesToRadians(-30f));
+            directionalLightObj.Transform.Rotation *= Quaternion.FromAxisAngle(new Vector3(1, 0, 0), -0.4f);
             AddObject(directionalLightObj);
         }
 
 
-        private float temp;
         public override void Update(float deltaTime) {
             base.Update(deltaTime);
-            temp += deltaTime;
+            Vector3 flameColor = new Vector3(226 / 255.0f, 88 / 255.0f, 34 / 255.0f);
+            if (Input.GetKeyDown(Key.Q)) {
+                CoreEngine.GetCoreEngine.RenderingEngine.SetSkybox("skybox1/top.jpg", "skybox1/bottom.jpg", "skybox1/front.jpg", "skybox1/back.jpg", "skybox1/left.jpg", "skybox1/right.jpg");
+            }
+            if (Input.GetKeyDown(Key.E)) {
+                CoreEngine.GetCoreEngine.RenderingEngine.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg", "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
+            }
+            if (Input.GetKeyDown(Key.P)) {
+                GameObject newPointLight = new GameObject().AddComponent(new PointLight(flameColor, 5, new Attenuation(0, 0, 1f)));
+                newPointLight.Transform.Position = new Vector3(CoreEngine.GetCoreEngine.RenderingEngine.MainCamera.Transform.GetTransformedPosition());
+                AddObject(newPointLight);
+            }
+        }
 
-            float sinTemp = (float)Math.Sin(temp) * 5;
-            
-            PointLight1.Transform.Position = new Vector3(sinTemp, 0,0);
-            PointLight2.Transform.Position = new Vector3(sinTemp, 0,10);
+        public void StartMassiveSpawn() {
+            for (int x = -5; x < 5; x++) {
+                for (int z = -5; z < 5; z++) {
+                    GameObject gObj = new GameObject();
+                    gObj.Transform.Position = camera.Transform.Position + new Vector3(5 * x, 0, 5 * z);
+                    gObj.AddComponent(new MeshRenderer(new Mesh("sphere.obj"), new Material(new Texture("test.png"))));
+                    gObj.AddComponent(new SphereCollider(1, 2));
+                    AddObject(gObj);
+                }
+            }
         }
     }
 }

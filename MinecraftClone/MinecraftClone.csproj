@@ -62,6 +62,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RenderChunk.cs" />
+    <Compile Include="TestGame.cs" />
     <Compile Include="Voxel.cs" />
     <Compile Include="WaterSimulation.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">

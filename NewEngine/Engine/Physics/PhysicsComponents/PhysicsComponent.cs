@@ -17,6 +17,9 @@ namespace NewEngine.Engine.Physics.PhysicsComponents {
         protected Vector3 FromBepuVector3(BEPUutilities.Vector3 vector3) {
             return new Vector3(vector3.X, vector3.Y, vector3.Z);
         }
+        protected Quaternion FromBepuQuaternion(BEPUutilities.Quaternion quaternion) {
+            return new Quaternion(quaternion.X, quaternion.Y, quaternion.Z, quaternion.W);
+        }
 
         public override void OnDestroyed() {
             PhysicsEngine.RemoveFromPhysicsEngine(PhysicsObject);

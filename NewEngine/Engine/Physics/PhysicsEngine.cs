@@ -28,7 +28,7 @@ namespace NewEngine.Engine.Physics {
 
         public static void AddToPhysicsEngine(ISpaceObject obj) {
             if (_physicsSpace == null) {
-                _physicsSpace = new Space(new ParallelLooper());
+                _physicsSpace = new Space();
                 _physicsSpace.ForceUpdater.Gravity = new BEPUutilities.Vector3(0, -9.81f, 0);
             }
 
@@ -45,8 +45,6 @@ namespace NewEngine.Engine.Physics {
 
         public static void Raycast(Ray ray, float maximumLength, out RayCastResult result) {
             BEPUutilities.Ray tempRay = new BEPUutilities.Ray(ToBepuVector3(ray.Position), ToBepuVector3(ray.Direction));
-
-
 
             BEPUphysics.RayCastResult tempResult;
 
@@ -86,6 +84,5 @@ namespace NewEngine.Engine.Physics {
         static Vector3 FromBepuVector3(BEPUutilities.Vector3 vector3) {
             return new Vector3(vector3.X, vector3.Y, vector3.Z);
         }
-
     }
 }

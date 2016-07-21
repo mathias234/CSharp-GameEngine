@@ -23,6 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -32,6 +33,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -59,27 +61,34 @@
       <HintPath>..\packages\OpenTK.1.1.2349.61993\lib\NET40\OpenTK.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Engine\components\FreeLook.cs" />
     <Compile Include="Engine\components\FreeMove.cs" />
     <Compile Include="Engine\components\GameComponent.cs" />
     <Compile Include="Engine\components\LookAtComponent.cs" />
+    <Compile Include="Engine\components\ShadowInfo.cs" />
     <Compile Include="Engine\components\UIComponents\Image.cs" />
     <Compile Include="Engine\components\UIComponents\UiComponent.cs" />
     <Compile Include="Engine\Core\GameObject.cs" />
+    <Compile Include="Engine\Core\Matrix4Extensions.cs" />
     <Compile Include="Engine\Core\QuaternionExtensions.cs" />
     <Compile Include="Engine\Core\RectTransform.cs" />
+    <Compile Include="Engine\Physics\PhysicsComponents\SphereCollider.cs" />
     <Compile Include="Engine\Physics\PhysicsComponents\MeshCollider.cs" />
     <Compile Include="Engine\Physics\PhysicsComponents\BoxCollider.cs" />
     <Compile Include="Engine\Physics\PhysicsComponents\PhysicsComponent.cs" />
@@ -88,10 +97,13 @@
     <Compile Include="Engine\Physics\RayCastResult.cs" />
     <Compile Include="Engine\Physics\RayHit.cs" />
     <Compile Include="Engine\Rendering\Attenuation.cs" />
+    <Compile Include="Engine\Rendering\CubemapTexture.cs" />
     <Compile Include="Engine\Rendering\MeshLoading\FBX\FbxModel.cs" />
     <Compile Include="Engine\Rendering\MeshLoading\IndexedModel.cs" />
     <Compile Include="Engine\Rendering\MeshLoading\Obj\ObjIndex.cs" />
     <Compile Include="Engine\Rendering\MeshLoading\Obj\ObjModel.cs" />
+    <Compile Include="Engine\Rendering\PrimitiveObjects.cs" />
+    <Compile Include="Engine\Rendering\ResourceManagament\CubemapResource.cs" />
     <Compile Include="Engine\Rendering\ResourceManagament\ShaderResource.cs" />
     <Compile Include="Engine\Rendering\RenderingEngine.cs" />
     <Compile Include="Engine\components\MeshRenderer.cs" />
@@ -120,11 +132,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="Configs\App.config" />
     <None Include="Configs\packages.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

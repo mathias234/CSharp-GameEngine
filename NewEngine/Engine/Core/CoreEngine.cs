@@ -21,7 +21,7 @@ namespace NewEngine.Engine.Core {
         private static CoreEngine _getCoreEngine;
 
 
-        public CoreEngine(int width, int height, VSyncMode vSync, Game game) : base(width, height, new GraphicsMode(32,24,0,16)) {
+        public CoreEngine(int width, int height, VSyncMode vSync, Game game) : base(width, height, new GraphicsMode(32, 24, 0, 16)) {
             _getCoreEngine = this;
             _width = width;
             _height = height;
@@ -30,16 +30,19 @@ namespace NewEngine.Engine.Core {
             game.SetEngine(this);
         }
 
-        public Game Game {
+        public Game Game
+        {
             get { return _game; }
             set { _game = value; }
         }
 
-        public static CoreEngine GetCoreEngine {
+        public static CoreEngine GetCoreEngine
+        {
             get { return _getCoreEngine; }
         }
 
-        public RenderingEngine RenderingEngine {
+        public RenderingEngine RenderingEngine
+        {
             get { return _renderingEngine; }
             set { _renderingEngine = value; }
         }
@@ -62,8 +65,8 @@ namespace NewEngine.Engine.Core {
             Run(70, 100);
         }
 
+
         private void Run(object sender, FrameEventArgs e) {
-            LogManager.Debug(Fps.GetFps(e.Time).ToString());
             _game.Update((float)e.Time);
 
             PhysicsEngine.Update((float)e.Time);
@@ -72,6 +75,7 @@ namespace NewEngine.Engine.Core {
         }
 
         private void Render(object sender, FrameEventArgs e) {
+            //LogManager.Debug(Fps.GetFps(e.Time).ToString());
             _game.Render(_renderingEngine);
             SwapBuffers();
         }
@@ -82,7 +86,7 @@ namespace NewEngine.Engine.Core {
 
         public static void BindAsRenderTarget() {
             GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
-            GL.Viewport(0,0, GetWidth(), GetHeight());
+            GL.Viewport(0, 0, GetWidth(), GetHeight());
         }
 
         public static int GetWidth() {
@@ -91,10 +95,6 @@ namespace NewEngine.Engine.Core {
 
         public static int GetHeight() {
             return _height;
-        }
-
-        public override void Dispose() {
-            base.Dispose();
         }
     }
 }

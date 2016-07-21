@@ -24,12 +24,6 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
 
         }
 
-        ~ShaderResource() {
-            if (GL.IsBuffer(_program)) {
-                GL.DeleteBuffers(1, ref _program);
-            }
-        }
-
         public void AddReference() {
             _refCount++;
         }

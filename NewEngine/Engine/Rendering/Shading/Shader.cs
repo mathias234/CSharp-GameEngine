@@ -54,37 +54,36 @@ namespace NewEngine.Engine.Rendering.Shading {
         }
 
         public virtual void UpdateUniforms(Transform transform, Material material, RenderingEngine renderingEngine) {
-            if(renderingEngine.MainCamera == null)
+            if (renderingEngine.MainCamera == null)
                 return;
 
             Matrix4 modelMatrix = transform.GetTransformation();
             Matrix4 mvpMatrix = modelMatrix * renderingEngine.MainCamera.GetViewProjection();
             Matrix4 orthoMatrix = renderingEngine.MainCamera.GetOrtographicProjection();
 
+            Matrix4 CameraMatrix = renderingEngine.MainCamera.Transform.GetTransformationNoRot();
+            Matrix4 CameraPositionMatrix = CameraMatrix * renderingEngine.MainCamera.GetViewProjection();
 
             for (int i = 0; i < _resource.UniformNames.Count; i++) {
                 string uniformName = _resource.UniformNames[i];
                 string uniformType = _resource.UniformTypes[i];
 
-                if (uniformType == "sampler2D") {
-                    int samplerSlot = renderingEngine.GetSamplerSlot(uniformName);
-                    material.GetTexture(uniformName).Bind(samplerSlot);
-                    SetUniform(uniformName, samplerSlot);
-                }
-                else if (uniformName.StartsWith("T_")) {
-                    if (uniformName == "T_MVP")
-                        SetUniform(uniformName, mvpMatrix);
-                    else if (uniformName == "T_ORTHO")
-                        SetUniform(uniformName, orthoMatrix);
-                    else if (uniformName == "T_model")
-                        SetUniform(uniformName, modelMatrix);
-                    else
-                        LogManager.Error("Failed to update uniform: " + uniformName + ", not a valid argument of Transform");
-                }
-                else if (uniformName.StartsWith("R_")) {
+                if (uniformName.StartsWith("R_")) {
                     string unprefixedUniformName = uniformName.Substring(2);
-
-                    if (uniformType == "vec3")
+                    if (unprefixedUniformName == "lightMatrix") {
+                        SetUniform(uniformName, modelMatrix * renderingEngine.LightMatrix);
+                    }
+                    else if (uniformType == "sampler2D") {
+                        int samplerSlot = renderingEngine.GetSamplerSlot(unprefixedUniformName);
+                        renderingEngine.GetTexture(unprefixedUniformName).Bind(samplerSlot, TextureTarget.Texture2D);
+                        SetUniform(uniformName, samplerSlot);
+                    }
+                    else if (uniformType == "samplerCube") {
+                        int samplerSlot = renderingEngine.GetSamplerSlot(unprefixedUniformName);
+                        renderingEngine.GetTexture(unprefixedUniformName).Bind(samplerSlot, TextureTarget.TextureCubeMap);
+                        SetUniform(uniformName, samplerSlot);
+                    }
+                    else if (uniformType == "vec3")
                         SetUniform(uniformName, renderingEngine.GetVector3(unprefixedUniformName));
                     else if (uniformType == "float")
                         SetUniform(uniformName, renderingEngine.GetFloat(unprefixedUniformName));
@@ -97,6 +96,32 @@ namespace NewEngine.Engine.Rendering.Shading {
                     else
                         renderingEngine.UpdateUniformStruct(transform, material, this, uniformName, uniformType);
                 }
+                else if (uniformType == "sampler2D") {
+                    int samplerSlot = renderingEngine.GetSamplerSlot(uniformName);
+                    material.GetTexture(uniformName).Bind(samplerSlot, TextureTarget.Texture2D);
+                    SetUniform(uniformName, samplerSlot);
+                }
+                else if (uniformType == "samplerCube") {
+                    if(material.GetCubemapTexture(uniformName)== null) return;
+                    int samplerSlot = renderingEngine.GetSamplerSlot(uniformName);
+                    material.GetCubemapTexture(uniformName).Bind(samplerSlot);
+                    SetUniform(uniformName, samplerSlot);
+                }
+                else if (uniformName.StartsWith("T_")) {
+                    if (uniformName == "T_MVP")
+                        SetUniform(uniformName, mvpMatrix);
+                    else if (uniformName == "T_ORTHO")
+                        SetUniform(uniformName, orthoMatrix);
+                    else if (uniformName == "T_model")
+                        SetUniform(uniformName, modelMatrix);
+                    else if (uniformName == "T_cameraPos") {
+                        SetUniform(uniformName, CameraPositionMatrix);
+                    }
+                    else
+                        LogManager.Error("Failed to update uniform: " + uniformName +
+                                         ", not a valid argument of Transform");
+                }
+
                 else if (uniformName.StartsWith("C_")) {
                     if (uniformName == "C_eyePos") {
                         SetUniform(uniformName, renderingEngine.MainCamera.Transform.GetTransformedPosition());
@@ -106,7 +131,7 @@ namespace NewEngine.Engine.Rendering.Shading {
                 }
                 else {
                     if (uniformType == "vec3") {
-                        SetUniform(uniformType, material.GetVector3(uniformName));
+                        SetUniform(uniformName, material.GetVector3(uniformName));
                     }
                     else if (uniformType == "float") {
                         SetUniform(uniformName, material.GetFloat(uniformName));

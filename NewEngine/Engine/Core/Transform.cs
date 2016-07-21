@@ -43,6 +43,16 @@ namespace NewEngine.Engine.Core {
             return scaleMatrix * rotationMatrix * translationMatrix * GetParentMatrix();
         }
 
+
+        public Matrix4 GetTransformationNoRot() {
+            var translationMatrix = Matrix4.CreateTranslation(Position);
+            var scaleMatrix = Matrix4.CreateScale(_scale);
+
+            // ORDER IS IMPORTANT
+            return scaleMatrix * translationMatrix * GetParentMatrix();
+        }
+
+
         private Matrix4 GetParentMatrix() {
             if (parent != null && parent.hasChanged) {
                 parentMatrix = parent.GetTransformation();
@@ -62,7 +72,7 @@ namespace NewEngine.Engine.Core {
                 parentRotation = parent.GetTransformedRotation();
             }
 
-            return Rotation* parentRotation;
+            return parentRotation * Rotation;
         }
 
         public Vector3 Forward

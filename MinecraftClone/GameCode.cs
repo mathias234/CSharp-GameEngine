@@ -10,8 +10,8 @@ using NewEngine.Engine.Physics;
 using NewEngine.Engine.Physics.PhysicsComponents;
 using NewEngine.Engine.Rendering;
 using OpenTK;
+using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
-using Image = NewEngine.Engine.components.UIComponents.Image;
 
 namespace MinecraftClone {
     public class GameCode : Game {
@@ -32,8 +32,6 @@ namespace MinecraftClone {
 
         private GameObject camera;
 
-        private WaterSimulation _waterSimulation;
-
         public override void Start() {
             //var crossHairY = new GameObject().AddComponent(new Image(new RectTransform(2.5f, 20, 1.25f, 10), new Texture((Bitmap)null)));
             //var crossHairX = new GameObject().AddComponent(new Image(new RectTransform(20, 2.5f, 10, 1.25f), new Texture((Bitmap)null)));
@@ -42,7 +40,7 @@ namespace MinecraftClone {
 
             camera = new GameObject().AddComponent(new FreeLook()).AddComponent(new FreeMove()).AddComponent(new Camera(Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f), (float)CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000)));
             AddObject(camera);
-            terrainMaterial = new Material(new Texture("terrain.png", TextureFilter.Point), 1, 16);
+            terrainMaterial = new Material(new Texture("terrain.png", TextureTarget.Texture2D, TextureFilter.Point), 1, 16);
 
 
             GameObject directionalLightObj = new GameObject();
@@ -159,8 +157,6 @@ namespace MinecraftClone {
             }
         }
 
-        private int _updatesSinceLastSimulation = 0;
-
         public override void Update(float deltaTime) {
             base.Update(deltaTime);
 
@@ -191,8 +187,8 @@ namespace MinecraftClone {
             if (Input.GetKeyDown(Key.B)) {
                 GameObject gObj = new GameObject();
                 gObj.Transform.Position = camera.Transform.Position;
-                gObj.AddComponent(new MeshRenderer(new Mesh("monkey3.obj"), new Material(new Texture("test.png"))));
-                gObj.AddComponent(new BoxCollider(2, 2, 2, 2));
+                gObj.AddComponent(new MeshRenderer(new Mesh("box.obj"), new Material(new Texture("test.png"))));
+                gObj.AddComponent(new BoxCollider(5, 5, 5, 2));
                 AddObject(gObj);
             }
         }

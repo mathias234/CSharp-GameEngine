@@ -35,9 +35,9 @@ namespace NewEngine.Engine.components {
             bool rotX = deltaPos.Y != 0;
 
             if (rotY)
-                Transform.Rotate(_yAxis, MathHelper.DegreesToRadians(-deltaPos.X * 0.5f));
+                Transform.Rotate(-_yAxis, MathHelper.DegreesToRadians(deltaPos.X * 0.5f));
             if (rotX)
-                Transform.Rotate(Transform.Right, MathHelper.DegreesToRadians(deltaPos.Y * 0.5f));
+                Transform.Rotate(-Transform.Right, MathHelper.DegreesToRadians(deltaPos.Y * 0.5f));
 
         }
     }

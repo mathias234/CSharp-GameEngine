@@ -5,15 +5,18 @@ layout (location = 3) in vec3 tangent;
 
 out vec2 texCoord0;
 out vec3 worldPos0;
+out vec4 shadowMapCoords0;
 out mat3 tbnMatrix;
 
 uniform mat4 T_model;
 uniform mat4 T_MVP;
+uniform mat4 R_lightMatrix;
 
 void main()
 {
     gl_Position = T_MVP * vec4(position, 1.0);
     texCoord0 = texCoord;
+	shadowMapCoords0 = R_lightMatrix * vec4(position, 1.0);
     worldPos0 = (T_model * vec4(position, 1.0)).xyz;
     
 	vec3 n = normalize((T_model * vec4(normal, 0.0)).xyz);

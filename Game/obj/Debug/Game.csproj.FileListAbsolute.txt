@@ -34,8 +34,8 @@ C:\MonoGameEngine\Game\obj\Debug\Game.csprojResolveAssemblyReference.cache
 C:\MonoGameEngine\Game\obj\Debug\Game.exe
 C:\MonoGameEngine\Game\obj\Debug\Game.pdb
 C:\engine\Builds\Debug\Game.exe.config
-C:\engine\Game\obj\Debug\Game.exe
-C:\engine\Game\obj\Debug\Game.pdb
 C:\engine\Builds\Debug\Game.exe
 C:\engine\Builds\Debug\Game.pdb
 C:\engine\Game\obj\Debug\Game.csprojResolveAssemblyReference.cache
+C:\engine\Game\obj\Debug\Game.exe
+C:\engine\Game\obj\Debug\Game.pdb

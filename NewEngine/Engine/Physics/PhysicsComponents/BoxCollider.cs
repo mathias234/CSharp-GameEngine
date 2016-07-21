@@ -32,7 +32,10 @@ namespace NewEngine.Engine.Physics.PhysicsComponents {
 
         public override void Update(float deltaTime) {
             var obj = (Box)PhysicsObject;
-            Parent.Transform.Position = FromBepuVector3(obj.Position);
+            if (obj != null) {
+                Parent.Transform.Position = FromBepuVector3(obj.Position);
+                Parent.Transform.Rotation = FromBepuQuaternion(obj.Orientation);
+            }
         }
     }
 }

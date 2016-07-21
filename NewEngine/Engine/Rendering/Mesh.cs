@@ -14,6 +14,8 @@ namespace NewEngine.Engine.Rendering {
         private static Dictionary<string, MeshResource> _loadedModels = new Dictionary<string, MeshResource>();
         private MeshResource _resource;
         private string _filename;
+        private Vertex[] _vertices;
+        private int[] _indices;
 
         public Mesh(string filename) {
             _filename = filename;
@@ -29,6 +31,9 @@ namespace NewEngine.Engine.Rendering {
         }
 
         public Mesh(Vertex[] vertices, int[] indices) {
+            _vertices = vertices;
+            _indices = indices;
+
             _resource = new MeshResource();
 
             AddVertices(vertices, indices, true);
@@ -36,6 +41,9 @@ namespace NewEngine.Engine.Rendering {
 
 
         public Mesh(Vertex[] vertices, int[] indices, bool calcNormals) {
+            _vertices = vertices;
+            _indices = indices;
+
             _resource = new MeshResource();
 
             _filename = "";
@@ -49,7 +57,19 @@ namespace NewEngine.Engine.Rendering {
             }
         }
 
+        public Vertex[] Vertices
+        {
+            get { return _vertices; }
+        }
+
+        public int[] Indices
+        {
+            get { return _indices; }
+        }
+
         private void AddVertices(Vertex[] vertices, int[] indices, bool calcNormals) {
+
+
             if (calcNormals) {
                 CalculateNormals(vertices, indices);
             }
@@ -67,6 +87,7 @@ namespace NewEngine.Engine.Rendering {
             GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(_resource.Size * 4 /* size of int */), reversedIndices, BufferUsageHint.StaticDraw);
         }
 
+
         public void Draw() {
             GL.EnableVertexAttribArray(0);
             GL.EnableVertexAttribArray(1);
@@ -77,7 +98,7 @@ namespace NewEngine.Engine.Rendering {
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, 0);
             GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, Vector3.SizeInBytes);
             GL.VertexAttribPointer(2, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, Vector3.SizeInBytes + Vector2.SizeInBytes);
-            GL.VertexAttribPointer(3, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, Vector3.SizeInBytes + Vector2.SizeInBytes + Vector3.SizeInBytes );
+            GL.VertexAttribPointer(3, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, Vector3.SizeInBytes + Vector2.SizeInBytes + Vector3.SizeInBytes);
 
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, _resource.Ibo);
 
@@ -128,11 +149,11 @@ namespace NewEngine.Engine.Rendering {
 
                 Vector2 uv1 = Vector2.One;
                 if (i + 1 < vertices.Length)
-                    uv1 = vertices[i+1].TexCoord;
+                    uv1 = vertices[i + 1].TexCoord;
 
                 Vector2 uv2 = Vector2.One;
                 if (i + 2 < vertices.Length)
-                    uv2 = vertices[i+2].TexCoord;
+                    uv2 = vertices[i + 2].TexCoord;
 
                 Vector3 deltaPos1 = v1 - v0;
                 Vector3 deltaPos2 = v2 - v0;
@@ -145,9 +166,9 @@ namespace NewEngine.Engine.Rendering {
                 Vector3 bitangent = (deltaPos2 * deltaUV1.X - deltaPos1 * deltaUV2.X) * r;
                 vertices[i].Tangent = tangent;
                 if (i + 1 < vertices.Length)
-                    vertices[i+1].Tangent = tangent;
+                    vertices[i + 1].Tangent = tangent;
                 if (i + 2 < vertices.Length)
-                    vertices[i+2].Tangent = tangent;
+                    vertices[i + 2].Tangent = tangent;
             }
         }
 
@@ -167,7 +188,11 @@ namespace NewEngine.Engine.Rendering {
                         vertices.Add(new Vertex(model.Positions[i], model.TexCoords[i], model.Normals[i], model.Tangents[i]));
                     }
 
-                    AddVertices(vertices.ToArray(), Util.FromNullableIntArray(model.Indices.ToArray()), false);
+                    _vertices = vertices.ToArray();
+                    _indices = Util.FromNullableIntArray(model.Indices.ToArray());
+
+
+                    AddVertices(_vertices, _indices, false);
                     break;
                 case "fbx":
                     FbxModel fbxModel = new FbxModel(Path.Combine("./res", "models", filename));

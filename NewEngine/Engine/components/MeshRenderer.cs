@@ -26,7 +26,7 @@ namespace NewEngine.Engine.components {
 
         public override void Render(Shader shader, RenderingEngine renderingEngine) {
             shader.Bind();
-            shader.UpdateUniforms(Transform, _material, renderingEngine);
+            shader.UpdateUniforms(new Transform(), _material, renderingEngine);
             _mesh.Draw();
         }
     }

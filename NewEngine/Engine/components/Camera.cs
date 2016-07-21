@@ -8,16 +8,19 @@ namespace NewEngine.Engine.components {
         private Matrix4 _projection;
 
         public Camera(Matrix4 projection) {
-            _projection = projection; //Matrix4.CreatePerspectiveFieldOfView(fov, aspect, zNear, zFar);
+            _projection = projection;
 
         }
 
+        public Matrix4 SetProjection {
+            set { _projection = value; } 
+        }
+
         public Matrix4 GetViewProjection() {
-            Vector3 cameraLookAt = Transform.GetTransformedPosition() + Transform.Forward;
+            Matrix4 cameraRotation = Transform.GetTransformedRotation().ConjugateExt().ToRotationMatrix();
+            Matrix4 cameraTranslation = Matrix4.CreateTranslation(Transform.GetTransformedPosition() * -1);
 
-            Matrix4 cameraMatrix = Matrix4.LookAt(Transform.GetTransformedPosition(), cameraLookAt, Vector3.UnitY);
-
-            return cameraMatrix * _projection;
+            return cameraTranslation * cameraRotation *  _projection;
         }
 
         public Matrix4 GetOrtographicProjection() {
