@@ -55,12 +55,6 @@ namespace NewEngine.Engine.Rendering {
             AddVertices(vertices, indices, calcNormals);
         }
 
-        ~Mesh() {
-            if (_resource.RemoveReference() && _filename != "") {
-                _loadedModels.Remove(_filename);
-            }
-        }
-
         public Vertex[] Vertices
         {
             get { return _vertices; }

@@ -97,12 +97,29 @@ namespace NewEngine.Engine.Rendering.Shading {
                         renderingEngine.UpdateUniformStruct(transform, material, this, uniformName, uniformType);
                 }
                 else if (uniformType == "sampler2D") {
+                    Texture texture;
+
+                    if (material.GetTexture(uniformName) == null) {
+                        texture = new Texture("default.png");
+                    }
+                    else {
+                        texture = material.GetTexture(uniformName);
+                    }
+
                     int samplerSlot = renderingEngine.GetSamplerSlot(uniformName);
-                    material.GetTexture(uniformName).Bind(samplerSlot, TextureTarget.Texture2D);
+                    texture.Bind(samplerSlot, TextureTarget.Texture2D);
                     SetUniform(uniformName, samplerSlot);
                 }
                 else if (uniformType == "samplerCube") {
-                    if(material.GetCubemapTexture(uniformName)== null) return;
+                    CubemapTexture texture;
+
+                    if (material.GetCubemapTexture(uniformName) == null) {
+                        texture = new CubemapTexture("default.png", "default.png", "default.png", "default.png", "default.png", "default.png");
+                    }
+                    else {
+                        texture = material.GetCubemapTexture(uniformName);
+                    }
+
                     int samplerSlot = renderingEngine.GetSamplerSlot(uniformName);
                     material.GetCubemapTexture(uniformName).Bind(samplerSlot);
                     SetUniform(uniformName, samplerSlot);

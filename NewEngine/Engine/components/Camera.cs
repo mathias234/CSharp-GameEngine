@@ -24,7 +24,7 @@ namespace NewEngine.Engine.components {
         }
 
         public Matrix4 GetOrtographicProjection() {
-            return Matrix4.CreateOrthographic(800, 600, 0.1f, 1000.0f);
+            return Matrix4.CreateOrthographic(CoreEngine.GetWidth(), CoreEngine.GetHeight(), 0.1f, 1000.0f);
         }
 
 

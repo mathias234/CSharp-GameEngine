@@ -75,7 +75,7 @@ namespace NewEngine.Engine.Core {
         }
 
         private void Render(object sender, FrameEventArgs e) {
-            //LogManager.Debug(Fps.GetFps(e.Time).ToString());
+            LogManager.Debug(Fps.GetFps(e.Time).ToString());
             _game.Render(_renderingEngine);
             SwapBuffers();
         }
@@ -86,14 +86,14 @@ namespace NewEngine.Engine.Core {
 
         public static void BindAsRenderTarget() {
             GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
-            GL.Viewport(0, 0, GetWidth(), GetHeight());
+            GL.Viewport(0, 0, (int)GetWidth(), (int)GetHeight());
         }
 
-        public static int GetWidth() {
+        public static float GetWidth() {
             return _width;
         }
 
-        public static int GetHeight() {
+        public static float GetHeight() {
             return _height;
         }
     }

@@ -122,7 +122,6 @@
     <Compile Include="Engine\components\DirectionalLight.cs" />
     <Compile Include="Engine\components\PointLight.cs" />
     <Compile Include="Engine\components\SpotLight.cs" />
-    <Compile Include="Engine\Rendering\Shading\UI\UIImage.cs" />
     <Compile Include="Engine\Rendering\Texture.cs" />
     <Compile Include="Engine\Core\Transform.cs" />
     <Compile Include="Engine\Core\LogManager.cs" />

@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Threading;
 using NewEngine;
 using NewEngine.Engine.components;
+using NewEngine.Engine.components.UIComponents;
 using NewEngine.Engine.Core;
 using NewEngine.Engine.Physics.PhysicsComponents;
 using NewEngine.Engine.Rendering;
@@ -15,11 +16,11 @@ namespace Game {
         private GameObject directionalLightObj;
         private GameObject camera;
         public override void Start() {
-            //Mesh terrainMesh = new Mesh("shadowTest.obj");
+            //Mesh terrainMesh = new Mesh("HighResPlane.obj");
 
             //GameObject shadowTest =
             //    new GameObject().AddComponent(new MeshRenderer(terrainMesh,
-            //        new Material(new Texture("bricks.png"), 0.5f, 32f, new Texture("bricks_nrm.png"), new Texture("bricks_disp.jpg"), 0.02f, -0.0f)));
+            //        new Material(new Texture("rock.jpg"), 0.5f, 32f, new Texture("rock_nrm.png"), new Texture("rock_disp.png"), 0.05f, -1f)));
 
             //shadowTest.AddComponent(new MeshCollider(terrainMesh));
             //AddObject(shadowTest);
@@ -41,8 +42,13 @@ namespace Game {
 
 
             GameObject terrain = new GameObject();
-            terrain.AddComponent(new TerrainMesh("terrain.jpg", "", 100, 100, 0.03f));
+            terrain.AddComponent(new TerrainMesh("terrain.jpg", 50, 50, 0.003f, "terrainsplat.jpg", "terrainsplat_nrm.jpg", "terrainsplat_disp.jpg", 0.5f, 32f, 0.005f, 0));
             AddObject(terrain);
+
+            GameObject uiTest = new GameObject();
+            uiTest.AddComponent(new NewEngine.Engine.components.UIComponents.Image(new RectTransform(50, 50, 0, 0), null));
+
+            AddObject(uiTest);
         }
 
 

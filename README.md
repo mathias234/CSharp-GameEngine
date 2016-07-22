@@ -9,7 +9,6 @@ use mklink /J in each game folder to link to the res folder that contains all th
 ```
 
 **Known Issues:**
-- Adding UI crashes the game
 - Memory not being properly cleaned up when deleting a resource!
 
 **Future Plans:**
