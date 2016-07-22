@@ -82,9 +82,11 @@
     <Compile Include="Engine\components\GameComponent.cs" />
     <Compile Include="Engine\components\LookAtComponent.cs" />
     <Compile Include="Engine\components\ShadowInfo.cs" />
+    <Compile Include="Engine\components\TerrainMesh.cs" />
     <Compile Include="Engine\components\UIComponents\Image.cs" />
     <Compile Include="Engine\components\UIComponents\UiComponent.cs" />
     <Compile Include="Engine\Core\GameObject.cs" />
+    <Compile Include="Engine\Core\LockBitmap.cs" />
     <Compile Include="Engine\Core\Matrix4Extensions.cs" />
     <Compile Include="Engine\Core\QuaternionExtensions.cs" />
     <Compile Include="Engine\Core\RectTransform.cs" />

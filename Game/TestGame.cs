@@ -15,14 +15,14 @@ namespace Game {
         private GameObject directionalLightObj;
         private GameObject camera;
         public override void Start() {
-            Mesh terrainMesh = new Mesh("shadowTest.obj");
+            //Mesh terrainMesh = new Mesh("shadowTest.obj");
 
-            GameObject shadowTest =
-                new GameObject().AddComponent(new MeshRenderer(terrainMesh,
-                    new Material(new Texture("bricks.png"), 0.5f, 32f, new Texture("bricks_nrm.png"), new Texture("bricks_disp.jpg"), 0.0134f)));
+            //GameObject shadowTest =
+            //    new GameObject().AddComponent(new MeshRenderer(terrainMesh,
+            //        new Material(new Texture("bricks.png"), 0.5f, 32f, new Texture("bricks_nrm.png"), new Texture("bricks_disp.jpg"), 0.02f, -0.0f)));
 
-            shadowTest.AddComponent(new MeshCollider(terrainMesh));
-            AddObject(shadowTest);
+            //shadowTest.AddComponent(new MeshCollider(terrainMesh));
+            //AddObject(shadowTest);
 
 
             camera = new GameObject().AddComponent(new FreeLook()).AddComponent(new FreeMove()).AddComponent(new Camera(Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f), (float)CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000)));
@@ -34,8 +34,15 @@ namespace Game {
             directionalLightObj = new GameObject();
             DirectionalLight directionalLight = new DirectionalLight(new Vector3(1), 0.7f);
             directionalLightObj.AddComponent(directionalLight);
-            directionalLightObj.Transform.Rotation *= Quaternion.FromAxisAngle(new Vector3(1, 0, 0), -0.4f);
+            directionalLightObj.Transform.Rotation *= Quaternion.FromAxisAngle(new Vector3(1, 0, 0), -0.7f);
             AddObject(directionalLightObj);
+            CoreEngine.GetCoreEngine.RenderingEngine.SetSkybox("skybox1/top.jpg", "skybox1/bottom.jpg", "skybox1/front.jpg", "skybox1/back.jpg", "skybox1/left.jpg", "skybox1/right.jpg");
+            CoreEngine.GetCoreEngine.RenderingEngine.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg", "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
+
+
+            GameObject terrain = new GameObject();
+            terrain.AddComponent(new TerrainMesh("terrain.jpg", "", 100, 100, 0.03f));
+            AddObject(terrain);
         }
 
 

@@ -31,6 +31,8 @@ namespace NewEngine.Engine.Rendering {
         }
 
         public Mesh(Vertex[] vertices, int[] indices) {
+            CalculateTangents(vertices, indices);
+
             _vertices = vertices;
             _indices = indices;
 
@@ -41,6 +43,8 @@ namespace NewEngine.Engine.Rendering {
 
 
         public Mesh(Vertex[] vertices, int[] indices, bool calcNormals) {
+            CalculateTangents(vertices, indices);
+
             _vertices = vertices;
             _indices = indices;
 
@@ -68,8 +72,6 @@ namespace NewEngine.Engine.Rendering {
         }
 
         private void AddVertices(Vertex[] vertices, int[] indices, bool calcNormals) {
-
-
             if (calcNormals) {
                 CalculateNormals(vertices, indices);
             }
@@ -133,42 +135,39 @@ namespace NewEngine.Engine.Rendering {
         }
 
 
-        public void CalculateTangents(Vertex[] vertices) {
-            for (var i = 0; i < vertices.Length; i += 3) {
-                Vector3 v0 = vertices[i + 0].Position;
 
-                Vector3 v1 = Vector3.One;
-                if (i + 1 < vertices.Length)
-                    v1 = vertices[i + 1].Position;
+        public void CalculateTangents(Vertex[] vertices, int[] indices) {
+            for (var i = 0; i < indices.Length; i += 3) {
+                int i0 = indices[i];
+                int i1 = indices[i + 1];
+                int i2 = indices[i + 2];
 
-                Vector3 v2 = Vector3.One;
-                if (i + 2 < vertices.Length)
-                    v2 = vertices[i + 2].Position;
 
-                Vector2 uv0 = vertices[i].TexCoord;
+                Vector3 edge1 = vertices[i1].Position - vertices[i0].Position;
+                Vector3 edge2 = vertices[i2].Position - vertices[i0].Position;
 
-                Vector2 uv1 = Vector2.One;
-                if (i + 1 < vertices.Length)
-                    uv1 = vertices[i + 1].TexCoord;
 
-                Vector2 uv2 = Vector2.One;
-                if (i + 2 < vertices.Length)
-                    uv2 = vertices[i + 2].TexCoord;
+                float deltaU1 = vertices[i1].TexCoord.X - vertices[i0].TexCoord.X;
+                float deltaV1 = vertices[i1].TexCoord.Y - vertices[i0].TexCoord.Y;
+                float deltaU2 = vertices[i2].TexCoord.X - vertices[i0].TexCoord.X;
+                float deltaV2 = vertices[i2].TexCoord.Y - vertices[i0].TexCoord.Y;
 
-                Vector3 deltaPos1 = v1 - v0;
-                Vector3 deltaPos2 = v2 - v0;
+                float dividend = (deltaU1 * deltaV2 - deltaU2 * deltaV1);
+                //TODO: The first 0.0f may need to be changed to 1.0f here.
+                float f = dividend == 0 ? 0.0f : 1.0f / dividend;
 
-                Vector2 deltaUV1 = uv1 - uv0;
-                Vector2 deltaUV2 = uv2 - uv0;
+                Vector3 tangent = new Vector3(0, 0, 0);
+                tangent.X = (f * (deltaV2 * edge1.X - deltaV1 * edge2.X));
+                tangent.Y = (f * (deltaV2 * edge1.Y - deltaV1 * edge2.Y));
+                tangent.Z = (f * (deltaV2 * edge1.Z - deltaV1 * edge2.Z));
 
-                float r = 1.0f / (deltaUV1.X * deltaUV2.Y - deltaUV1.Y * deltaUV2.X);
-                Vector3 tangent = (deltaPos1 * deltaUV2.Y - deltaPos2 * deltaUV1.Y) * r;
-                Vector3 bitangent = (deltaPos2 * deltaUV1.X - deltaPos1 * deltaUV2.X) * r;
-                vertices[i].Tangent = tangent;
-                if (i + 1 < vertices.Length)
-                    vertices[i + 1].Tangent = tangent;
-                if (i + 2 < vertices.Length)
-                    vertices[i + 2].Tangent = tangent;
+                vertices[i0].Tangent = (vertices[i0].Tangent + tangent);
+                vertices[i1].Tangent = (vertices[i1].Tangent + tangent);
+                vertices[i2].Tangent = (vertices[i2].Tangent + tangent);
+            }
+
+            for (int i = 0; i < vertices.Length; i++) {
+                vertices[i].Tangent = vertices[i].Tangent.Normalized();
             }
         }
 
