@@ -15,5 +15,5 @@ use mklink /J in each game folder to link to the res folder that contains all th
 
 - Variance Shadow Mapping
 - FXAA or other anti aliasing techniques
-
+- More UI stuff like text, and clicking and stuff
 
