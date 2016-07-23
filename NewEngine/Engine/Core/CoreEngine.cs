@@ -75,7 +75,7 @@ namespace NewEngine.Engine.Core {
         }
 
         private void Render(object sender, FrameEventArgs e) {
-            LogManager.Debug(Fps.GetFps(e.Time).ToString());
+            //LogManager.Debug(Fps.GetFps(e.Time).ToString());
             _game.Render(_renderingEngine);
             SwapBuffers();
         }

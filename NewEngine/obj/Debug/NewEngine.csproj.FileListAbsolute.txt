@@ -57,3 +57,4 @@ C:\engine\NewEngine\bin\Debug\BEPUutilities.xml
 C:\engine\NewEngine\bin\Debug\OpenTK.xml
 C:\engine\NewEngine\obj\Debug\NewEngine.dll
 C:\engine\NewEngine\obj\Debug\NewEngine.pdb
+C:\engine\NewEngine\obj\Debug\NewEngine.csprojResolveAssemblyReference.cache

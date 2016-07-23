@@ -15,6 +15,8 @@ namespace Game {
     public class TestGame : NewEngine.Engine.Core.Game {
         private GameObject directionalLightObj;
         private GameObject camera;
+
+        private TerrainMesh tMesh;
         public override void Start() {
             //Mesh terrainMesh = new Mesh("HighResPlane.obj");
 
@@ -42,11 +44,13 @@ namespace Game {
 
 
             GameObject terrain = new GameObject();
-            terrain.AddComponent(new TerrainMesh("terrain.jpg", 50, 50, 0.003f, "terrainsplat.jpg", "terrainsplat_nrm.jpg", "terrainsplat_disp.jpg", 0.5f, 32f, 0.005f, 0));
+            tMesh = new TerrainMesh("terrain.jpg", 50, 50, 0.003f, "terrainsplat.jpg", "terrainsplat_nrm.jpg",
+                "terrainsplat_disp.jpg", 0.5f, 32f, 0.005f, 0);
+            terrain.AddComponent(tMesh);
             AddObject(terrain);
 
             GameObject uiTest = new GameObject();
-            uiTest.AddComponent(new NewEngine.Engine.components.UIComponents.Image(new RectTransform(50, 50, 0, 0), null));
+            uiTest.AddComponent(new NewEngine.Engine.components.UIComponents.Text(new RectTransform(100, 100, 0, 0), "Rendering Text!", 10));
 
             AddObject(uiTest);
         }
@@ -56,6 +60,7 @@ namespace Game {
             base.Update(deltaTime);
             Vector3 flameColor = new Vector3(226 / 255.0f, 88 / 255.0f, 34 / 255.0f);
             if (Input.GetKeyDown(Key.Q)) {
+                tMesh.UpdateMesh();
                 CoreEngine.GetCoreEngine.RenderingEngine.SetSkybox("skybox1/top.jpg", "skybox1/bottom.jpg", "skybox1/front.jpg", "skybox1/back.jpg", "skybox1/left.jpg", "skybox1/right.jpg");
             }
             if (Input.GetKeyDown(Key.E)) {

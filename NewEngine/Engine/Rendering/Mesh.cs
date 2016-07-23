@@ -43,7 +43,6 @@ namespace NewEngine.Engine.Rendering {
 
 
         public Mesh(Vertex[] vertices, int[] indices, bool calcNormals) {
-            CalculateTangents(vertices, indices);
 
             _vertices = vertices;
             _indices = indices;
