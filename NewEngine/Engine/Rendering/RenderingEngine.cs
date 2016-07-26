@@ -8,41 +8,43 @@ using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering {
     public class RenderingEngine : MappedValues {
-        private Camera _mainCamera;
         private Camera _altCamera;
         private GameObject _altCameraObject;
 
+        private Matrix4 _biasMatrix = Matrix4.CreateTranslation(1.0f, 1.0f, 1.0f)*Matrix4.CreateScale(0.5f, 0.5f, 0.5f);
+
         private List<BaseLight> _lights;
-        private BaseLight _activeLight;
         private Dictionary<string, int> _samplerMap;
 
-        private Shader _forwardAmbient;
-        private Shader _shadowMapShader;
-
-        private Matrix4 _lightMatrix;
-
-        private Matrix4 _biasMatrix = Matrix4.CreateTranslation(1.0f, 1.0f, 1.0f) * Matrix4.CreateScale(0.5f, 0.5f, 0.5f);
-
         private Mesh _skybox;
-        private Shader _skyboxShader;
         private Material _skyboxMaterial;
+        private Shader _skyboxShader;
 
-        public RenderingEngine() : base() {
+        public RenderingEngine() {
             _lights = new List<BaseLight>();
-            _samplerMap = new Dictionary<string, int>();
+            _samplerMap = new Dictionary<string, int> {
+                {"diffuse", 0},
+                {"normalMap", 1},
+                {"dispMap", 2},
+                {"cutoutMask", 3},
+                {"shadowMap", 4},
+                {"skybox", 5},
+                {"tex2", 6},
+                {"tex2Nrm", 7},
+                {"layer1", 8},
+                {"tex3", 9},
+                {"tex3Nrm", 10},
+                {"layer2", 11}
+            };
 
-            _samplerMap.Add("diffuse", 0);
-            _samplerMap.Add("normalMap", 1);
-            _samplerMap.Add("dispMap", 2);
-            _samplerMap.Add("cutoutMask", 3);
-            _samplerMap.Add("shadowMap", 4);
-            _samplerMap.Add("skybox", 5);
+
+            // terrain releated
 
             SetVector3("ambient", new Vector3(0.3f));
-            SetTexture("shadowMap", new Texture(null, 2048, 2048, TextureFilter.Point, PixelInternalFormat.DepthComponent16, PixelFormat.DepthComponent, true, FramebufferAttachment.DepthAttachment));
+            SetTexture("shadowMap",
+                new Texture(null, 2048, 2048, TextureFilter.Point, PixelInternalFormat.DepthComponent16,
+                    PixelFormat.DepthComponent, true, FramebufferAttachment.DepthAttachment));
 
-            _forwardAmbient = new Shader("forward-ambient");
-            _shadowMapShader = new Shader("shadowMapGenerator");
             _skyboxShader = new Shader("skybox");
 
             GL.ClearColor(0, 0, 0, 0);
@@ -60,24 +62,31 @@ namespace NewEngine.Engine.Rendering {
             _skybox = new Mesh("skybox.obj");
         }
 
+        public BaseLight GetActiveLight { get; private set; }
+
+        public Camera MainCamera { get; set; }
+
+        public Matrix4 LightMatrix { get; private set; }
+
         // TODO: change this as i dont want people to override the RenderingEngine i rather want them to add their function using either an Action or Func <- not decided
-        public virtual void UpdateUniformStruct(Transform transform, Material material, Shader shader, string uniformName, string uniformType) {
+        public virtual void UpdateUniformStruct(Transform transform, Material material, Shader shader,
+            string uniformName, string uniformType) {
             LogManager.Error("Failed to update uniform: " + uniformName + ", not a valid type in Rendering Engine");
         }
 
         public void Render(GameObject gameObject) {
             CoreEngine.BindAsRenderTarget();
 
-            GL.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            GL.ClearColor(0.0f, 0.0f, 0.2f, 0.0f);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            // render the skybox first!
             RenderSkybox();
 
-            gameObject.RenderAll(_forwardAmbient, this);
+            // since we are rendering the "base" pass we do not need to specify the shader
+            gameObject.RenderAll(null, this, true);
 
             foreach (var light in _lights) {
-                _activeLight = light;
+                GetActiveLight = light;
 
                 RenderShadowMap(light, gameObject);
 
@@ -88,7 +97,9 @@ namespace NewEngine.Engine.Rendering {
                 GL.DepthMask(false);
                 GL.DepthFunc(DepthFunction.Equal);
 
-                gameObject.RenderAll(light.Shader, this);
+                //LogManager.Debug(light.GetType().Name);
+
+                gameObject.RenderAll(light.GetType().Name, this, false);
 
                 GL.DepthMask(true);
                 GL.DepthFunc(DepthFunction.Less);
@@ -96,38 +107,35 @@ namespace NewEngine.Engine.Rendering {
             }
         }
 
-        public void RenderShadowMap(BaseLight light, GameObject gameObject) {
-
-            ShadowInfo shadowInfo = light.ShadowInfo;
+        private void RenderShadowMap(BaseLight light, GameObject gameObject) {
+            var shadowInfo = light.ShadowInfo;
 
             GetTexture("shadowMap").BindAsRenderTarget();
             GL.Clear(ClearBufferMask.DepthBufferBit);
 
-            if (shadowInfo != null) {
-                _altCamera.SetProjection = shadowInfo.Projection;
-                _altCamera.Transform.Position = _activeLight.Transform.GetTransformedPosition();
-                _altCamera.Transform.Rotation = _activeLight.Transform.GetTransformedRotation();
+            if (shadowInfo == null) return;
+            _altCamera.SetProjection = shadowInfo.Projection;
+            _altCamera.Transform.Position = GetActiveLight.Transform.GetTransformedPosition();
+            _altCamera.Transform.Rotation = GetActiveLight.Transform.GetTransformedRotation();
 
-                _lightMatrix = _altCamera.GetViewProjection() * _biasMatrix;
+            LightMatrix = _altCamera.GetViewProjection()*_biasMatrix;
 
-                SetVector3("shadowTexelSize", new Vector3(1.0f / 1024.0f, 1.0f / 1024.0f, 0));
-                SetFloat("shadowBias", shadowInfo.Bias / 1024.0f);
-                bool flipFaces = shadowInfo.FlipFaces;
+            SetVector3("shadowTexelSize", new Vector3(1.0f/1024.0f, 1.0f/1024.0f, 0));
+            SetFloat("shadowBias", shadowInfo.Bias/1024.0f);
+            var flipFaces = shadowInfo.FlipFaces;
 
 
-                Camera temp = _mainCamera;
-                _mainCamera = _altCamera;
+            var temp = MainCamera;
+            MainCamera = _altCamera;
 
-                if (flipFaces) GL.CullFace(CullFaceMode.Front);
-                gameObject.RenderAll(_shadowMapShader, this);
-                if (flipFaces) GL.CullFace(CullFaceMode.Back);
-                _mainCamera = temp;
-            }
+            if (flipFaces) GL.CullFace(CullFaceMode.Front);
+            gameObject.RenderAll("shadowMapGenerator", this, false);
+            if (flipFaces) GL.CullFace(CullFaceMode.Back);
 
+            MainCamera = temp;
         }
 
-        //TODO: implement skybox rendering
-        public void RenderSkybox() {
+        private void RenderSkybox() {
             GL.DepthMask(false);
             _skyboxShader.Bind();
             _skyboxShader.UpdateUniforms(MainCamera.Transform, _skyboxMaterial, this);
@@ -135,7 +143,8 @@ namespace NewEngine.Engine.Rendering {
             GL.DepthMask(true);
         }
 
-        public void SetSkybox(string textureTopFilename, string textureBottomFilename, string textureFrontFilename, string textureBackFilename, string textureLeftFilename, string textureRightFilename) {
+        public void SetSkybox(string textureTopFilename, string textureBottomFilename, string textureFrontFilename,
+            string textureBackFilename, string textureLeftFilename, string textureRightFilename) {
             var cubemap = new CubemapTexture(textureTopFilename, textureBottomFilename, textureFrontFilename,
                 textureBackFilename, textureLeftFilename, textureRightFilename);
             _skyboxMaterial.SetCubemapTexture("skybox", cubemap);
@@ -147,22 +156,6 @@ namespace NewEngine.Engine.Rendering {
 
         public void AddLight(BaseLight light) {
             _lights.Add(light);
-        }
-
-        public BaseLight GetActiveLight
-        {
-            get { return _activeLight; }
-        }
-
-        public Camera MainCamera
-        {
-            get { return _mainCamera; }
-            set { _mainCamera = value; }
-        }
-
-        public Matrix4 LightMatrix
-        {
-            get { return _lightMatrix; }
         }
 
         public void AddCamera(Camera camera) {

@@ -1,7 +1,5 @@
 ﻿using NewEngine.Engine.Core;
-using NewEngine.Engine.Rendering;
 using OpenTK;
-using OpenTK.Input;
 
 namespace NewEngine.Engine.components {
     public class Camera : GameComponent {

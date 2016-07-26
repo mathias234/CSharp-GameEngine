@@ -1,103 +1,83 @@
-﻿using System.Collections.Generic;
-using NewEngine.Engine.Core;
+﻿using System;
+using System.Collections.Generic;
 using OpenTK;
 
 namespace NewEngine.Engine.Rendering.MeshLoading {
     public class IndexedModel {
-        private List<Vector3> _positions;
-        private List<Vector2> _texCoords;
-        private List<Vector3> _normals;
-        private List<Vector3> _tangents;
-        private List<int?> _indices;
-
         public IndexedModel() {
-            _positions = new List<Vector3>();
-            _texCoords = new List<Vector2>();
-            _normals = new List<Vector3>();
-            _tangents = new List<Vector3>();
-            _indices = new List<int?>();
+            Positions = new List<Vector3>();
+            TexCoords = new List<Vector2>();
+            Normals = new List<Vector3>();
+            Tangents = new List<Vector3>();
+            Indices = new List<int?>();
         }
 
+        public List<Vector3> Normals { get; }
+
+        public List<Vector2> TexCoords { get; }
+
+        public List<Vector3> Positions { get; }
+
+        public List<int?> Indices { get; }
+
+        public List<Vector3> Tangents { get; }
+
         public void CalculateNormals() {
-            for (var i = 0; i < _indices.Count; i += 3) {
-                int i0 = _indices[i].Value;
-                int i1 = _indices[i + 1].Value;
-                int i2 = _indices[i + 2].Value;
+            for (var i = 0; i < Indices.Count; i += 3) {
+                var i0 = Indices[i].Value;
+                var i1 = Indices[i + 1].Value;
+                var i2 = Indices[i + 2].Value;
 
-                Vector3 v1 = _positions[i1] - _positions[i0];
-                Vector3 v2 = _positions[i2] - _positions[i0];
+                var v1 = Positions[i1] - Positions[i0];
+                var v2 = Positions[i2] - Positions[i0];
 
-                Vector3 normal = Vector3.Cross(v1, v2);
+                var normal = Vector3.Cross(v1, v2);
                 normal.Normalize();
 
-                _normals[i0] = _normals[i0] + normal;
-                _normals[i1] = _normals[i1] + normal;
-                _normals[i2] = _normals[i2] + normal;
+                Normals[i0] = Normals[i0] + normal;
+                Normals[i1] = Normals[i1] + normal;
+                Normals[i2] = Normals[i2] + normal;
             }
 
-            for (int i = 0; i < _normals.Count; i++) {
-                _normals[i] = _normals[i].Normalized();
+            for (var i = 0; i < Normals.Count; i++) {
+                Normals[i] = Normals[i].Normalized();
             }
         }
 
         public void CalculateTangents() {
-            for (var i = 0; i < _indices.Count; i += 3) {
-                int i0 = _indices[i].Value;
-                int i1 = _indices[i + 1].Value;
-                int i2 = _indices[i + 2].Value;
+            for (var i = 0; i < Indices.Count; i += 3) {
+                var i0 = Indices[i].Value;
+                var i1 = Indices[i + 1].Value;
+                var i2 = Indices[i + 2].Value;
 
 
-                Vector3 edge1 = _positions[i1] - _positions[i0];
-                Vector3 edge2 = _positions[i2] - _positions[i0];
+                var edge1 = Positions[i1] - Positions[i0];
+                var edge2 = Positions[i2] - Positions[i0];
 
 
-                float deltaU1 = _texCoords[i1].X - _texCoords[i0].X;
-                float deltaV1 = _texCoords[i1].Y - _texCoords[i0].Y;
-                float deltaU2 = _texCoords[i2].X - _texCoords[i0].X;
-                float deltaV2 = _texCoords[i2].Y - _texCoords[i0].Y;
+                var deltaU1 = TexCoords[i1].X - TexCoords[i0].X;
+                var deltaV1 = TexCoords[i1].Y - TexCoords[i0].Y;
+                var deltaU2 = TexCoords[i2].X - TexCoords[i0].X;
+                var deltaV2 = TexCoords[i2].Y - TexCoords[i0].Y;
 
-                float dividend = (deltaU1 * deltaV2 - deltaU2 * deltaV1);
+                var dividend = deltaU1*deltaV2 - deltaU2*deltaV1;
                 //TODO: The first 0.0f may need to be changed to 1.0f here.
-                float f = dividend == 0 ? 0.0f : 1.0f / dividend;
+                var f = Math.Abs(dividend) < 0.001f ? 0.0f : 1.0f/dividend;
 
-                Vector3 tangent = new Vector3(0, 0, 0);
-                tangent.X = (f * (deltaV2 * edge1.X - deltaV1 * edge2.X));
-                tangent.Y = (f * (deltaV2 * edge1.Y - deltaV1 * edge2.Y));
-                tangent.Z = (f * (deltaV2 * edge1.Z - deltaV1 * edge2.Z));
+                var tangent = new Vector3(0, 0, 0) {
+                    X = f*(deltaV2*edge1.X - deltaV1*edge2.X),
+                    Y = f*(deltaV2*edge1.Y - deltaV1*edge2.Y),
+                    Z = f*(deltaV2*edge1.Z - deltaV1*edge2.Z)
+                };
 
-                _tangents[i0] =  (_tangents[i0] + tangent);
-                _tangents[i1] =  (_tangents[i1] + tangent);
-                _tangents[i2] =  (_tangents[i2] + tangent);
+                Tangents[i0] = Tangents[i0] + tangent;
+                Tangents[i1] = Tangents[i1] + tangent;
+                Tangents[i2] = Tangents[i2] + tangent;
             }
 
-            for (int i = 0; i < _tangents.Count; i++) {
-                _tangents[i] = _tangents[i].Normalized();
+            for (var i = 0; i < Tangents.Count; i++) {
+                Tangents[i] = Tangents[i].Normalized();
             }
-        }
-
-        public List<Vector3> Normals
-        {
-            get { return _normals; }
-        }
-
-        public List<Vector2> TexCoords
-        {
-            get { return _texCoords; }
-        }
-
-        public List<Vector3> Positions
-        {
-            get { return _positions; }
-        }
-
-        public List<int?> Indices
-        {
-            get { return _indices; }
-        }
-
-        public List<Vector3> Tangents
-        {
-            get { return _tangents; }
         }
     }
 }

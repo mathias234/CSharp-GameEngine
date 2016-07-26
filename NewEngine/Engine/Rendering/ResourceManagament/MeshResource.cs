@@ -1,35 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenTK.Graphics.OpenGL;
+﻿using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering.ResourceManagament {
     public class MeshResource {
-        private int _vbo;
         private int _ibo;
-        private int _size;
         private int _refCount;
+        private int _vbo;
 
         public MeshResource() {
             GL.GenBuffers(1, out _vbo);
             GL.GenBuffers(1, out _ibo);
-            _size = 0;
+            Size = 0;
             _refCount = 1;
         }
 
-        public int Vbo
-        {
+        public int Vbo {
             get { return _vbo; }
             set { _vbo = value; }
         }
 
-        public int Ibo
-        {
+        public int Ibo {
             get { return _ibo; }
             set { _ibo = value; }
         }
+
+        public int Size { get; set; }
 
         public void AddReference() {
             _refCount++;
@@ -38,12 +32,6 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
         public bool RemoveReference() {
             _refCount--;
             return _refCount == 0;
-        }
-
-        public int Size
-        {
-            get { return _size; }
-            set { _size = value; }
         }
     }
 }

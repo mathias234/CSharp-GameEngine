@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using NewEngine.Engine.Core;
 using NewEngine.Engine.Rendering.ResourceManagament;
 using OpenTK.Graphics.OpenGL;
-
+using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
 
 namespace NewEngine.Engine.Rendering {
     public enum TextureFilter {
@@ -19,7 +20,10 @@ namespace NewEngine.Engine.Rendering {
         private TextureResource _resource;
         private TextureTarget _target;
 
-        public Texture(string filename, TextureTarget target = TextureTarget.Texture2D, TextureFilter filter = TextureFilter.Linear, PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra, bool clamp = false, FramebufferAttachment attachment = 0) {
+        public Texture(string filename, TextureTarget target = TextureTarget.Texture2D,
+            TextureFilter filter = TextureFilter.Linear, PixelInternalFormat internalFormat = PixelInternalFormat.Rgba,
+            PixelFormat format = PixelFormat.Bgra, bool clamp = false,
+            FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0) {
             if (_loadedTextures.ContainsKey(filename)) {
                 _resource = _loadedTextures[filename];
             }
@@ -30,13 +34,18 @@ namespace NewEngine.Engine.Rendering {
             _target = target;
         }
 
-        public Texture(Bitmap image, TextureTarget target = TextureTarget.Texture2D, TextureFilter filter = TextureFilter.Linear, PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra, bool clamp = false, FramebufferAttachment attachment = 0) {
+        public Texture(Bitmap image, TextureTarget target = TextureTarget.Texture2D,
+            TextureFilter filter = TextureFilter.Linear, PixelInternalFormat internalFormat = PixelInternalFormat.Rgba,
+            PixelFormat format = PixelFormat.Bgra, bool clamp = false,
+            FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0) {
             _resource = LoadTexture(image, filter, internalFormat, format, clamp, attachment, target);
             _target = target;
         }
 
-        public Texture(IntPtr data, int width, int height, TextureTarget target = TextureTarget.Texture2D, TextureFilter filter = TextureFilter.Linear, PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra, bool clamp = false,
-            FramebufferAttachment attachment = 0) {
+        public Texture(IntPtr data, int width, int height, TextureTarget target = TextureTarget.Texture2D,
+            TextureFilter filter = TextureFilter.Linear, PixelInternalFormat internalFormat = PixelInternalFormat.Rgba,
+            PixelFormat format = PixelFormat.Bgra, bool clamp = false,
+            FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0) {
             _resource = LoadTexture(data, width, height, filter, internalFormat, format, clamp, attachment, target);
             _target = target;
         }
@@ -46,8 +55,13 @@ namespace NewEngine.Engine.Rendering {
         /// <param name="height"></param>
         /// <param name="filter"></param>
         /// <param name="attachment"></param>
-        public Texture(char[] data, int width, int height, TextureFilter filter = TextureFilter.Linear, PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra, bool clamp = false,
-            FramebufferAttachment attachment = 0, TextureTarget target = TextureTarget.Texture2D) {
+        /// <param name="internalFormat"></param>
+        /// <param name="format"></param>
+        public Texture(char[] data, int width, int height, TextureFilter filter = TextureFilter.Linear,
+            PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra,
+            bool clamp = false,
+            FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0,
+            TextureTarget target = TextureTarget.Texture2D) {
             _resource = LoadTexture(data, width, height, filter, internalFormat, format, clamp, attachment, target);
             _target = target;
         }
@@ -65,18 +79,22 @@ namespace NewEngine.Engine.Rendering {
             _resource.Bind(0, target);
         }
 
-        private static TextureResource LoadTexture(Bitmap image, TextureFilter filter, PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra, bool clamp = false, FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0, TextureTarget target = TextureTarget.Texture2D) {
+        private static TextureResource LoadTexture(Bitmap image, TextureFilter filter,
+            PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra,
+            bool clamp = false, FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0,
+            TextureTarget target = TextureTarget.Texture2D) {
             if (image == null)
                 return null;
 
 
             var textureData = image.LockBits(new Rectangle(
-                        0, 0, image.Width, image.Height),
-                        System.Drawing.Imaging.ImageLockMode.ReadOnly,
-                        System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                0, 0, image.Width, image.Height),
+                ImageLockMode.ReadOnly,
+                System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
-            TextureResource resource = LoadTexture(textureData.Scan0, textureData.Width, textureData.Height, filter, internalFormat, format, clamp,
-                attachment);
+            var resource = LoadTexture(textureData.Scan0, textureData.Width, textureData.Height, filter, internalFormat,
+                format, clamp,
+                attachment, target);
 
             image.UnlockBits(textureData);
             image.Dispose();
@@ -84,10 +102,14 @@ namespace NewEngine.Engine.Rendering {
             return resource;
         }
 
-        private static TextureResource LoadTexture(char[] data, int width, int height, TextureFilter filter, PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra, bool clamp = false,
-            FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0, TextureTarget target = TextureTarget.Texture2D) {
+        private static TextureResource LoadTexture(char[] data, int width, int height, TextureFilter filter,
+            PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra,
+            bool clamp = false,
+            FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0,
+            TextureTarget target = TextureTarget.Texture2D) {
             try {
-                TextureResource resource = new TextureResource(1, width, height, new List<char[]>() { data }, new[] { filter }, new[] { internalFormat }, new[] { format }, clamp, new[] { attachment }, new[] { target });
+                var resource = new TextureResource(1, width, height, new List<char[]> {data}, new[] {filter},
+                    new[] {internalFormat}, new[] {format}, clamp, new[] {attachment}, new[] {target});
 
                 return resource;
             }
@@ -99,10 +121,14 @@ namespace NewEngine.Engine.Rendering {
         }
 
 
-        private static TextureResource LoadTexture(IntPtr data, int width, int height, TextureFilter filter, PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra, bool clamp = false,
-            FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0, TextureTarget target = TextureTarget.Texture2D) {
+        private static TextureResource LoadTexture(IntPtr data, int width, int height, TextureFilter filter,
+            PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra,
+            bool clamp = false,
+            FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0,
+            TextureTarget target = TextureTarget.Texture2D) {
             try {
-                TextureResource resource = new TextureResource(1, width, height, new IntPtr[] { data }, new[] { filter }, new[] { internalFormat }, new[] { format }, clamp, new[] { attachment }, new[] { target });
+                var resource = new TextureResource(1, width, height, new[] {data}, new[] {filter},
+                    new[] {internalFormat}, new[] {format}, clamp, new[] {attachment}, new[] {target});
 
                 return resource;
             }
@@ -111,20 +137,21 @@ namespace NewEngine.Engine.Rendering {
             }
 
             return null;
-
         }
 
-        private static TextureResource LoadTexture(string filename, TextureFilter filter, PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra, bool clamp = false, FramebufferAttachment attachment = 0, TextureTarget target = TextureTarget.Texture2D) {
+        private static TextureResource LoadTexture(string filename, TextureFilter filter,
+            PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra,
+            bool clamp = false, FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0,
+            TextureTarget target = TextureTarget.Texture2D) {
             Bitmap image;
             if (File.Exists(Path.Combine("./res/textures", filename)))
                 image = new Bitmap(Path.Combine("./res/textures", filename));
             else {
+                LogManager.Error("Image does not exists");
                 image = new Bitmap(Path.Combine("./res/textures", "default_mask.png"));
             }
 
             return LoadTexture(image, filter, internalFormat, format, clamp, attachment, target);
         }
-
-
     }
 }

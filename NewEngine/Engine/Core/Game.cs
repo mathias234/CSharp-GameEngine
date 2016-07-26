@@ -19,15 +19,7 @@ namespace NewEngine.Engine.Core {
             _root.AddChild(gObj);
         }
 
-        public GameObject GetRootObject
-        {
-            get
-            {
-                if (_root == null)
-                    _root = new GameObject();
-                return _root;
-            }
-        }
+        public GameObject GetRootObject => _root ?? (_root = new GameObject());
 
         public void SetEngine(CoreEngine coreEngine) {
             GetRootObject.Engine = coreEngine;

@@ -4,21 +4,14 @@ using OpenTK;
 
 namespace NewEngine.Engine.components {
     public class SpotLight : PointLight {
-        float _cutoff;
-
         public SpotLight(Vector3 color, float intensity, Attenuation attenuation, float cutoff)
-            :base(color, intensity, attenuation)  {
-            _cutoff = cutoff;
-            Shader = new Shader("forward-spot");
+            : base(color, intensity, attenuation) {
+            Cutoff = cutoff;
+            Shader = new Shader("forward-SpotLight");
         }
 
-        public float Cutoff {
-            get { return _cutoff; }
-            set { _cutoff = value; }
-        }
+        public float Cutoff { get; set; }
 
-        public Vector3 Direction {
-            get { return Transform.Forward; }
-        }
+        public Vector3 Direction => Transform.Forward;
     }
 }

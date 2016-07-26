@@ -1,33 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace NewEngine.Engine.Rendering {
+﻿namespace NewEngine.Engine.Rendering {
     public class Attenuation {
-        private float _constant;
-        private float _linear;
-        private float _exponent;
         public Attenuation(float constant, float linear, float exponent) {
-            _constant = constant;
-            _linear = linear;
-            _exponent = exponent;
+            Constant = constant;
+            Linear = linear;
+            Exponent = exponent;
         }
 
-        public float Constant {
-            get { return _constant; }
-            set { _constant = value; }
-        }
+        public float Constant { get; set; }
 
-        public float Linear {
-            get { return _linear; }
-            set { _linear = value; }
-        }
+        public float Linear { get; set; }
 
-        public float Exponent {
-            get { return _exponent; }
-            set { _exponent = value; }
-        }
+        public float Exponent { get; set; }
     }
 }

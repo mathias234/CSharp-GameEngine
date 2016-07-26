@@ -3,12 +3,12 @@ using OpenTK;
 
 namespace NewEngine.Engine.Rendering.ResourceManagament {
     public abstract class MappedValues {
-        private Dictionary<string, Vector3> _stringVector3Map;
+        private Dictionary<string, CubemapTexture> _stringCubemapTextureMap;
         private Dictionary<string, float> _stringFloatMap;
         private Dictionary<string, Texture> _stringTextureMap;
-        private Dictionary<string, CubemapTexture> _stringCubemapTextureMap;
+        private Dictionary<string, Vector3> _stringVector3Map;
 
-        public MappedValues() {
+        protected MappedValues() {
             _stringVector3Map = new Dictionary<string, Vector3>();
             _stringFloatMap = new Dictionary<string, float>();
             _stringTextureMap = new Dictionary<string, Texture>();
@@ -44,36 +44,20 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
         }
 
         public Vector3 GetVector3(string name) {
-            if (_stringVector3Map.ContainsKey(name)) {
-                return _stringVector3Map[name];
-            }
-
-            return Vector3.Zero;
+            return _stringVector3Map.ContainsKey(name) ? _stringVector3Map[name] : Vector3.Zero;
         }
 
         public float GetFloat(string name) {
-            if (_stringFloatMap.ContainsKey(name)) {
-                return _stringFloatMap[name];
-            }
-
-            return 0;
+            return _stringFloatMap.ContainsKey(name) ? _stringFloatMap[name] : 0;
         }
 
         public Texture GetTexture(string name) {
-            if (_stringTextureMap.ContainsKey(name)) {
-                return _stringTextureMap[name];
-            }
-
-            return new Texture("default_mask.png");
+            return _stringTextureMap.ContainsKey(name) ? _stringTextureMap[name] : new Texture("default_mask.png");
         }
 
 
         public CubemapTexture GetCubemapTexture(string name) {
-            if (_stringCubemapTextureMap.ContainsKey(name)) {
-                return _stringCubemapTextureMap[name];
-            }
-
-            return null;
+            return _stringCubemapTextureMap.ContainsKey(name) ? _stringCubemapTextureMap[name] : null;
         }
     }
 }

@@ -39,6 +39,8 @@ C:\engine\NewEngine\bin\Release\BEPUik.xml
 C:\engine\NewEngine\bin\Release\BEPUphysics.xml
 C:\engine\NewEngine\bin\Release\BEPUutilities.xml
 C:\engine\NewEngine\bin\Release\OpenTK.xml
-C:\engine\NewEngine\obj\Release\NewEngine.csprojResolveAssemblyReference.cache
 C:\engine\NewEngine\obj\Release\NewEngine.dll
 C:\engine\NewEngine\obj\Release\NewEngine.pdb
+C:\engine\NewEngine\bin\Release\OpenTK.GLControl.dll
+C:\engine\NewEngine\bin\Release\OpenTK.GLControl.xml
+C:\engine\NewEngine\obj\Release\NewEngine.csprojResolveAssemblyReference.cache

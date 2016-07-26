@@ -65,9 +65,7 @@ namespace NewEngine.Engine.Core {
         }
 
         public static Vector2 GetWindowMousePosition() {
-            if (_mouseDevice == null)
-                return new Vector2(0, 0);
-            return new Vector2(_mouseDevice.X, _mouseDevice.Y);
+            return _mouseDevice == null ? new Vector2(0, 0) : new Vector2(_mouseDevice.X, _mouseDevice.Y);
         }
 
         public static void SetMousePosition(Vector2 pos) {

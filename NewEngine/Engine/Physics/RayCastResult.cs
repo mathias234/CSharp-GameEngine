@@ -6,8 +6,8 @@ namespace NewEngine.Engine.Physics {
         public GameObject HitObject;
 
         public RayCastResult(RayHit hitData, GameObject hitObject) {
-            this.HitData = hitData;
-            this.HitObject = hitObject;
+            HitData = hitData;
+            HitObject = hitObject;
         }
     }
 }

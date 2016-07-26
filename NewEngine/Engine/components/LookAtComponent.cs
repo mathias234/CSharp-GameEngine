@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NewEngine.Engine.Rendering;
-using NewEngine.Engine.Rendering.Shading;
+﻿using NewEngine.Engine.Rendering;
 using OpenTK;
 using NewEngine.Engine.Core;
 
@@ -14,15 +8,14 @@ namespace NewEngine.Engine.components {
         private RenderingEngine _renderingEngine;
 
         public override void Update(float deltaTime) {
-            if (_renderingEngine != null) {
-                Quaternion newRot = Transform.GetLookAtDirection(_renderingEngine.MainCamera.Transform.GetTransformedPosition(), Vector3.UnitY);
+            if (_renderingEngine == null) return;
+            var newRot = Transform.GetLookAtDirection(_renderingEngine.MainCamera.Transform.GetTransformedPosition(), Vector3.UnitY);
 
-                Transform.Rotation = Transform.Rotation.Nlerp(newRot, deltaTime * 0.01f, false);
-                LogManager.Debug(Transform.Rotation.ToString());
-            }
+            Transform.Rotation = Transform.Rotation.Nlerp(newRot, deltaTime * 0.01f, false);
+            LogManager.Debug(Transform.Rotation.ToString());
         }
 
-        public override void Render(Shader shader, RenderingEngine renderingEngine) {
+        public override void Render(string shader, RenderingEngine renderingEngine, bool baseShader) {
             _renderingEngine = renderingEngine;
         }
     }

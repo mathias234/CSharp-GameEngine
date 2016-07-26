@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
-using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NewEngine.Engine.Core;
 using NewEngine.Engine.Rendering;
 using NewEngine.Engine.Rendering.Shading;
@@ -13,37 +8,37 @@ using OpenTK;
 
 namespace NewEngine.Engine.components {
     public class TerrainMesh : GameComponent {
-        private Mesh _mesh;
-        private string _splatmapTextureFilename;
-        private string _splatmapNormalTextureFilename;
-        private string _splatmapDisplacementTextureFilename;
-        private string _heightmapTextureFilename;
-        private float _specularIntensity;
-        private float _specularPower;
-        private float _dispScale;
         private float _dispOffset;
-        private float _heigtmapStrength;
-
-        private int _width;
+        private float _dispScale;
         private int _height;
 
-        private int _imageWidth;
+        private float[] _heights;
+        private float _heigtmapStrength;
         private int _imageHeight;
 
-        private float[] heights;
+        private int _imageWidth;
+        private Texture _layer1;
+        private Texture _layer2;
+        private Mesh _mesh;
+        private float _specularIntensity;
+        private float _specularPower;
 
-        public TerrainMesh(string heightmapTextureFilename, int width, int height, float heigtmapStrength, string splatmapTextureFilename, string splatmapNormalTextureFilename = "default_normal.png", string splatmapDisplacementTextureFilename = "default_disp.png", float specularIntensity = 0.5f, float specularPower = 32.0f, float dispScale = 0.0f, float dispOffset = 0.0f) {
+        private Texture _tex1;
+        private Texture _tex1Nrm;
+        private Texture _tex2;
+        private Texture _tex2Nrm;
+        private Texture _tex3;
+        private Texture _tex3Nrm;
+
+        private int _width;
+
+        public TerrainMesh(string heightmapTextureFilename, int width, int height, float heigtmapStrength, string tex1,
+            string tex1Nrm, string tex2, string tex2Nrm, string layer1, string tex3, string tex3Nrm, string layer2,
+            float specularIntensity = 0.5f, float specularPower = 32.0f, float dispScale = 0.0f, float dispOffset = 0.0f) {
             if (File.Exists(Path.Combine("./res/textures", heightmapTextureFilename)) == false) {
                 LogManager.Error("Terrain Mesh: Heightmap does not exists");
             }
-            if (File.Exists(Path.Combine("./res/textures", splatmapTextureFilename)) == false) {
-                LogManager.Error("Terrain Mesh: Splatmap does not exists");
-            }
 
-            _splatmapTextureFilename = splatmapTextureFilename;
-            _heightmapTextureFilename = heightmapTextureFilename;
-            _splatmapNormalTextureFilename = splatmapNormalTextureFilename;
-            _splatmapDisplacementTextureFilename = splatmapDisplacementTextureFilename;
             _specularIntensity = specularIntensity;
             _specularPower = specularPower;
             _dispScale = dispScale;
@@ -52,16 +47,26 @@ namespace NewEngine.Engine.components {
             _height = height;
             _heigtmapStrength = heigtmapStrength;
 
-            Bitmap image = new Bitmap(Path.Combine("./res/textures", _heightmapTextureFilename));
 
-            LockBitmap lbmap = new LockBitmap(image);
+            _tex1 = new Texture(tex1);
+            _tex1Nrm = new Texture(tex1Nrm);
+            _tex2 = new Texture(tex2);
+            _tex2Nrm = new Texture(tex2Nrm);
+            _layer1 = new Texture(layer1);
+            _tex3 = new Texture(tex3);
+            _tex3Nrm = new Texture(tex3Nrm);
+            _layer2 = new Texture(layer2);
+
+            var image = new Bitmap(Path.Combine("./res/textures", heightmapTextureFilename));
+
+            var lbmap = new LockBitmap(image);
             lbmap.LockBits();
 
-            heights = new float[image.Height * image.Width];
+            _heights = new float[image.Height*image.Width];
 
-            for (int j = 0; j < image.Height; j++) {
-                for (int i = 0; i < image.Width; i++) {
-                    heights[i + j * image.Width] = lbmap.GetPixel(i, j).R;
+            for (var j = 0; j < image.Height; j++) {
+                for (var i = 0; i < image.Width; i++) {
+                    _heights[i + j*image.Width] = lbmap.GetPixel(i, j).R;
                 }
             }
 
@@ -76,42 +81,49 @@ namespace NewEngine.Engine.components {
         }
 
         public void UpdateMesh() {
-
-
-            List<Vertex> verts = new List<Vertex>();
-            List<int> tris = new List<int>();
+            var verts = new List<Vertex>();
+            var tris = new List<int>();
 
             //Bottom left section of the map, other sections are similar
-            for (int i = 0; i < _imageWidth; i++) {
-                for (int j = 0; j < _imageHeight; j++) {
+            for (var i = 0; i < _imageWidth; i++) {
+                for (var j = 0; j < _imageHeight; j++) {
                     //Add each new vertex in the plane
-                    verts.Add(new Vertex(new Vector3((float)i / _imageWidth * _width, heights[i + j * _imageWidth] * _heigtmapStrength, (float)j / _imageHeight * _height),
-                        new Vector2((float)i / _imageWidth, (float)j / _imageHeight)));
+                    verts.Add(
+                        new Vertex(
+                            new Vector3((float) i/_imageWidth*_width, _heights[i + j*_imageWidth]*_heigtmapStrength,
+                                (float) j/_imageHeight*_height),
+                            new Vector2((float) i/_imageWidth, (float) j/_imageHeight)));
 
                     //Skip if a new square on the plane hasn't been formed
                     if (i == 0 || j == 0) continue;
                     //Adds the index of the three vertices in order to make up each of the two tris
-                    tris.Add(_imageWidth * i + j); //Top right
-                    tris.Add(_imageWidth * i + j - 1); //Bottom right
-                    tris.Add(_imageWidth * (i - 1) + j - 1); //Bottom left - First triangle
-                    tris.Add(_imageWidth * (i - 1) + j - 1); //Bottom left 
-                    tris.Add(_imageWidth * (i - 1) + j); //Top left
-                    tris.Add(_imageWidth * i + j); //Top right - Second triangle
+                    tris.Add(_imageWidth*i + j); //Top right
+                    tris.Add(_imageWidth*i + j - 1); //Bottom right
+                    tris.Add(_imageWidth*(i - 1) + j - 1); //Bottom left - First triangle
+                    tris.Add(_imageWidth*(i - 1) + j - 1); //Bottom left 
+                    tris.Add(_imageWidth*(i - 1) + j); //Top left
+                    tris.Add(_imageWidth*i + j); //Top right - Second triangle
                 }
             }
 
 
             _mesh = new Mesh(verts.ToArray(), tris.ToArray(), true);
-
         }
 
-        public override void OnEnable() {
-            base.OnEnable();
-        }
+        public override void Render(string shader, RenderingEngine renderingEngine, bool baseShader) {
+            var shaderToUse = baseShader ? new Shader("Terrain/baseTerrain") : new Shader("terrain/terrain-" + shader);
 
-        public override void Render(Shader shader, RenderingEngine renderingEngine) {
-            shader.Bind();
-            shader.UpdateUniforms(new Transform(), new Material(new Texture(_splatmapTextureFilename), _specularIntensity, _specularPower, new Texture(_splatmapNormalTextureFilename), new Texture(_splatmapDisplacementTextureFilename), _dispScale, _dispOffset), renderingEngine);
+            var terrainMaterial = new Material(_tex1, _specularIntensity, _specularPower, _tex1Nrm);
+            terrainMaterial.SetTexture("tex2", _tex2);
+            terrainMaterial.SetTexture("tex2Nrm", _tex2Nrm);
+            terrainMaterial.SetTexture("layer1", _layer1);
+            terrainMaterial.SetTexture("tex3", _tex3);
+            terrainMaterial.SetTexture("tex3Nrm", _tex3Nrm);
+            terrainMaterial.SetTexture("layer2", _layer2);
+            terrainMaterial.SetFloat("dispMapScale", _dispScale);
+            terrainMaterial.SetFloat("dispMapBias", _dispOffset);
+            shaderToUse.Bind();
+            shaderToUse.UpdateUniforms(new Transform(), terrainMaterial, renderingEngine);
             _mesh.Draw();
         }
     }

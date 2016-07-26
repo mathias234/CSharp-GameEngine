@@ -1,21 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BEPUphysics.Entities;
-using BEPUphysics.Entities.Prefabs;
-using NewEngine.Engine.components;
-using NewEngine.Engine.Core;
-using NewEngine.Engine.Rendering;
+﻿using BEPUphysics.Entities.Prefabs;
 
 namespace NewEngine.Engine.Physics.PhysicsComponents {
     public class BoxCollider : PhysicsComponent {
-        private float _width;
         private float _height;
         private float _length;
 
         private float _mass;
+        private float _width;
 
         public BoxCollider(float width, float height, float length, float mass) {
             _width = width;
@@ -31,11 +22,10 @@ namespace NewEngine.Engine.Physics.PhysicsComponents {
         }
 
         public override void Update(float deltaTime) {
-            var obj = (Box)PhysicsObject;
-            if (obj != null) {
-                Parent.Transform.Position = FromBepuVector3(obj.Position);
-                Parent.Transform.Rotation = FromBepuQuaternion(obj.Orientation);
-            }
+            var obj = (Box) PhysicsObject;
+            if (obj == null) return;
+            Parent.Transform.Position = FromBepuVector3(obj.Position);
+            Parent.Transform.Rotation = FromBepuQuaternion(obj.Orientation);
         }
     }
 }

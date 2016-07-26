@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NewEngine.Engine.Core;
 using OpenTK;
 using OpenTK.Input;
@@ -31,8 +27,8 @@ namespace NewEngine.Engine.components {
 
             if (!_rotateCamera)
                 return;
-            bool rotY = deltaPos.X != 0;
-            bool rotX = deltaPos.Y != 0;
+            bool rotY = Math.Abs(deltaPos.X) > 0.02f;
+            bool rotX = Math.Abs(deltaPos.Y) > 0.02f;
 
             if (rotY)
                 Transform.Rotate(-_yAxis, MathHelper.DegreesToRadians(deltaPos.X * 0.5f));

@@ -51,10 +51,12 @@ C:\engine\NewEngine\bin\Debug\BEPUik.dll
 C:\engine\NewEngine\bin\Debug\BEPUphysics.dll
 C:\engine\NewEngine\bin\Debug\BEPUutilities.dll
 C:\engine\NewEngine\bin\Debug\OpenTK.dll
+C:\engine\NewEngine\bin\Debug\OpenTK.GLControl.dll
 C:\engine\NewEngine\bin\Debug\BEPUik.xml
 C:\engine\NewEngine\bin\Debug\BEPUphysics.xml
 C:\engine\NewEngine\bin\Debug\BEPUutilities.xml
 C:\engine\NewEngine\bin\Debug\OpenTK.xml
+C:\engine\NewEngine\bin\Debug\OpenTK.GLControl.xml
+C:\engine\NewEngine\obj\Debug\NewEngine.csprojResolveAssemblyReference.cache
 C:\engine\NewEngine\obj\Debug\NewEngine.dll
 C:\engine\NewEngine\obj\Debug\NewEngine.pdb
-C:\engine\NewEngine\obj\Debug\NewEngine.csprojResolveAssemblyReference.cache
