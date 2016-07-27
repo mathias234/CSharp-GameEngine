@@ -14,8 +14,10 @@ namespace NewEngine.Engine.Rendering {
     public class Mesh {
         private static Dictionary<string, MeshResource> _loadedModels = new Dictionary<string, MeshResource>();
         private MeshResource _resource;
+        private string _filename;
 
         public Mesh(string filename) {
+            _filename = filename;
             if (_loadedModels.ContainsKey(filename)) {
                 _resource = _loadedModels[filename];
                 _resource.AddReference();
@@ -24,6 +26,14 @@ namespace NewEngine.Engine.Rendering {
                 _resource = new MeshResource();
                 LoadMesh(filename);
                 _loadedModels.Add(filename, _resource);
+            }
+        }
+
+        ~Mesh() {
+            if (_resource != null && _resource.RemoveReference()) {
+                if (_filename != null) {
+                    _loadedModels.Remove(_filename);
+                }
             }
         }
 

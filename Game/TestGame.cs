@@ -63,7 +63,6 @@ namespace Game {
             base.Update(deltaTime);
             var flameColor = new Vector3(226/255.0f, 88/255.0f, 34/255.0f);
             if (Input.GetKeyDown(Key.Q)) {
-                _tMesh.UpdateMesh();
                 CoreEngine.GetCoreEngine.RenderingEngine.SetSkybox("skybox1/top.jpg", "skybox1/bottom.jpg",
                     "skybox1/front.jpg", "skybox1/back.jpg", "skybox1/left.jpg", "skybox1/right.jpg");
             }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -10,6 +11,7 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
     public class CubemapResource {
         private int _cubeMapId;
         private List<string> _textures = new List<string>();
+        private int _refCount;
 
         public CubemapResource(string textureTop, string textureBottom, string textureFront, string textureBack,
             string textureLeft, string textureRight) {
@@ -53,19 +55,40 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
                     textureData.Scan0);
 
                 GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter,
-                    (float) TextureMinFilter.Linear);
+                    (float)TextureMinFilter.Linear);
                 GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMagFilter,
-                    (float) TextureMagFilter.Linear);
+                    (float)TextureMagFilter.Linear);
 
                 GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapS,
-                    (int) TextureWrapMode.ClampToEdge);
+                    (int)TextureWrapMode.ClampToEdge);
                 GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapT,
-                    (int) TextureWrapMode.ClampToEdge);
+                    (int)TextureWrapMode.ClampToEdge);
                 GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapR,
-                    (int) TextureWrapMode.ClampToEdge);
+                    (int)TextureWrapMode.ClampToEdge);
                 image.UnlockBits(textureData);
 
                 image.Dispose();
+            }
+        }
+
+
+        public void AddReference() {
+            _refCount++;
+        }
+
+        public bool RemoveReference() {
+            _refCount--;
+            return _refCount == 0;
+        }
+
+        public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing) {
+            if (disposing) {
+                GL.DeleteTexture(_cubeMapId);
             }
         }
     }

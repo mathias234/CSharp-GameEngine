@@ -1,7 +1,8 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿using System;
+using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering.ResourceManagament {
-    public class MeshResource {
+    public class MeshResource : IDisposable {
         private int _ibo;
         private int _refCount;
         private int _vbo;
@@ -32,6 +33,20 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
         public bool RemoveReference() {
             _refCount--;
             return _refCount == 0;
+        }
+
+        public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing) {
+            if (disposing) {
+                GL.DeleteBuffers(1, ref _vbo);
+                GL.DeleteBuffers(1, ref _ibo);
+                GL.DeleteVertexArray(_vbo);
+                GL.DeleteVertexArray(_ibo);
+            }
         }
     }
 }

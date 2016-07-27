@@ -9,11 +9,10 @@ use mklink /J in each game folder to link to the res folder that contains all th
 ```
 
 **Known Issues:**
-- Memory not being properly cleaned up when deleting a resource!
 
 **Future Plans:**
 
 - Variance Shadow Mapping
 - FXAA or other anti aliasing techniques
 - More UI stuff like text, and clicking and stuff
-
+- Editor

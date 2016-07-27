@@ -41,10 +41,7 @@ namespace NewEngine.Engine.components.UIComponents {
             get { return _text; }
         }
 
-        public void Dispose() {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+
 
         public float Biggest(float a, float b) {
             return a > b ? a : b;
@@ -116,6 +113,11 @@ namespace NewEngine.Engine.components.UIComponents {
             GL.Enable(EnableCap.Lighting);
             GL.Enable(EnableCap.CullFace);
             GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.One);
+        }
+
+        public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool disposing) {

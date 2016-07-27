@@ -19,13 +19,18 @@ namespace NewEngine.Engine.Rendering {
         private static Dictionary<string, TextureResource> _loadedTextures = new Dictionary<string, TextureResource>();
         private TextureResource _resource;
         private TextureTarget _target;
+        private string _filename;
 
         public Texture(string filename, TextureTarget target = TextureTarget.Texture2D,
             TextureFilter filter = TextureFilter.Linear, PixelInternalFormat internalFormat = PixelInternalFormat.Rgba,
             PixelFormat format = PixelFormat.Bgra, bool clamp = false,
             FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0) {
+
+            _filename = filename;
+
             if (_loadedTextures.ContainsKey(filename)) {
                 _resource = _loadedTextures[filename];
+                _resource.AddReference();
             }
             else {
                 _resource = LoadTexture(filename, filter, internalFormat, format, clamp, attachment, target);
@@ -38,15 +43,17 @@ namespace NewEngine.Engine.Rendering {
             TextureFilter filter = TextureFilter.Linear, PixelInternalFormat internalFormat = PixelInternalFormat.Rgba,
             PixelFormat format = PixelFormat.Bgra, bool clamp = false,
             FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0) {
-            _resource = LoadTexture(image, filter, internalFormat, format, clamp, attachment, target);
-            _target = target;
-        }
 
-        public Texture(IntPtr data, int width, int height, TextureTarget target = TextureTarget.Texture2D,
-            TextureFilter filter = TextureFilter.Linear, PixelInternalFormat internalFormat = PixelInternalFormat.Rgba,
-            PixelFormat format = PixelFormat.Bgra, bool clamp = false,
-            FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0) {
-            _resource = LoadTexture(data, width, height, filter, internalFormat, format, clamp, attachment, target);
+            _filename = image.GetPixel(2, 3).ToString() + image.GetPixel(1, 1);
+
+            if (_loadedTextures.ContainsKey(_filename)) {
+                _resource = _loadedTextures[_filename];
+                _resource.AddReference();
+            }
+            else {
+                _resource = LoadTexture(image, filter, internalFormat, format, clamp, attachment, target);
+                _loadedTextures.Add(_filename, _resource);
+            }
             _target = target;
         }
 
@@ -64,6 +71,14 @@ namespace NewEngine.Engine.Rendering {
             TextureTarget target = TextureTarget.Texture2D) {
             _resource = LoadTexture(data, width, height, filter, internalFormat, format, clamp, attachment, target);
             _target = target;
+        }
+
+        ~Texture() {
+            if (_resource != null && _resource.RemoveReference()) {
+                if (_filename != null) {
+                    _loadedTextures.Remove(_filename);
+                }
+            }
         }
 
         public void BindAsRenderTarget() {

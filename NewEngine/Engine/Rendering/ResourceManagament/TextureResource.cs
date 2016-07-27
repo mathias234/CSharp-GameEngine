@@ -4,13 +4,14 @@ using NewEngine.Engine.Core;
 using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering.ResourceManagament {
-    public class TextureResource {
+    public class TextureResource : IDisposable {
         private int _frameBuffer;
         private int _height;
         private int[] _id;
         private int _numTextures;
         private int _renderBuffer;
         private int _width;
+        private int _refCount;
 
         public TextureResource(int numTexture, int width, int height, List<char[]> data, TextureFilter[] filters,
             PixelInternalFormat[] internalFormat, PixelFormat[] format, bool clamp, FramebufferAttachment[] attachments,
@@ -24,6 +25,7 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
 
             InitTextures(data, filters, internalFormat, format, clamp, targets);
             InitRenderTargets(attachments, targets);
+            _refCount = 1;
         }
 
         public TextureResource(int numTexture, int width, int height, IntPtr[] data, TextureFilter[] filters,
@@ -38,6 +40,7 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
 
             InitTextures(data, filters, internalFormat, format, clamp, targets);
             InitRenderTargets(attachments, targets);
+            _refCount = 1;
         }
 
         private void InitRenderTargets(FramebufferAttachment[] attachments, TextureTarget[] targets) {
@@ -160,6 +163,29 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
             GL.BindTexture(TextureTarget.ProxyTexture2D, 0);
             GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, _frameBuffer);
             GL.Viewport(0, 0, _width, _height);
+        }
+
+
+        public void AddReference() {
+            _refCount++;
+        }
+
+        public bool RemoveReference() {
+            _refCount--;
+            return _refCount == 0;
+        }
+
+        public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing) {
+            if (disposing) {
+                GL.DeleteTextures(_numTextures, _id);       
+                GL.DeleteRenderbuffers(1, ref _renderBuffer);       
+                GL.DeleteFramebuffers(1, ref _frameBuffer);
+            }
         }
     }
 }

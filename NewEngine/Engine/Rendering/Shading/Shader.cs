@@ -25,28 +25,13 @@ namespace NewEngine.Engine.Rendering.Shading {
                 _resource.AddReference();
             }
             else {
-                _resource = new ShaderResource();
-
-                var vertexShaderText = LoadShader(filename + ".vs");
-                var fragmentShaderText = LoadShader(filename + ".fs");
-
-                AddVertexShader(vertexShaderText);
-                AddFragmentShader(fragmentShaderText);
-
-                AddAllAttributes(vertexShaderText);
-                AddAllAttributes(fragmentShaderText);
-
-                CompileShader();
-
-                AddAllUniforms(vertexShaderText);
-                AddAllUniforms(fragmentShaderText);
-
+                _resource = new ShaderResource(filename);
                 _loadedShaders.Add(filename, _resource);
             }
         }
 
         ~Shader() {
-            if (_resource.RemoveReference() && _filename != "") {
+            if (_resource.RemoveReference() && _filename != null) {
                 _loadedShaders.Remove(_filename);
             }
         }
@@ -163,218 +148,6 @@ namespace NewEngine.Engine.Rendering.Shading {
             }
         }
 
-        private void AddAllUniforms(string shaderText) {
-            var structs = FindUniformStructs(shaderText);
-
-            var uniformKeyWord = "uniform";
-            var uniformStartLocation = shaderText.IndexOf(uniformKeyWord, StringComparison.Ordinal);
-            while (uniformStartLocation != -1) {
-                if (uniformStartLocation == 0 &&
-                    (char.IsWhiteSpace(shaderText[uniformStartLocation - 1]) ||
-                     shaderText[uniformStartLocation - 1] == ';')
-                    && char.IsWhiteSpace(shaderText[uniformStartLocation + uniformKeyWord.Length]))
-                    continue;
-
-                var begin = uniformStartLocation + uniformKeyWord.Length + 1;
-                var end = shaderText.IndexOf(";", begin, StringComparison.Ordinal);
-
-                var uniformLine = shaderText.Substring(begin, end - begin + 1).Trim();
-
-                var whiteSpacePos = uniformLine.IndexOf(' ');
-
-                var uniformName =
-                    uniformLine.Substring(whiteSpacePos + 1, uniformLine.Length - (uniformLine.IndexOf(' ') + 2)).Trim();
-                var uniformType = uniformLine.Substring(0, whiteSpacePos).Trim();
-
-                _resource.UniformNames.Add(uniformName);
-                _resource.UniformTypes.Add(uniformType);
-                AddUniform(uniformName, uniformType, structs);
-
-
-                uniformStartLocation = shaderText.IndexOf(uniformKeyWord, uniformStartLocation + uniformKeyWord.Length,
-                    StringComparison.Ordinal);
-            }
-        }
-
-        private void AddUniform(string uniformName, string uniformType,
-            Dictionary<string, List<GlslStruct>> structs) {
-            var addThis = true;
-
-            var structComponents = structs.ContainsKey(uniformType) ? structs[uniformType] : null;
-
-            if (structComponents != null) {
-                addThis = false;
-
-                foreach (var glslStruct in structComponents) {
-                    AddUniform(uniformName + "." + glslStruct.Name, glslStruct.type, structs);
-                }
-            }
-
-            if (!addThis)
-                return;
-
-            var uniformLocation = GL.GetUniformLocation(_resource.Program, uniformName);
-
-            if (uniformLocation == -1) {
-                LogManager.Error("ERROR: Could not find uniform " + uniformName + " of type: " + uniformType);
-            }
-            if (!_resource.Uniforms.ContainsKey(uniformName))
-                _resource.Uniforms.Add(uniformName, uniformLocation);
-            else {
-                _resource.Uniforms[uniformName] = uniformLocation;
-            }
-        }
-
-        private Dictionary<string, List<GlslStruct>> FindUniformStructs(string shaderText) {
-            var result = new Dictionary<string, List<GlslStruct>>();
-
-            var structKeyword = "struct";
-            var structStartLocation = shaderText.IndexOf(structKeyword, StringComparison.Ordinal);
-            while (structStartLocation != -1) {
-                if (structStartLocation == 0 &&
-                    (char.IsWhiteSpace(shaderText[structStartLocation - 1]) ||
-                     shaderText[structStartLocation - 1] == ';')
-                    && char.IsWhiteSpace(shaderText[structStartLocation + structKeyword.Length]))
-                    continue;
-
-                var nameBegin = structStartLocation + structKeyword.Length + 1;
-                var braceBegin = shaderText.IndexOf("{", nameBegin, StringComparison.Ordinal);
-                var braceEnd = shaderText.IndexOf("}", braceBegin, StringComparison.Ordinal);
-
-                //int end = shaderText.IndexOf(";", begin, StringComparison.Ordinal);
-
-
-                var structName = shaderText.Substring(nameBegin, braceBegin - nameBegin).Trim();
-                var structComponents = new List<GlslStruct>();
-
-                var componentSemicolonPos = shaderText.IndexOf(";", braceBegin, StringComparison.Ordinal);
-                while (componentSemicolonPos != -1 && componentSemicolonPos < braceEnd) {
-                    var componentNameStart = componentSemicolonPos;
-
-                    while (!char.IsWhiteSpace(shaderText[componentNameStart - 1]))
-                        componentNameStart--;
-
-                    var componentTypeEnd = componentNameStart - 1;
-
-                    var componentTypeStart = componentTypeEnd;
-
-                    while (!char.IsWhiteSpace(shaderText[componentTypeStart - 1]))
-                        componentTypeStart--;
-
-                    var componentName = shaderText.Substring(componentNameStart,
-                        componentSemicolonPos - componentNameStart);
-
-                    var componentType = shaderText.Substring(componentTypeStart,
-                        componentTypeEnd - componentTypeStart);
-
-
-                    var glslStruct = new GlslStruct();
-                    glslStruct.Name = componentName;
-                    glslStruct.type = componentType;
-                    structComponents.Add(glslStruct);
-
-                    componentSemicolonPos = shaderText.IndexOf(";",
-                        componentSemicolonPos + 1, StringComparison.Ordinal);
-                }
-
-                if (!result.ContainsKey(structName))
-                    result.Add(structName, structComponents);
-                else {
-                    result[structName] = structComponents;
-                }
-
-                structStartLocation = shaderText.IndexOf(structKeyword, structStartLocation + structKeyword.Length,
-                    StringComparison.Ordinal);
-            }
-            return result;
-        }
-
-        private void AddAllAttributes(string shaderText) {
-            var attributeKeyword = "attribute";
-            var attributeStartPosition = shaderText.IndexOf(attributeKeyword, StringComparison.Ordinal);
-            var attribNumber = 0;
-            while (attributeStartPosition != -1) {
-                if (attributeStartPosition == 0 &&
-                    (char.IsWhiteSpace(shaderText[attributeStartPosition - 1]) ||
-                     shaderText[attributeStartPosition - 1] == ';')
-                    && char.IsWhiteSpace(shaderText[attributeStartPosition + attributeKeyword.Length]))
-                    continue;
-
-
-                var begin = attributeStartPosition + attributeKeyword.Length + 1;
-                var end = shaderText.IndexOf(";", begin, StringComparison.Ordinal);
-
-                var attributeLine = shaderText.Substring(begin, end - begin + 1).Trim();
-
-                var attributeName =
-                    attributeLine.Substring(attributeLine.IndexOf(' ') + 1,
-                        attributeLine.Length - (attributeLine.IndexOf(' ') + 2)).Trim();
-
-                SetAttribLocation(attributeName, attribNumber);
-                attribNumber++;
-
-                attributeStartPosition = shaderText.IndexOf(attributeKeyword,
-                    attributeStartPosition + attributeKeyword.Length, StringComparison.Ordinal);
-            }
-        }
-
-
-        private void AddVertexShader(string text) {
-            AddProgram(text, ShaderType.VertexShader);
-        }
-
-        private void AddFragmentShader(string text) {
-            AddProgram(text, ShaderType.FragmentShader);
-        }
-
-        private void AddGeometryShader(string text) {
-            AddProgram(text, ShaderType.GeometryShader);
-        }
-
-
-        private void SetAttribLocation(string attributeName, int location) {
-            GL.BindAttribLocation(_resource.Program, location, attributeName);
-        }
-
-        private void CompileShader() {
-            GL.LinkProgram(_resource.Program);
-
-            int programLinkStatus;
-            GL.GetProgram(_resource.Program, ProgramParameter.LinkStatus, out programLinkStatus);
-
-            if (programLinkStatus == 0) {
-                LogManager.Error(GL.GetProgramInfoLog(_resource.Program));
-            }
-
-            GL.ValidateProgram(_resource.Program);
-
-            int programValidateStatus;
-            GL.GetProgram(_resource.Program, ProgramParameter.ValidateStatus, out programValidateStatus);
-
-            if (programValidateStatus == 0) {
-                LogManager.Error(GL.GetProgramInfoLog(_resource.Program));
-            }
-        }
-
-        private void AddProgram(string text, ShaderType type) {
-            var shader = GL.CreateShader(type);
-
-            if (shader == 0) {
-                LogManager.Error("Shader creation failed: could not find valid memory location when adding shader");
-            }
-
-            GL.ShaderSource(shader, text);
-            GL.CompileShader(shader);
-
-            int compileStatus;
-            GL.GetShader(shader, ShaderParameter.CompileStatus, out compileStatus);
-
-            if (compileStatus == 0) {
-                LogManager.Error(GL.GetShaderInfoLog(shader));
-            }
-
-            GL.AttachShader(_resource.Program, shader);
-        }
 
         public void SetUniform(string uniformName, int value) {
             GL.Uniform1(_resource.Uniforms[uniformName], value);
@@ -425,7 +198,7 @@ namespace NewEngine.Engine.Rendering.Shading {
             SetUniform(uniformName + ".cutoff", spotLight.Cutoff);
         }
 
-        private static string LoadShader(string filename) {
+        public static string LoadShader(string filename) {
             var shaderSource = new StringBuilder();
             var includeDirective = "#include";
 
@@ -448,11 +221,6 @@ namespace NewEngine.Engine.Rendering.Shading {
             }
 
             return shaderSource.ToString();
-        }
-
-        private class GlslStruct {
-            public string Name;
-            public string type;
         }
     }
 }
