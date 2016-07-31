@@ -1,6 +1,4 @@
 ﻿using System;
-using ArcManagedFBX;
-using ArcManagedFBX.IO;
 using NewEngine.Engine.Core;
 
 namespace NewEngine.Engine.Rendering.MeshLoading.FBX {

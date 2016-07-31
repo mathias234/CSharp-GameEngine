@@ -9,14 +9,17 @@ namespace NewEngine.Engine.Core {
         private List<GameComponent> _components;
         private CoreEngine _engine;
 
-        public GameObject() {
+        public GameObject(string name) {
             _children = new List<GameObject>();
             _components = new List<GameComponent>();
             Transform = new Transform();
+            Transform.Name = name;
+            Name = name;
             Engine = null;
         }
 
         public Transform Transform { get; set; }
+        public string Name { get; set; }
 
         public CoreEngine Engine {
             get { return _engine; }

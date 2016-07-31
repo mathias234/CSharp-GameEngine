@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using NewEngine.Engine.components;
 using NewEngine.Engine.Core;
 using NewEngine.Engine.Rendering.ResourceManagament;
@@ -11,7 +12,7 @@ namespace NewEngine.Engine.Rendering {
         private Camera _altCamera;
         private GameObject _altCameraObject;
 
-        private Matrix4 _biasMatrix = Matrix4.CreateTranslation(1.0f, 1.0f, 1.0f)*Matrix4.CreateScale(0.5f, 0.5f, 0.5f);
+        private Matrix4 _biasMatrix = Matrix4.CreateTranslation(1.0f, 1.0f, 1.0f) * Matrix4.CreateScale(0.5f, 0.5f, 0.5f);
 
         private List<BaseLight> _lights;
         private Dictionary<string, int> _samplerMap;
@@ -19,6 +20,19 @@ namespace NewEngine.Engine.Rendering {
         private Mesh _skybox;
         private Material _skyboxMaterial;
         private Shader _skyboxShader;
+        private Shader _nullFilter;
+        private Shader _gausFilter;
+
+        private Mesh _plane;
+        private Transform _planeTransform;
+        private Material _planeMaterial;
+        private Texture _tempTarget;
+
+
+        public static int NumShadowMaps = 10;
+
+        private Texture[] _shadowMaps = new Texture[NumShadowMaps];
+        private Texture[] _shadowMapsTempTargets = new Texture[NumShadowMaps];
 
         public RenderingEngine() {
             _lights = new List<BaseLight>();
@@ -34,18 +48,24 @@ namespace NewEngine.Engine.Rendering {
                 {"layer1", 8},
                 {"tex3", 9},
                 {"tex3Nrm", 10},
-                {"layer2", 11}
+                {"layer2", 11},
+                {"filterTexture", 12}
             };
 
+            SetVector3("ambient", new Vector3(0.1f));
+            //SetTexture("shadowMap",
+            //    new Texture((IntPtr)0, 1024, 1024, TextureFilter.Linear, PixelInternalFormat.Rg32f,
+            //        PixelFormat.Rgba, true));
 
-            // terrain releated
 
-            SetVector3("ambient", new Vector3(0.3f));
-            SetTexture("shadowMap",
-                new Texture(null, 2048, 2048, TextureFilter.Point, PixelInternalFormat.DepthComponent16,
-                    PixelFormat.DepthComponent, true, FramebufferAttachment.DepthAttachment));
+            //SetTexture("shadowMapTempTarget",
+            //    new Texture((IntPtr)0, 1024, 1024, TextureFilter.Linear, PixelInternalFormat.Rg32f,
+            //    PixelFormat.Rgba, true));
+
 
             _skyboxShader = new Shader("skybox");
+            _nullFilter = new Shader("filters/filter-null");
+            _gausFilter = new Shader("filters/filter-gausBlur7x1");
 
             GL.ClearColor(0, 0, 0, 0);
 
@@ -56,13 +76,32 @@ namespace NewEngine.Engine.Rendering {
             GL.Enable(EnableCap.DepthClamp);
 
             _altCamera = new Camera(Matrix4.Identity);
-            _altCameraObject = new GameObject().AddComponent(_altCamera);
+            _altCameraObject = new GameObject("alt camera").AddComponent(_altCamera);
 
             _skyboxMaterial = new Material(null);
             _skybox = new Mesh("skybox.obj");
+
+            int width = (int)CoreEngine.GetWidth();
+            int height = (int)CoreEngine.GetHeight();
+
+            _tempTarget = new Texture(null, width, height, TextureFilter.Point);
+
+            _plane = PrimitiveObjects.CreatePlane;
+            _planeMaterial = new Material(_tempTarget, 1, 8);
+            _planeTransform = new Transform();
+            _planeTransform.Rotate(new Vector3(0, 1, 0), MathHelper.DegreesToRadians(180.0f));
+
+            for (int i = 0; i < NumShadowMaps; i++) {
+                int shadowMapSize = 1 << (i + 1);
+                _shadowMaps[i] = new Texture((IntPtr)0, shadowMapSize, shadowMapSize, TextureFilter.Linear, PixelInternalFormat.Rg32f, PixelFormat.Rgba, true);
+                _shadowMapsTempTargets[i] = new Texture((IntPtr)0, shadowMapSize, shadowMapSize, TextureFilter.Linear, PixelInternalFormat.Rg32f, PixelFormat.Rgba, true);
+
+            }
+
+            LightMatrix = Matrix4.CreateScale(0, 0, 0);
         }
 
-        public BaseLight GetActiveLight { get; private set; }
+        public BaseLight ActiveLight { get; private set; }
 
         public Camera MainCamera { get; set; }
 
@@ -77,7 +116,7 @@ namespace NewEngine.Engine.Rendering {
         public void Render(GameObject gameObject) {
             CoreEngine.BindAsRenderTarget();
 
-            GL.ClearColor(0.0f, 0.0f, 0.2f, 0.0f);
+            GL.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             RenderSkybox();
@@ -86,9 +125,9 @@ namespace NewEngine.Engine.Rendering {
             gameObject.RenderAll(null, this, true);
 
             foreach (var light in _lights) {
-                GetActiveLight = light;
+                ActiveLight = light;
 
-                RenderShadowMap(light, gameObject);
+                RenderShadowMap(ActiveLight, gameObject);
 
                 CoreEngine.BindAsRenderTarget();
 
@@ -96,8 +135,6 @@ namespace NewEngine.Engine.Rendering {
                 GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.One);
                 GL.DepthMask(false);
                 GL.DepthFunc(DepthFunction.Equal);
-
-                //LogManager.Debug(light.GetType().Name);
 
                 gameObject.RenderAll(light.GetType().Name, this, false);
 
@@ -110,29 +147,56 @@ namespace NewEngine.Engine.Rendering {
         private void RenderShadowMap(BaseLight light, GameObject gameObject) {
             var shadowInfo = light.ShadowInfo;
 
-            GetTexture("shadowMap").BindAsRenderTarget();
-            GL.Clear(ClearBufferMask.DepthBufferBit);
+            int shadowMapIndex = 0;
 
-            if (shadowInfo == null) return;
-            _altCamera.SetProjection = shadowInfo.Projection;
-            _altCamera.Transform.Position = GetActiveLight.Transform.GetTransformedPosition();
-            _altCamera.Transform.Rotation = GetActiveLight.Transform.GetTransformedRotation();
+            if (shadowInfo != null)
+                shadowMapIndex = shadowInfo.ShadowMapSizeAsPowerOf2 - 1;
 
-            LightMatrix = _altCamera.GetViewProjection()*_biasMatrix;
-
-            SetVector3("shadowTexelSize", new Vector3(1.0f/1024.0f, 1.0f/1024.0f, 0));
-            SetFloat("shadowBias", shadowInfo.Bias/1024.0f);
-            var flipFaces = shadowInfo.FlipFaces;
+            SetTexture("shadowMap", _shadowMaps[shadowMapIndex]);
+            _shadowMaps[shadowMapIndex].BindAsRenderTarget();
+            GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
+            GL.ClearColor(1.0f, 1.0f, 0.0f, 0.0f);
 
 
-            var temp = MainCamera;
-            MainCamera = _altCamera;
+            if (shadowInfo != null) {
 
-            if (flipFaces) GL.CullFace(CullFaceMode.Front);
-            gameObject.RenderAll("shadowMapGenerator", this, false);
-            if (flipFaces) GL.CullFace(CullFaceMode.Back);
 
-            MainCamera = temp;
+                _altCamera.SetProjection = shadowInfo.Projection;
+
+                ShadowCameraTransform shadowCameraTransform =
+                    ActiveLight.CalcShadowCameraTransform(MainCamera.Transform);
+
+
+
+                _altCamera.Transform.Position = shadowCameraTransform.pos;
+                _altCamera.Transform.Rotation = shadowCameraTransform.rot;
+
+                LightMatrix = _altCamera.GetViewProjection() * _biasMatrix;
+
+                SetFloat("shadowVarianceMin", shadowInfo.MinVariance);
+                SetFloat("shadowBleedingReduction", shadowInfo.LightBleedReductionAmount);
+
+                var flipFaces = shadowInfo.FlipFaces;
+
+                var temp = MainCamera;
+                MainCamera = _altCamera;
+
+                if (flipFaces) GL.CullFace(CullFaceMode.Front);
+                gameObject.RenderAll("shadowMapGenerator", this, false);
+                if (flipFaces) GL.CullFace(CullFaceMode.Back);
+
+                MainCamera = temp;
+
+                float shadowSoftness = shadowInfo.ShadowSoftness;
+                if (Math.Abs(shadowSoftness) > 0.0001f)
+                    BlurShadowMap(shadowMapIndex, shadowInfo.ShadowSoftness);
+            }
+            else {
+                LightMatrix = Matrix4.CreateScale(0, 0, 0);
+                SetFloat("shadowVarianceMin", 0.00002f);
+                SetFloat("shadowBleedingReduction", 0.0f);
+            }
+
         }
 
         private void RenderSkybox() {
@@ -148,6 +212,44 @@ namespace NewEngine.Engine.Rendering {
             var cubemap = new CubemapTexture(textureTopFilename, textureBottomFilename, textureFrontFilename,
                 textureBackFilename, textureLeftFilename, textureRightFilename);
             _skyboxMaterial.SetCubemapTexture("skybox", cubemap);
+        }
+
+        public void BlurShadowMap(int shadowMapIndex, float blurAmount) {
+            var shadowMap = _shadowMaps[shadowMapIndex];
+            var tempTarget = _shadowMapsTempTargets[shadowMapIndex];
+
+            SetVector3("blurScale", new Vector3(blurAmount / shadowMap.Width, 0.0f, 0.0f));
+            ApplyFilter(_gausFilter, shadowMap, tempTarget);
+
+            SetVector3("blurScale", new Vector3(0.0f, blurAmount / shadowMap.Height, 0.0f));
+            ApplyFilter(_gausFilter, tempTarget, shadowMap);
+        }
+
+        public void ApplyFilter(Shader filter, Texture source, Texture dest) {
+            if (source == dest) LogManager.Error("ApplyFilter: source texture cannot be the same as dest texture!");
+            if (dest == null)
+                CoreEngine.BindAsRenderTarget();
+            else
+                dest.BindAsRenderTarget();
+
+            SetTexture("filterTexture", source);
+
+            _altCameraObject.Transform.Rotation = Quaternion.Identity;
+            _altCamera.SetProjection = Matrix4.Identity;
+            _altCameraObject.Transform.Position = new Vector3(0, 0, 0);
+
+            Camera temp = MainCamera;
+            MainCamera = _altCamera;
+
+            GL.ClearColor(0, 0, 0.5f, 1.0f);
+            GL.Clear(ClearBufferMask.DepthBufferBit);
+
+            filter.Bind();
+            filter.UpdateUniforms(_planeTransform, _planeMaterial, this);
+            _plane.Draw();
+
+            MainCamera = temp;
+            SetTexture("filterTexture", null);
         }
 
         public static string GetOpenGlVersion() {

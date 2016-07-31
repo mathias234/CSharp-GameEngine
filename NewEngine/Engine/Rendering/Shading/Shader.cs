@@ -76,11 +76,11 @@ namespace NewEngine.Engine.Rendering.Shading {
                     else if (uniformType == "float")
                         SetUniform(uniformName, renderingEngine.GetFloat(unprefixedUniformName));
                     else if (uniformType == "DirectionalLight")
-                        SetUniformDirectionalLight(uniformName, (DirectionalLight) renderingEngine.GetActiveLight);
+                        SetUniformDirectionalLight(uniformName, (DirectionalLight) renderingEngine.ActiveLight);
                     else if (uniformType == "PointLight")
-                        SetUniformPointLight(uniformName, (PointLight) renderingEngine.GetActiveLight);
+                        SetUniformPointLight(uniformName, (PointLight) renderingEngine.ActiveLight);
                     else if (uniformType == "SpotLight")
-                        SetUniformSpotLight(uniformName, (SpotLight) renderingEngine.GetActiveLight);
+                        SetUniformSpotLight(uniformName, (SpotLight) renderingEngine.ActiveLight);
                     else
                         renderingEngine.UpdateUniformStruct(transform, material, this, uniformName, uniformType);
                 }

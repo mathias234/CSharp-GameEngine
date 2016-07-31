@@ -1,10 +1,19 @@
 #include "sampling.glh"
 
+bool InRange(float val) {
+	return val >= 0.0 && val <= 1.0;
+}
+
 float CalcShadowAmount(sampler2D shadowMap, vec4 initialShadowMapCoords) 
 {
 	vec3 shadowMapCoords = (initialShadowMapCoords.xyz/initialShadowMapCoords.w);
-		
-	return SampleShadowMapPCF(shadowMap, shadowMapCoords.xy, shadowMapCoords.z - R_shadowBias, R_shadowTexelSize.xy);
+	
+	if(InRange(shadowMapCoords.z) && InRange(shadowMapCoords.x) && InRange(shadowMapCoords.y)) {
+		return SampleVarianceShadowMap(shadowMap, shadowMapCoords.xy, shadowMapCoords.z, R_shadowVarianceMin, R_shadowBleedingReduction);
+	}
+	else {
+		return 1.0;
+	}
 }
 
 void main()
@@ -15,6 +24,8 @@ void main()
 	
 	vec4 lightingAmt = CalcLightingEffect(normal, worldPos0) * CalcShadowAmount(R_shadowMap, shadowMapCoords0);
 	
-	
 	fragColor = texture(diffuse, texCoords) * lightingAmt;
+	
+	// use this for testing shadow map	
+	//fragColor = vec4(1,1,1,1) * CalcShadowAmount(R_shadowMap, shadowMapCoords0);
 }

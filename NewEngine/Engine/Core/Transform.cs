@@ -1,4 +1,5 @@
 ﻿using OpenTK;
+using NewEngine.Engine.Core;
 
 namespace NewEngine.Engine.Core {
     public class Transform {
@@ -10,6 +11,8 @@ namespace NewEngine.Engine.Core {
         private Transform _parent;
         private Matrix4 _parentMatrix;
 
+        private string _name;
+
         public Transform() {
             _position = new Vector3(0, 0, 0);
             _rotation = Quaternion.Identity;
@@ -18,47 +21,64 @@ namespace NewEngine.Engine.Core {
             _parentMatrix = Matrix4.Identity;
         }
 
-        public Vector3 Forward => Rotate(GetTransformedRotation(), new Vector3(0, 0, 1));
+        public Vector3 Forward => new Vector3(0,0,1).Rotate(GetTransformedRotation()); 
 
-        public Vector3 Up => Rotate(GetTransformedRotation(), new Vector3(0, 1, 0));
+        public Vector3 Up => new Vector3(0, 1, 0).Rotate(GetTransformedRotation());
 
+        public Vector3 Right => new Vector3(1, 0, 0).Rotate(GetTransformedRotation());
 
-        public Vector3 Right => Rotate(GetTransformedRotation(), new Vector3(1, 0, 0));
+        public string Name
+        {
+            get { return _name; }
+            set
+            {
+                _name = value;
+                _hasChanged = true;
+            }
+        }
 
-        public Vector3 Position {
+        public Vector3 Position
+        {
             get { return _position; }
-            set {
+            set
+            {
                 _position = value;
                 _hasChanged = true;
             }
         }
 
-        public Quaternion Rotation {
+        public Quaternion Rotation
+        {
             get { return _rotation; }
-            set {
+            set
+            {
                 _rotation = value;
                 _hasChanged = true;
             }
         }
 
-        public Vector3 Scale {
+        public Vector3 Scale
+        {
             get { return _scale; }
-            set {
+            set
+            {
                 _scale = value;
                 _hasChanged = true;
             }
         }
 
-        public Transform Parent {
+        public Transform Parent
+        {
             get { return _parent; }
-            set {
+            set
+            {
                 _parent = value;
                 _hasChanged = true;
             }
         }
 
         public void Rotate(Vector3 axis, float angle) {
-            _rotation = (Quaternion.FromAxisAngle(axis, angle)*_rotation).Normalized();
+            _rotation = (Quaternion.FromAxisAngle(axis, angle) * _rotation).Normalized();
         }
 
         public void LookAt(Vector3 point, Vector3 up) {
@@ -71,13 +91,14 @@ namespace NewEngine.Engine.Core {
 
 
         public Matrix4 GetTransformation() {
-            var translationMatrix = Matrix4.CreateTranslation(Position);
-            var rotationMatrix = Matrix4.CreateFromQuaternion(Rotation);
+            var translationMatrix = Matrix4.CreateTranslation(_position);
+            var rotationMatrix = Matrix4.CreateFromQuaternion(_rotation);
             var scaleMatrix = Matrix4.CreateScale(_scale);
 
-
             // ORDER IS IMPORTANT
-            return scaleMatrix*rotationMatrix*translationMatrix*GetParentMatrix();
+            var result = translationMatrix * rotationMatrix * scaleMatrix;
+
+            return GetParentMatrix() * result;
         }
 
 
@@ -85,13 +106,15 @@ namespace NewEngine.Engine.Core {
             var translationMatrix = Matrix4.CreateTranslation(Position);
             var scaleMatrix = Matrix4.CreateScale(_scale);
 
+            var result = translationMatrix * scaleMatrix;
+
             // ORDER IS IMPORTANT
-            return scaleMatrix*translationMatrix*GetParentMatrix();
+            return GetParentMatrix() * result;
         }
 
 
         private Matrix4 GetParentMatrix() {
-            if (_parent != null && _parent._hasChanged) {
+            if (_parent != null) {
                 _parentMatrix = _parent.GetTransformation();
             }
 
@@ -108,16 +131,7 @@ namespace NewEngine.Engine.Core {
                 parentRotation = _parent.GetTransformedRotation();
             }
 
-            return parentRotation*Rotation;
-        }
-
-        public Vector3 Rotate(Quaternion rotation, Vector3 vecToRotate) {
-            var conjugate = rotation;
-            conjugate.Conjugate();
-
-            var w = Util.Mul(rotation, vecToRotate)*conjugate;
-
-            return new Vector3(w.X, w.Y, w.Z);
+            return parentRotation * Rotation;
         }
     }
 }

@@ -117,8 +117,9 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
                         break;
                 }
 
-                GL.TexImage2D(targets[i], 0, internalFormat[i], _width, _height, 0, format[i], PixelType.UnsignedByte,
-                    data[i]);
+                var pixels = data[i];
+
+                GL.TexImage2D(targets[i], 0, internalFormat[i], _width, _height, 0, format[i], PixelType.UnsignedByte, pixels);
             }
         }
 

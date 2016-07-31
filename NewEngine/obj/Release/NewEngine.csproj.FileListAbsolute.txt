@@ -29,8 +29,6 @@ C:\Users\matha\OneDrive\Documents\GameDevelopment\MonoGameEngine\NewEngine\obj\R
 C:\engine\NewEngine\bin\Release\NewEngine.dll.config
 C:\engine\NewEngine\bin\Release\NewEngine.dll
 C:\engine\NewEngine\bin\Release\NewEngine.pdb
-C:\engine\NewEngine\bin\Release\ArcManagedFBX.dll
-C:\engine\NewEngine\bin\Release\ArcManagedFBX.Shared.dll
 C:\engine\NewEngine\bin\Release\BEPUik.dll
 C:\engine\NewEngine\bin\Release\BEPUphysics.dll
 C:\engine\NewEngine\bin\Release\BEPUutilities.dll

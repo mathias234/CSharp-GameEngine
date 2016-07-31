@@ -10,85 +10,82 @@ namespace Game {
         private GameObject _camera;
         private GameObject _directionalLightObj;
 
-        private TerrainMesh _tMesh;
 
         public override void Start() {
-            //Mesh terrainMesh = new Mesh("ShadowTest.obj");
+            Material brickMaterial = new Material(new Texture("bricks.png"), 0.5f, 32, new Texture("bricks_nrm.png"), new Texture("bricks_disp.jpg"), 0.02f, 0);
+            Material rockMaterial = new Material(new Texture("rock.jpg"), 0.5f, 32, new Texture("rock_nrm.jpg"), new Texture("rock_disp.jpg"), 0.02f, 0);
 
-            //GameObject shadowTest =
-            //    new GameObject().AddComponent(new MeshRenderer(terrainMesh,
-            //        new Material(new Texture("bricks.png"), 0.5f, 32, new Texture("bricks_nrm.png"), new Texture("bricks_disp.jpg"), 0.02f, 0)));
+            Mesh planeMesh = new Mesh("plane.obj");
+            Mesh cubeMesh = new Mesh("cube.obj");
 
-            //shadowTest.AddComponent(new MeshCollider(terrainMesh));
-            //AddObject(shadowTest);
+            GameObject floor = new GameObject("floor");
+            floor.AddComponent(new MeshRenderer(planeMesh, brickMaterial));
+
+           GameObject cube = new GameObject("cube");
+            cube.AddComponent(new MeshRenderer(cubeMesh, rockMaterial));
+
+            cube.Transform.Position = new Vector3(5, 1, 3);
+            cube.Transform.Rotate(new Vector3(0, 1, 0), 15f);
 
 
-            _camera =
-                new GameObject().AddComponent(new FreeLook())
-                    .AddComponent(new FreeMove())
-                    .AddComponent(
-                        new Camera(Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f),
-                            CoreEngine.GetWidth()/CoreEngine.GetHeight(), 0.1f, 1000)));
+            CreateCamera();
 
-            _camera.Transform.Position = new Vector3(0, 5, 0);
-
-            AddObject(_camera);
-
-            _directionalLightObj = new GameObject();
-            var directionalLight = new DirectionalLight(new Vector3(1), 0.5f);
+            _directionalLightObj = new GameObject("Directinal Light");
+            var directionalLight = new DirectionalLight(new Vector3(1), 0.2f, 10);
             _directionalLightObj.AddComponent(directionalLight);
-            _directionalLightObj.Transform.Rotation *= Quaternion.FromAxisAngle(new Vector3(1, 0, 0), -0.7f);
+            _directionalLightObj.Transform.Rotation *= Quaternion.FromAxisAngle(new Vector3(1, 0, 0), (float)MathHelper.DegreesToRadians(-45.0));
+
+            var spotLightObj = new GameObject("Spot Light");
+            var spotLight = new SpotLight(new Vector3(0, 1, 1), 0.2f, new Attenuation(0, 0, 0.02f), MathHelper.DegreesToRadians(91.1f), 9, 1.0f, 0.6f);
+            spotLightObj.Transform.Position = new Vector3(3, 1, -5);
+            spotLightObj.Transform.Rotate(new Vector3(0, 1, 0), MathHelper.DegreesToRadians(90));
+
+            spotLightObj.AddComponent(spotLight);
+
+            AddObject(spotLightObj);
             AddObject(_directionalLightObj);
-            CoreEngine.GetCoreEngine.RenderingEngine.SetSkybox("skybox1/top.jpg", "skybox1/bottom.jpg",
-                "skybox1/front.jpg", "skybox1/back.jpg", "skybox1/left.jpg", "skybox1/right.jpg");
+            AddObject(floor);
+            AddObject(cube);
             CoreEngine.GetCoreEngine.RenderingEngine.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg",
                 "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
-
-
-            var terrain = new GameObject();
-            _tMesh = new TerrainMesh("terrain1/terrain.jpg", 500, 500, 0.3f, "terrain1/tex1.jpg", "default_normal.png",
-                "terrain1/tex2.jpg", "terrain1/tex2Nrm.jpg",
-                "terrain1/layer1.jpg", "terrain1/tex3.jpg", "terrain1/tex3Nrm.jpg", "terrain1/layer2.jpg");
-            terrain.AddComponent(_tMesh);
-            AddObject(terrain);
-
-            //GameObject uiTest = new GameObject();
-            //_fps = new NewEngine.Engine.components.UIComponents.Text(new RectTransform(300, 300, 0, 0), "This is Text", 30);
-            //uiTest.AddComponent(_fps);
-
-            //AddObject(uiTest);
         }
 
         public override void Update(float deltaTime) {
             base.Update(deltaTime);
-            var flameColor = new Vector3(226/255.0f, 88/255.0f, 34/255.0f);
-            if (Input.GetKeyDown(Key.Q)) {
-                CoreEngine.GetCoreEngine.RenderingEngine.SetSkybox("skybox1/top.jpg", "skybox1/bottom.jpg",
-                    "skybox1/front.jpg", "skybox1/back.jpg", "skybox1/left.jpg", "skybox1/right.jpg");
+            var flameColor = new Vector3(226 / 255.0f, 88 / 255.0f, 34 / 255.0f);
+
+            if (Input.GetKeyDown(Key.P)) {
+                var newPointLight =
+                    new GameObject("point light").AddComponent(new PointLight(flameColor, 5, new Attenuation(0, 0, 1f)));
+                newPointLight.Transform.Position =
+                    new Vector3(CoreEngine.GetCoreEngine.RenderingEngine.MainCamera.Transform.GetTransformedPosition());
+
+                AddObject(newPointLight);
             }
-            if (Input.GetKeyDown(Key.E)) {
-                CoreEngine.GetCoreEngine.RenderingEngine.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg",
-                    "skybox/front.jpg", "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
-            }
-            if (!Input.GetKeyDown(Key.P)) return;
-            var newPointLight =
-                new GameObject().AddComponent(new PointLight(flameColor, 5, new Attenuation(0, 0, 1f)));
-            newPointLight.Transform.Position =
-                new Vector3(CoreEngine.GetCoreEngine.RenderingEngine.MainCamera.Transform.GetTransformedPosition());
-            AddObject(newPointLight);
         }
 
         public void StartMassiveSpawn() {
             for (var x = -5; x < 5; x++) {
                 for (var z = -5; z < 5; z++) {
-                    var gObj = new GameObject {
-                        Transform = {Position = _camera.Transform.Position + new Vector3(5*x, 0, 5*z)}
+                    var gObj = new GameObject("sphere: " + x + ":" + z) {
+                        Transform = { Position = _camera.Transform.Position + new Vector3(5 * x, 0, 5 * z) }
                     };
                     gObj.AddComponent(new MeshRenderer(new Mesh("sphere.obj"), new Material(new Texture("test.png"))));
                     gObj.AddComponent(new SphereCollider(1, 2));
                     AddObject(gObj);
                 }
             }
+        }
+
+        public void CreateCamera() {
+            _camera = new GameObject("main camera")
+                .AddComponent(new FreeLook())
+                .AddComponent(new FreeMove())
+                .AddComponent(new Camera(Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f), CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000)));
+
+            _camera.Transform.Position = new Vector3(0, 2, 0);
+
+            AddObject(_camera);
         }
     }
 }

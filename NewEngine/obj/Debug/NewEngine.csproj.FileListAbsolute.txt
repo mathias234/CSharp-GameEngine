@@ -45,8 +45,6 @@ C:\MonoGameEngine\NewEngine\obj\Debug\NewEngine.csprojResolveAssemblyReference.c
 C:\engine\NewEngine\bin\Debug\NewEngine.dll.config
 C:\engine\NewEngine\bin\Debug\NewEngine.dll
 C:\engine\NewEngine\bin\Debug\NewEngine.pdb
-C:\engine\NewEngine\bin\Debug\ArcManagedFBX.dll
-C:\engine\NewEngine\bin\Debug\ArcManagedFBX.Shared.dll
 C:\engine\NewEngine\bin\Debug\BEPUik.dll
 C:\engine\NewEngine\bin\Debug\BEPUphysics.dll
 C:\engine\NewEngine\bin\Debug\BEPUutilities.dll

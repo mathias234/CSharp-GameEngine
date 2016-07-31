@@ -2,7 +2,7 @@
 
 namespace NewEngine.Engine.Core {
     public abstract class Game {
-        private GameObject _root = new GameObject();
+        private GameObject _root = new GameObject("root");
 
         public virtual void Start() {
         }
@@ -19,7 +19,7 @@ namespace NewEngine.Engine.Core {
             _root.AddChild(gObj);
         }
 
-        public GameObject GetRootObject => _root ?? (_root = new GameObject());
+        public GameObject GetRootObject => _root ?? (_root = new GameObject("root"));
 
         public void SetEngine(CoreEngine coreEngine) {
             GetRootObject.Engine = coreEngine;

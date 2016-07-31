@@ -12,11 +12,11 @@ namespace NewEngine.Engine.components {
             Attenuation = attenuation;
             Shader = new Shader("forward-PointLight");
 
-            var a = attenuation.Constant;
+            var a = attenuation.Exponent;
             var b = attenuation.Linear;
-            var c = attenuation.Exponent - ColorDepth*Intensity*Util.MaxOfVector3(color);
+            var c = attenuation.Constant - ColorDepth * Intensity * Util.MaxOfVector3(color);
 
-            Range = (float) (-b + Math.Sqrt(b*b - 4*a*c))/(2*a);
+            Range = (float)(-b + Math.Sqrt(b * b - 4 * a * c)) / (2 * a);
         }
 
         public float Range { get; set; }

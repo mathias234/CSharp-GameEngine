@@ -4,7 +4,7 @@ float CalcShadowAmount(sampler2D shadowMap, vec4 initialShadowMapCoords)
 {
 	vec3 shadowMapCoords = (initialShadowMapCoords.xyz/initialShadowMapCoords.w);
 		
-	return SampleShadowMapPCF(shadowMap, shadowMapCoords.xy, shadowMapCoords.z - R_shadowBias, R_shadowTexelSize.xy);
+	return SampleVarianceShadowMap(shadowMap, shadowMapCoords.xy, shadowMapCoords.z, R_shadowVarianceMin, R_shadowBleedingReduction);
 }
 
 #include "Terrain/terrainCalc.fsh"

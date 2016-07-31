@@ -45,6 +45,10 @@ namespace NewEngine.Engine.Core {
             return new Matrix4().InitRotationFromVectors(forward, up, right);
         }
 
+        public static Vector3 GetForward(this Quaternion quaternion) {
+            return new Vector3(0,0,1).Rotate(quaternion);
+        }
+
         public static Quaternion ConjugateExt(this Quaternion quaternion) {
             return new Quaternion(-quaternion.X, -quaternion.Y, -quaternion.Z, quaternion.W);
         }

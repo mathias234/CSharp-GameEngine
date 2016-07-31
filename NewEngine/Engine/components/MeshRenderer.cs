@@ -17,7 +17,7 @@ namespace NewEngine.Engine.components {
             var shaderToUse = baseShader ? new Shader("forward-ambient") : new Shader("forward-" + shader);
 
             shaderToUse.Bind();
-            shaderToUse.UpdateUniforms(new Transform(), Material, renderingEngine);
+            shaderToUse.UpdateUniforms(Parent.Transform, Material, renderingEngine);
             Mesh.Draw();
         }
     }

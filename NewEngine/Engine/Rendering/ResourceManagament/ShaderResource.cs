@@ -135,6 +135,7 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
             if (uniformLocation == -1) {
                 LogManager.Error("ERROR: Could not find uniform " + uniformName + " of type: " + uniformType);
             }
+
             if (!Uniforms.ContainsKey(uniformName))
                 Uniforms.Add(uniformName, uniformLocation);
             else {

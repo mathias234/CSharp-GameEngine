@@ -39,12 +39,6 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ArcManagedFBX">
-      <HintPath>..\packages\ArcManagedFBX.dll</HintPath>
-    </Reference>
-    <Reference Include="ArcManagedFBX.Shared">
-      <HintPath>..\packages\ArcManagedFBX.Shared.dll</HintPath>
-    </Reference>
     <Reference Include="BEPUik, Version=1.4.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\BEPUphysics.1.4.0\lib\net40\BEPUik.dll</HintPath>
       <Private>True</Private>
@@ -90,6 +84,7 @@
     <Compile Include="Engine\Core\GameObject.cs" />
     <Compile Include="Engine\Core\LockBitmap.cs" />
     <Compile Include="Engine\Core\Matrix4Extensions.cs" />
+    <Compile Include="Engine\Core\Vector3Extensions.cs" />
     <Compile Include="Engine\Core\QuaternionExtensions.cs" />
     <Compile Include="Engine\Core\RectTransform.cs" />
     <Compile Include="Engine\Physics\PhysicsComponents\SphereCollider.cs" />

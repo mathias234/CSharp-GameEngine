@@ -21,6 +21,9 @@ namespace NewEngine.Engine.Rendering {
         private TextureTarget _target;
         private string _filename;
 
+        private int _width;
+        private int _height;
+
         public Texture(string filename, TextureTarget target = TextureTarget.Texture2D,
             TextureFilter filter = TextureFilter.Linear, PixelInternalFormat internalFormat = PixelInternalFormat.Rgba,
             PixelFormat format = PixelFormat.Bgra, bool clamp = false,
@@ -33,7 +36,17 @@ namespace NewEngine.Engine.Rendering {
                 _resource.AddReference();
             }
             else {
-                _resource = LoadTexture(filename, filter, internalFormat, format, clamp, attachment, target);
+                Bitmap image;
+                if (File.Exists(Path.Combine("./res/textures", filename)))
+                    image = new Bitmap(Path.Combine("./res/textures", filename));
+                else {
+                    LogManager.Error("Image does not exists");
+                    image = new Bitmap(Path.Combine("./res/textures", "default_mask.png"));
+                }
+                _width = image.Width;
+                _height = image.Height;
+
+                _resource = LoadTexture(image, filter, internalFormat, format, clamp, attachment, target);
                 _loadedTextures.Add(filename, _resource);
             }
             _target = target;
@@ -51,6 +64,9 @@ namespace NewEngine.Engine.Rendering {
                 _resource.AddReference();
             }
             else {
+                _width = image.Width;
+                _height = image.Height;
+
                 _resource = LoadTexture(image, filter, internalFormat, format, clamp, attachment, target);
                 _loadedTextures.Add(_filename, _resource);
             }
@@ -69,9 +85,26 @@ namespace NewEngine.Engine.Rendering {
             bool clamp = false,
             FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0,
             TextureTarget target = TextureTarget.Texture2D) {
+            _width = width;
+            _height = height;
+
             _resource = LoadTexture(data, width, height, filter, internalFormat, format, clamp, attachment, target);
             _target = target;
         }
+
+        public Texture(IntPtr data, int width, int height, TextureFilter filter = TextureFilter.Linear,
+    PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra,
+    bool clamp = false,
+    FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0,
+    TextureTarget target = TextureTarget.Texture2D) {
+            _width = width;
+            _height = height;
+
+            _resource = LoadTexture(data, width, height, filter, internalFormat, format, clamp, attachment, target);
+            _target = target;
+        }
+
+
 
         ~Texture() {
             if (_resource != null && _resource.RemoveReference()) {
@@ -79,6 +112,14 @@ namespace NewEngine.Engine.Rendering {
                     _loadedTextures.Remove(_filename);
                 }
             }
+        }
+
+        public int Width {
+            get { return _width; }
+        }
+
+        public int Height {
+            get { return _height; }
         }
 
         public void BindAsRenderTarget() {
@@ -152,21 +193,6 @@ namespace NewEngine.Engine.Rendering {
             }
 
             return null;
-        }
-
-        private static TextureResource LoadTexture(string filename, TextureFilter filter,
-            PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra,
-            bool clamp = false, FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0,
-            TextureTarget target = TextureTarget.Texture2D) {
-            Bitmap image;
-            if (File.Exists(Path.Combine("./res/textures", filename)))
-                image = new Bitmap(Path.Combine("./res/textures", filename));
-            else {
-                LogManager.Error("Image does not exists");
-                image = new Bitmap(Path.Combine("./res/textures", "default_mask.png"));
-            }
-
-            return LoadTexture(image, filter, internalFormat, format, clamp, attachment, target);
         }
     }
 }

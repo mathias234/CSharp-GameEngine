@@ -8,4 +8,4 @@ vec4 CalcLightingEffect(vec3 normal, vec3 worldPos)
     return CalcPointLight(R_pointLight,  normal, worldPos);
 }
 
-#include "lightingMain.fsh"
+#include "terrain/lightingMain.fsh"
