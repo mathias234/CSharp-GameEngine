@@ -1,12 +1,18 @@
-﻿using NewEngine.Engine.Core;
+﻿using System.Collections.Generic;
+using NewEngine.Engine.Core;
 using NewEngine.Engine.Rendering;
+using NewEngine.Engine.Rendering.ResourceManagament;
 using NewEngine.Engine.Rendering.Shading;
 
 namespace NewEngine.Engine.components {
     public class MeshRenderer : GameComponent {
+        private Dictionary<string, Shader> _loadedShaders = new Dictionary<string, Shader>();
+        private Shader _baseShader;
+
         public MeshRenderer(Mesh mesh, Material material = null) {
             Mesh = mesh;
             Material = material;
+            _baseShader = new Shader("forward-ambient");
         }
 
         public Material Material { get; set; }
@@ -14,7 +20,18 @@ namespace NewEngine.Engine.components {
         public Mesh Mesh { get; set; }
 
         public override void Render(string shader, RenderingEngine renderingEngine, bool baseShader) {
-            var shaderToUse = baseShader ? new Shader("forward-ambient") : new Shader("forward-" + shader);
+            Shader shaderToUse;
+
+            if (baseShader) {
+                shaderToUse = _baseShader;
+            }
+            else if (_loadedShaders.ContainsKey(shader)) {
+                shaderToUse = _loadedShaders[shader];
+            }
+            else {
+                shaderToUse = new Shader("forward-" + shader);
+                _loadedShaders.Add(shader, shaderToUse);
+            }
 
             shaderToUse.Bind();
             shaderToUse.UpdateUniforms(Parent.Transform, Material, renderingEngine);

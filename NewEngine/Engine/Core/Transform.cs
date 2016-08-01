@@ -96,7 +96,7 @@ namespace NewEngine.Engine.Core {
             var scaleMatrix = Matrix4.CreateScale(_scale);
 
             // ORDER IS IMPORTANT
-            var result = translationMatrix * rotationMatrix * scaleMatrix;
+            var result = rotationMatrix * translationMatrix * scaleMatrix;
 
             return GetParentMatrix() * result;
         }

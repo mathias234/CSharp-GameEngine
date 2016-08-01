@@ -34,5 +34,9 @@ namespace NewEngine.Engine.components {
         public override void AddToEngine(CoreEngine engine) {
             engine.RenderingEngine.AddLight(this);
         }
+
+        public override void OnDestroyed(CoreEngine engine) {
+            engine.RenderingEngine.RemoveLight(this);
+        }
     }
 }

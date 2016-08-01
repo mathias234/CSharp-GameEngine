@@ -13,7 +13,7 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
         private int _width;
         private int _refCount;
 
-        public TextureResource(int numTexture, int width, int height, List<char[]> data, TextureFilter[] filters,
+        public TextureResource(int numTexture, int width, int height, List<char[]> data, TextureMinFilter[] filters,
             PixelInternalFormat[] internalFormat, PixelFormat[] format, bool clamp, FramebufferAttachment[] attachments,
             TextureTarget[] targets) {
             _id = new int[numTexture];
@@ -28,7 +28,7 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
             _refCount = 1;
         }
 
-        public TextureResource(int numTexture, int width, int height, IntPtr[] data, TextureFilter[] filters,
+        public TextureResource(int numTexture, int width, int height, IntPtr[] data, TextureMinFilter[] filters,
             PixelInternalFormat[] internalFormat, PixelFormat[] format, bool clamp, FramebufferAttachment[] attachments,
             TextureTarget[] targets) {
             _id = new int[numTexture];
@@ -52,13 +52,13 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
             var hasDepth = false;
             for (var i = 0; i < _numTextures; i++) {
                 if (attachments[i] == FramebufferAttachment.DepthAttachment) {
-                    drawBuffers[i] = (DrawBuffersEnum) All.None;
+                    drawBuffers[i] = (DrawBuffersEnum)All.None;
                     hasDepth = true;
                 }
                 else
-                    drawBuffers[i] = (DrawBuffersEnum) attachments[i];
+                    drawBuffers[i] = (DrawBuffersEnum)attachments[i];
 
-                if ((All) attachments[i] == All.None) {
+                if ((All)attachments[i] == All.None) {
                     continue;
                 }
 
@@ -76,7 +76,7 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
             if (!hasDepth) {
                 GL.GenRenderbuffers(1, out _renderBuffer);
                 GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, _renderBuffer);
-                GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, (RenderbufferStorage) All.DepthComponent, _width,
+                GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, (RenderbufferStorage)All.DepthComponent, _width,
                     _height);
                 GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment,
                     RenderbufferTarget.Renderbuffer, _renderBuffer);
@@ -89,7 +89,7 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
             }
         }
 
-        private void InitTextures(List<char[]> data, TextureFilter[] filters, PixelInternalFormat[] internalFormat,
+        private void InitTextures(List<char[]> data, TextureMinFilter[] filters, PixelInternalFormat[] internalFormat,
             PixelFormat[] format, bool clamp, TextureTarget[] targets) {
             GL.GenTextures(_numTextures, _id);
 
@@ -97,61 +97,75 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
                 GL.BindTexture(targets[i], _id[i]);
 
 
+                GL.TexParameter(targets[i], TextureParameterName.TextureMinFilter,
+                    (float)filters[i]);
+                GL.TexParameter(targets[i], TextureParameterName.TextureMagFilter,
+                    (float)filters[i]);
+
                 if (clamp) {
-                    GL.TexParameter(targets[i], TextureParameterName.TextureWrapS, (int) TextureWrapMode.ClampToEdge);
-                    GL.TexParameter(targets[i], TextureParameterName.TextureWrapT, (int) TextureWrapMode.ClampToEdge);
+                    GL.TexParameter(targets[i], TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+                    GL.TexParameter(targets[i], TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
                 }
 
-                switch (filters[i]) {
-                    case TextureFilter.Linear:
-                        GL.TexParameter(targets[i], TextureParameterName.TextureMinFilter,
-                            (float) TextureMinFilter.Linear);
-                        GL.TexParameter(targets[i], TextureParameterName.TextureMagFilter,
-                            (float) TextureMagFilter.Linear);
-                        break;
-                    case TextureFilter.Point:
-                        GL.TexParameter(targets[i], TextureParameterName.TextureMinFilter,
-                            (float) TextureMinFilter.Nearest);
-                        GL.TexParameter(targets[i], TextureParameterName.TextureMagFilter,
-                            (float) TextureMagFilter.Nearest);
-                        break;
+                GL.TexImage2D(targets[i], 0, internalFormat[i], _width, _height, 0, format[i], PixelType.UnsignedByte, data[i]);
+
+                if (filters[i] == TextureMinFilter.NearestMipmapNearest ||
+                    filters[i] == TextureMinFilter.NearestMipmapLinear ||
+                    filters[i] == TextureMinFilter.LinearMipmapNearest ||
+                    filters[i] == TextureMinFilter.LinearMipmapLinear) {
+
+                    GL.GenerateMipmap((GenerateMipmapTarget)targets[i]);
+
+                    float maxAnisotropy;
+
+                    GL.GetFloat((GetPName)ExtTextureFilterAnisotropic.MaxTextureMaxAnisotropyExt, out maxAnisotropy);
+                    GL.TexParameter(targets[i], (TextureParameterName)ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt, maxAnisotropy);
                 }
-
-                var pixels = data[i];
-
-                GL.TexImage2D(targets[i], 0, internalFormat[i], _width, _height, 0, format[i], PixelType.UnsignedByte, pixels);
+                else {
+                    GL.TexParameter(targets[i], TextureParameterName.TextureBaseLevel, 0);
+                    GL.TexParameter(targets[i], TextureParameterName.TextureMaxLevel, 0);
+                }
             }
         }
 
 
-        private void InitTextures(IntPtr[] data, TextureFilter[] filters, PixelInternalFormat[] internalFormat,
+        private void InitTextures(IntPtr[] data, TextureMinFilter[] filters, PixelInternalFormat[] internalFormat,
             PixelFormat[] format, bool clamp, TextureTarget[] targets) {
             GL.GenTextures(_numTextures, _id);
 
             for (var i = 0; i < _numTextures; i++) {
                 GL.BindTexture(targets[i], _id[i]);
 
+                GL.TexParameter(targets[i], TextureParameterName.TextureMinFilter,
+                    (float)filters[i]);
+                GL.TexParameter(targets[i], TextureParameterName.TextureMagFilter,
+                    (float)filters[i]);
+
                 if (clamp) {
-                    GL.TexParameter(targets[i], TextureParameterName.TextureWrapS, (int) TextureWrapMode.ClampToEdge);
-                    GL.TexParameter(targets[i], TextureParameterName.TextureWrapT, (int) TextureWrapMode.ClampToEdge);
+                    GL.TexParameter(targets[i], TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+                    GL.TexParameter(targets[i], TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
                 }
 
-                switch (filters[i]) {
-                    case TextureFilter.Linear:
-                        GL.TexParameter(targets[i], TextureParameterName.TextureMinFilter,
-                            (float) TextureMinFilter.Linear);
-                        GL.TexParameter(targets[i], TextureParameterName.TextureMagFilter,
-                            (float) TextureMagFilter.Linear);
-                        break;
-                    case TextureFilter.Point:
-                        GL.TexParameter(targets[i], TextureParameterName.TextureMinFilter,
-                            (float) TextureMinFilter.Nearest);
-                        GL.TexParameter(targets[i], TextureParameterName.TextureMagFilter,
-                            (float) TextureMagFilter.Nearest);
-                        break;
+                GL.TexImage2D(targets[i], 0, internalFormat[i], _width, _height, 0, format[i], PixelType.UnsignedByte, data[i]);
+
+                if (filters[i] == TextureMinFilter.NearestMipmapNearest ||
+                    filters[i] == TextureMinFilter.NearestMipmapLinear ||
+                    filters[i] == TextureMinFilter.LinearMipmapNearest ||
+                    filters[i] == TextureMinFilter.LinearMipmapLinear) {
+
+                    GL.GenerateMipmap((GenerateMipmapTarget)targets[i]);
+
+                    float maxAnisotropy;
+
+                    GL.GetFloat((GetPName)ExtTextureFilterAnisotropic.MaxTextureMaxAnisotropyExt, out maxAnisotropy);
+                    GL.TexParameter(targets[i], (TextureParameterName)ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt, maxAnisotropy);
                 }
-                GL.TexImage2D(targets[i], 0, internalFormat[i], _width, _height, 0, format[i], PixelType.UnsignedByte,
-                    data[i]);
+                else {
+                    GL.TexParameter(targets[i], TextureParameterName.TextureBaseLevel, 0);
+                    GL.TexParameter(targets[i], TextureParameterName.TextureMaxLevel, 0);
+                }
+
+
             }
         }
 
@@ -183,8 +197,8 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
 
         protected virtual void Dispose(bool disposing) {
             if (disposing) {
-                GL.DeleteTextures(_numTextures, _id);       
-                GL.DeleteRenderbuffers(1, ref _renderBuffer);       
+                GL.DeleteTextures(_numTextures, _id);
+                GL.DeleteRenderbuffers(1, ref _renderBuffer);
                 GL.DeleteFramebuffers(1, ref _frameBuffer);
             }
         }

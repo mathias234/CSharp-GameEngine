@@ -52,7 +52,7 @@ namespace NewEngine.Engine.Rendering {
                 {"filterTexture", 12}
             };
 
-            SetVector3("ambient", new Vector3(0.1f));
+            SetVector3("ambient", new Vector3(0.2f));
             //SetTexture("shadowMap",
             //    new Texture((IntPtr)0, 1024, 1024, TextureFilter.Linear, PixelInternalFormat.Rg32f,
             //        PixelFormat.Rgba, true));
@@ -84,7 +84,7 @@ namespace NewEngine.Engine.Rendering {
             int width = (int)CoreEngine.GetWidth();
             int height = (int)CoreEngine.GetHeight();
 
-            _tempTarget = new Texture(null, width, height, TextureFilter.Point);
+            _tempTarget = new Texture(null, width, height, TextureMinFilter.Nearest);
 
             _plane = PrimitiveObjects.CreatePlane;
             _planeMaterial = new Material(_tempTarget, 1, 8);
@@ -93,8 +93,8 @@ namespace NewEngine.Engine.Rendering {
 
             for (int i = 0; i < NumShadowMaps; i++) {
                 int shadowMapSize = 1 << (i + 1);
-                _shadowMaps[i] = new Texture((IntPtr)0, shadowMapSize, shadowMapSize, TextureFilter.Linear, PixelInternalFormat.Rg32f, PixelFormat.Rgba, true);
-                _shadowMapsTempTargets[i] = new Texture((IntPtr)0, shadowMapSize, shadowMapSize, TextureFilter.Linear, PixelInternalFormat.Rg32f, PixelFormat.Rgba, true);
+                _shadowMaps[i] = new Texture((IntPtr)0, shadowMapSize, shadowMapSize, TextureMinFilter.Linear, PixelInternalFormat.Rg32f, PixelFormat.Rgba, true);
+                _shadowMapsTempTargets[i] = new Texture((IntPtr)0, shadowMapSize, shadowMapSize, TextureMinFilter.Linear, PixelInternalFormat.Rg32f, PixelFormat.Rgba, true);
 
             }
 
@@ -141,7 +141,11 @@ namespace NewEngine.Engine.Rendering {
                 GL.DepthMask(true);
                 GL.DepthFunc(DepthFunction.Less);
                 GL.Disable(EnableCap.Blend);
+
             }
+
+
+            CoreEngine.GetCoreEngine.SwapBuffers();
         }
 
         private void RenderShadowMap(BaseLight light, GameObject gameObject) {
@@ -258,6 +262,9 @@ namespace NewEngine.Engine.Rendering {
 
         public void AddLight(BaseLight light) {
             _lights.Add(light);
+        }
+        public void RemoveLight(BaseLight light) {
+            _lights.Remove(light);
         }
 
         public void AddCamera(Camera camera) {

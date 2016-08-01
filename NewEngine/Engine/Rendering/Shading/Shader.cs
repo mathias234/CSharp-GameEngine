@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using NewEngine.Engine.components;
 using NewEngine.Engine.Core;
 using NewEngine.Engine.Rendering.ResourceManagament;
@@ -31,6 +32,7 @@ namespace NewEngine.Engine.Rendering.Shading {
         }
 
         ~Shader() {
+            LogManager.Debug("removing shader : " + _filename);
             if (_resource.RemoveReference() && _filename != null) {
                 _loadedShaders.Remove(_filename);
             }
@@ -201,15 +203,15 @@ namespace NewEngine.Engine.Rendering.Shading {
         public static string LoadShader(string filename) {
             var shaderSource = new StringBuilder();
             var includeDirective = "#include";
-
             try {
                 var reader = new StreamReader(Path.Combine("./res/shaders", filename));
 
                 string line;
                 while ((line = reader.ReadLine()) != null) {
                     if (line.StartsWith(includeDirective)) {
-                        shaderSource.Append(
-                            LoadShader(line.Substring(0, line.Length - 1).Remove(0, includeDirective.Length + 2)));
+                        var match = Regex.Match(line, @"\""([^""]*)\""");
+
+                        shaderSource.Append(LoadShader(match.Groups[1].Value));
                     }
                     else {
                         shaderSource.Append(line).Append("\n");

@@ -46,7 +46,7 @@ namespace SponzaTest {
                     new Texture("sponza/" + sponzaModel + "_nrm.png"),
                     new Texture("sponza/" + sponzaModel + "_disp.png"), displacementScale, displacementOffset);
                 material.SetTexture("cutoutMask",
-                    new Texture("sponza/" + sponzaModel + "_mask.png", TextureTarget.Texture2D, TextureFilter.Point));
+                    new Texture("sponza/" + sponzaModel + "_mask.png"));
                 var sponza =
                     new GameObject(sponzaModel).AddComponent(new MeshRenderer(new Mesh("sponza/" + sponzaModel + "/model.obj"),
                         material));

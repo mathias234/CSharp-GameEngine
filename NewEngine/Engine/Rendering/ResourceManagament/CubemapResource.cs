@@ -56,8 +56,8 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
 
                 GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter,
                     (float)TextureMinFilter.Linear);
-                GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMagFilter,
-                    (float)TextureMagFilter.Linear);
+                GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter,
+                    (float)TextureMinFilter.Linear);
 
                 GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapS,
                     (int)TextureWrapMode.ClampToEdge);

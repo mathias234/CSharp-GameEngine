@@ -1,6 +1,7 @@
 ﻿using BEPUphysics;
 using BEPUutilities;
 using NewEngine.Engine.components;
+using NewEngine.Engine.Core;
 using Quaternion = OpenTK.Quaternion;
 
 namespace NewEngine.Engine.Physics.PhysicsComponents {
@@ -19,7 +20,7 @@ namespace NewEngine.Engine.Physics.PhysicsComponents {
             return new Quaternion(quaternion.X, quaternion.Y, quaternion.Z, quaternion.W);
         }
 
-        public override void OnDestroyed() {
+        public override void OnDestroyed(CoreEngine engine) {
             PhysicsEngine.RemoveFromPhysicsEngine(PhysicsObject);
         }
     }

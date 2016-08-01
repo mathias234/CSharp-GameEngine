@@ -8,6 +8,7 @@ namespace NewEngine.Engine.Core {
         private List<GameObject> _children;
         private List<GameComponent> _components;
         private CoreEngine _engine;
+        private GameObject _parent;
 
         public GameObject(string name) {
             _children = new List<GameObject>();
@@ -36,8 +37,14 @@ namespace NewEngine.Engine.Core {
             }
         }
 
+        public GameObject Parent {
+            get { return _parent; }
+            set { _parent = value; }
+        }
+
         public void AddChild(GameObject child) {
             _children.Add(child);
+            child._parent = this;
             child.Engine = Engine;
             child.Transform.Parent = Transform;
         }
@@ -53,7 +60,7 @@ namespace NewEngine.Engine.Core {
         }
 
         public void ClearComponent(GameComponent component) {
-            component.OnDestroyed();
+            component.OnDestroyed(_engine);
             _components.Remove(component);
         }
 
@@ -108,6 +115,21 @@ namespace NewEngine.Engine.Core {
 
         public List<GameComponent> GetComponents() {
             return _components;
+        }
+
+        public void Destroy() {
+            foreach (var gameComponent in _components) {
+                gameComponent.OnDestroyed(_engine);
+            }
+            foreach (var gameObject in _children) {
+                gameObject.Destroy();
+            }
+
+            _components.Clear();
+            _children.Clear();
+
+            _parent._children.Remove(this);
+
         }
     }
 }

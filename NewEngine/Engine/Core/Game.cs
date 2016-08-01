@@ -16,6 +16,7 @@ namespace NewEngine.Engine.Core {
         }
 
         public void AddObject(GameObject gObj) {
+            gObj.Parent = _root;
             _root.AddChild(gObj);
         }
 
@@ -23,6 +24,10 @@ namespace NewEngine.Engine.Core {
 
         public void SetEngine(CoreEngine coreEngine) {
             GetRootObject.Engine = coreEngine;
+        }
+
+        protected void Destory(GameObject gameObject) {
+            gameObject.Destroy();
         }
     }
 }

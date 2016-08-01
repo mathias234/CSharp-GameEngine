@@ -59,7 +59,6 @@ namespace NewEngine.Engine.Core {
 
         private void Render(object sender, FrameEventArgs e) {
             Game.Render(RenderingEngine);
-            SwapBuffers();
         }
 
         private void ResizeWindow(object sender, EventArgs e) {

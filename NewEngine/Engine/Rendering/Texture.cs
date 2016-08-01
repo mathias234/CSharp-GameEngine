@@ -9,11 +9,6 @@ using OpenTK.Graphics.OpenGL;
 using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
 
 namespace NewEngine.Engine.Rendering {
-    public enum TextureFilter {
-        Linear,
-        Point
-    }
-
     // TODO: maybe clean up the parameters soo much its choking me
     public class Texture {
         private static Dictionary<string, TextureResource> _loadedTextures = new Dictionary<string, TextureResource>();
@@ -25,7 +20,7 @@ namespace NewEngine.Engine.Rendering {
         private int _height;
 
         public Texture(string filename, TextureTarget target = TextureTarget.Texture2D,
-            TextureFilter filter = TextureFilter.Linear, PixelInternalFormat internalFormat = PixelInternalFormat.Rgba,
+            TextureMinFilter filter = TextureMinFilter.LinearMipmapLinear, PixelInternalFormat internalFormat = PixelInternalFormat.Rgba,
             PixelFormat format = PixelFormat.Bgra, bool clamp = false,
             FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0) {
 
@@ -53,7 +48,7 @@ namespace NewEngine.Engine.Rendering {
         }
 
         public Texture(Bitmap image, TextureTarget target = TextureTarget.Texture2D,
-            TextureFilter filter = TextureFilter.Linear, PixelInternalFormat internalFormat = PixelInternalFormat.Rgba,
+            TextureMinFilter filter = TextureMinFilter.LinearMipmapLinear, PixelInternalFormat internalFormat = PixelInternalFormat.Rgba,
             PixelFormat format = PixelFormat.Bgra, bool clamp = false,
             FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0) {
 
@@ -73,14 +68,8 @@ namespace NewEngine.Engine.Rendering {
             _target = target;
         }
 
-        /// <param name="data">Can be null, it will not break anything</param>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        /// <param name="filter"></param>
-        /// <param name="attachment"></param>
-        /// <param name="internalFormat"></param>
-        /// <param name="format"></param>
-        public Texture(char[] data, int width, int height, TextureFilter filter = TextureFilter.Linear,
+
+        public Texture(char[] data, int width, int height, TextureMinFilter filter = TextureMinFilter.LinearMipmapLinear,
             PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra,
             bool clamp = false,
             FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0,
@@ -92,11 +81,11 @@ namespace NewEngine.Engine.Rendering {
             _target = target;
         }
 
-        public Texture(IntPtr data, int width, int height, TextureFilter filter = TextureFilter.Linear,
-    PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra,
-    bool clamp = false,
-    FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0,
-    TextureTarget target = TextureTarget.Texture2D) {
+        public Texture(IntPtr data, int width, int height, TextureMinFilter filter = TextureMinFilter.LinearMipmapLinear,
+            PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra,
+            bool clamp = false,
+            FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0,
+            TextureTarget target = TextureTarget.Texture2D) {
             _width = width;
             _height = height;
 
@@ -114,11 +103,13 @@ namespace NewEngine.Engine.Rendering {
             }
         }
 
-        public int Width {
+        public int Width
+        {
             get { return _width; }
         }
 
-        public int Height {
+        public int Height
+        {
             get { return _height; }
         }
 
@@ -135,7 +126,7 @@ namespace NewEngine.Engine.Rendering {
             _resource.Bind(0, target);
         }
 
-        private static TextureResource LoadTexture(Bitmap image, TextureFilter filter,
+        private static TextureResource LoadTexture(Bitmap image, TextureMinFilter filter, 
             PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra,
             bool clamp = false, FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0,
             TextureTarget target = TextureTarget.Texture2D) {
@@ -158,14 +149,14 @@ namespace NewEngine.Engine.Rendering {
             return resource;
         }
 
-        private static TextureResource LoadTexture(char[] data, int width, int height, TextureFilter filter,
+        private static TextureResource LoadTexture(char[] data, int width, int height, TextureMinFilter filter, 
             PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra,
             bool clamp = false,
             FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0,
             TextureTarget target = TextureTarget.Texture2D) {
             try {
-                var resource = new TextureResource(1, width, height, new List<char[]> {data}, new[] {filter},
-                    new[] {internalFormat}, new[] {format}, clamp, new[] {attachment}, new[] {target});
+                var resource = new TextureResource(1, width, height, new List<char[]> { data }, new[] { filter },
+                    new[] { internalFormat }, new[] { format }, clamp, new[] { attachment }, new[] { target });
 
                 return resource;
             }
@@ -177,14 +168,14 @@ namespace NewEngine.Engine.Rendering {
         }
 
 
-        private static TextureResource LoadTexture(IntPtr data, int width, int height, TextureFilter filter,
+        private static TextureResource LoadTexture(IntPtr data, int width, int height, TextureMinFilter filter, 
             PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra,
             bool clamp = false,
             FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0,
             TextureTarget target = TextureTarget.Texture2D) {
             try {
-                var resource = new TextureResource(1, width, height, new[] {data}, new[] {filter},
-                    new[] {internalFormat}, new[] {format}, clamp, new[] {attachment}, new[] {target});
+                var resource = new TextureResource(1, width, height, new[] { data }, new[] { filter },
+                    new[] { internalFormat }, new[] { format }, clamp, new[] { attachment }, new[] { target });
 
                 return resource;
             }
