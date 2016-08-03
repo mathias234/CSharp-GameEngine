@@ -11,8 +11,8 @@ namespace NewEngine.Engine.Core {
             GetRootObject.UpdateAll(deltaTime);
         }
 
-        public virtual void Render(RenderingEngine renderingEngine) {
-            renderingEngine.Render(GetRootObject);
+        public virtual void Render(RenderingEngine renderingEngine, float deltaTime) {
+            renderingEngine.Render(GetRootObject, deltaTime);
         }
 
         public void AddObject(GameObject gObj) {

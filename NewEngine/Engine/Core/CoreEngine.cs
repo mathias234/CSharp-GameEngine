@@ -45,7 +45,7 @@ namespace NewEngine.Engine.Core {
             RenderFrame += Render;
             Resize += ResizeWindow;
             VSync = _vSync;
-            Run(70, 100);
+            Run(70);
         }
 
 
@@ -58,7 +58,7 @@ namespace NewEngine.Engine.Core {
         }
 
         private void Render(object sender, FrameEventArgs e) {
-            Game.Render(RenderingEngine);
+            Game.Render(RenderingEngine, (float)e.Time);
         }
 
         private void ResizeWindow(object sender, EventArgs e) {

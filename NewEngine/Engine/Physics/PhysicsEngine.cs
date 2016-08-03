@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using BEPUphysics;
 using BEPUutilities;
+using BEPUutilities.Threading;
 using NewEngine.Engine.Core;
 using NewEngine.Engine.Physics.PhysicsComponents;
 
@@ -16,7 +17,7 @@ namespace NewEngine.Engine.Physics {
 
         public static void AddToPhysicsEngine(ISpaceObject obj) {
             if (_physicsSpace == null) {
-                _physicsSpace = new Space {ForceUpdater = {Gravity = new Vector3(0, -9.81f, 0)}};
+                _physicsSpace = new Space(new ParallelLooper()) {ForceUpdater = {Gravity = new Vector3(0, -9.81f, 0)}};
             }
 
             if (obj == null)

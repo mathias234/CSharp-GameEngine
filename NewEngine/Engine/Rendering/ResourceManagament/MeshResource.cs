@@ -6,10 +6,12 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
         private int _ibo;
         private int _refCount;
         private int _vbo;
+        private int _matrixBuffer;
 
         public MeshResource() {
             GL.GenBuffers(1, out _vbo);
             GL.GenBuffers(1, out _ibo);
+            GL.GenBuffers(1, out _matrixBuffer);
             Size = 0;
             _refCount = 1;
         }
@@ -25,6 +27,12 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
         }
 
         public int Size { get; set; }
+
+        public int MatrixBuffer {
+            get { return _matrixBuffer; }
+            set { _matrixBuffer = value; }
+        }
+
 
         public void AddReference() {
             _refCount++;

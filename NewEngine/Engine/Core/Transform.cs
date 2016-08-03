@@ -7,7 +7,6 @@ namespace NewEngine.Engine.Core {
         private Quaternion _rotation;
         private Vector3 _scale;
 
-        private bool _hasChanged;
         private Transform _parent;
         private Matrix4 _parentMatrix;
 
@@ -33,7 +32,6 @@ namespace NewEngine.Engine.Core {
             set
             {
                 _name = value;
-                _hasChanged = true;
             }
         }
 
@@ -43,7 +41,6 @@ namespace NewEngine.Engine.Core {
             set
             {
                 _position = value;
-                _hasChanged = true;
             }
         }
 
@@ -53,7 +50,6 @@ namespace NewEngine.Engine.Core {
             set
             {
                 _rotation = value;
-                _hasChanged = true;
             }
         }
 
@@ -63,7 +59,6 @@ namespace NewEngine.Engine.Core {
             set
             {
                 _scale = value;
-                _hasChanged = true;
             }
         }
 
@@ -73,7 +68,6 @@ namespace NewEngine.Engine.Core {
             set
             {
                 _parent = value;
-                _hasChanged = true;
             }
         }
 

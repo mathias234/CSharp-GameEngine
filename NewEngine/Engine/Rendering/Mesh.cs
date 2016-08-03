@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using NewEngine.Engine.Core;
 using NewEngine.Engine.Rendering.MeshLoading;
 using NewEngine.Engine.Rendering.MeshLoading.FBX;
@@ -62,6 +63,12 @@ namespace NewEngine.Engine.Rendering {
 
         public int[] Indices { get; private set; }
 
+        public string Filename
+        {
+            get { return _filename; }
+            set { _filename = value; }
+        }
+
         private void AddVertices(Vertex[] vertices, int[] indices, bool calcNormals) {
             if (calcNormals) {
                 CalculateNormals(vertices, indices);
@@ -70,15 +77,15 @@ namespace NewEngine.Engine.Rendering {
             _resource.Size = indices.Length;
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, _resource.Vbo);
-            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr) (vertices.Length*Vertex.SizeInBytes), vertices,
+            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(vertices.Length * Vertex.SizeInBytes), vertices,
                 BufferUsageHint.StaticDraw);
 
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, _resource.Ibo);
 
-            var reversedIndices = (int[]) indices.Clone();
+            var reversedIndices = (int[])indices.Clone();
 
             Array.Reverse(reversedIndices);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr) (_resource.Size*4 /* size of int */),
+            GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(_resource.Size * 4 /* size of int */),
                 reversedIndices, BufferUsageHint.StaticDraw);
         }
 
@@ -97,10 +104,11 @@ namespace NewEngine.Engine.Rendering {
             GL.VertexAttribPointer(3, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes,
                 Vector3.SizeInBytes + Vector2.SizeInBytes + Vector3.SizeInBytes);
 
+
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, _resource.Ibo);
 
             GL.DrawElements(BeginMode.Triangles, _resource.Size, DrawElementsType.UnsignedInt, 0);
-
+            //GL.DrawElementsInstanced(BeginMode.Triangles, _resource.Size, DrawElementsType.UnsignedInt, Indices, 1);
             GL.DisableVertexAttribArray(0);
             GL.DisableVertexAttribArray(1);
             GL.DisableVertexAttribArray(2);
@@ -146,14 +154,14 @@ namespace NewEngine.Engine.Rendering {
                 var deltaU2 = vertices[i2].TexCoord.X - vertices[i0].TexCoord.X;
                 var deltaV2 = vertices[i2].TexCoord.Y - vertices[i0].TexCoord.Y;
 
-                var dividend = deltaU1*deltaV2 - deltaU2*deltaV1;
+                var dividend = deltaU1 * deltaV2 - deltaU2 * deltaV1;
                 //TODO: The first 0.0f may need to be changed to 1.0f here.
-                var f = Math.Abs(dividend) < 0.001f ? 0.0f : 1.0f/dividend;
+                var f = Math.Abs(dividend) < 0.001f ? 0.0f : 1.0f / dividend;
 
                 var tangent = new Vector3(0, 0, 0);
-                tangent.X = f*(deltaV2*edge1.X - deltaV1*edge2.X);
-                tangent.Y = f*(deltaV2*edge1.Y - deltaV1*edge2.Y);
-                tangent.Z = f*(deltaV2*edge1.Z - deltaV1*edge2.Z);
+                tangent.X = f * (deltaV2 * edge1.X - deltaV1 * edge2.X);
+                tangent.Y = f * (deltaV2 * edge1.Y - deltaV1 * edge2.Y);
+                tangent.Z = f * (deltaV2 * edge1.Z - deltaV1 * edge2.Z);
 
                 vertices[i0].Tangent = vertices[i0].Tangent + tangent;
                 vertices[i1].Tangent = vertices[i1].Tangent + tangent;

@@ -17,11 +17,10 @@ namespace Game {
             Material brickMaterial = new Material(new Texture("bricks.png"), 0.5f, 32, new Texture("bricks_nrm.png"), new Texture("bricks_disp.jpg"), 0.02f, 0);
             Material rockMaterial = new Material(new Texture("rock.jpg"), 0.5f, 32, new Texture("rock_nrm.jpg"), new Texture("rock_disp.jpg"), 0.02f, 0);
 
-            Mesh planeMesh = new Mesh("castle.obj");
-            Mesh planeMeshCollider = new Mesh("castle_Collider.obj");
+            Mesh planeMeshCollider = new Mesh("plane.obj");
 
             GameObject floor = new GameObject("floor");
-            floor.AddComponent(new MeshRenderer(planeMesh, brickMaterial));
+            floor.AddComponent(new MeshRenderer(planeMeshCollider, brickMaterial));
             floor.AddComponent(new MeshCollider(planeMeshCollider));
 
 
@@ -79,7 +78,7 @@ namespace Game {
                         Transform = { Position = _camera.Transform.Position + new Vector3(5 * x, 0, 5 * z) }
                     };
                     gObj.AddComponent(new MeshRenderer(new Mesh("cube.obj"), new Material(new Texture("test.png"))));
-                    gObj.AddComponent(new BoxCollider(2,2,2,1));
+                    //gObj.AddComponent(new BoxCollider(2,2,2,1));
                     AddObject(gObj);
                     _spawnedObjects.Add(gObj);
                 }

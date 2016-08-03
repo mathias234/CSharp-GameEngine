@@ -46,12 +46,17 @@ namespace NewEngine.Engine.Rendering.Shading {
             if (renderingEngine.MainCamera == null)
                 return;
 
+
             var modelMatrix = transform.GetTransformation();
-            var mvpMatrix = modelMatrix*renderingEngine.MainCamera.GetViewProjection();
+
+            var vpMatrix = renderingEngine.MainCamera.GetViewProjection();
+
+            var mvpMatrix = modelMatrix * vpMatrix;
+
             var orthoMatrix = renderingEngine.MainCamera.GetOrtographicProjection();
 
             var cameraMatrix = renderingEngine.MainCamera.Transform.GetTransformationNoRot();
-            var cameraPositionMatrix = cameraMatrix*renderingEngine.MainCamera.GetViewProjection();
+            var cameraPositionMatrix = cameraMatrix * renderingEngine.MainCamera.GetViewProjection();
 
             for (var i = 0; i < _resource.UniformNames.Count; i++) {
                 var uniformName = _resource.UniformNames[i];
@@ -60,7 +65,7 @@ namespace NewEngine.Engine.Rendering.Shading {
                 if (uniformName.StartsWith("R_")) {
                     var unprefixedUniformName = uniformName.Substring(2);
                     if (unprefixedUniformName == "lightMatrix") {
-                        SetUniform(uniformName, modelMatrix*renderingEngine.LightMatrix);
+                        SetUniform(uniformName, modelMatrix * renderingEngine.LightMatrix);
                     }
                     else if (uniformType == "sampler2D") {
                         var samplerSlot = renderingEngine.GetSamplerSlot(unprefixedUniformName);
@@ -78,11 +83,11 @@ namespace NewEngine.Engine.Rendering.Shading {
                     else if (uniformType == "float")
                         SetUniform(uniformName, renderingEngine.GetFloat(unprefixedUniformName));
                     else if (uniformType == "DirectionalLight")
-                        SetUniformDirectionalLight(uniformName, (DirectionalLight) renderingEngine.ActiveLight);
+                        SetUniformDirectionalLight(uniformName, (DirectionalLight)renderingEngine.ActiveLight);
                     else if (uniformType == "PointLight")
-                        SetUniformPointLight(uniformName, (PointLight) renderingEngine.ActiveLight);
+                        SetUniformPointLight(uniformName, (PointLight)renderingEngine.ActiveLight);
                     else if (uniformType == "SpotLight")
-                        SetUniformSpotLight(uniformName, (SpotLight) renderingEngine.ActiveLight);
+                        SetUniformSpotLight(uniformName, (SpotLight)renderingEngine.ActiveLight);
                     else
                         renderingEngine.UpdateUniformStruct(transform, material, this, uniformName, uniformType);
                 }
@@ -118,6 +123,8 @@ namespace NewEngine.Engine.Rendering.Shading {
                 else if (uniformName.StartsWith("T_")) {
                     if (uniformName == "T_MVP")
                         SetUniform(uniformName, mvpMatrix);
+                    else if (uniformName == "T_VP") 
+                        SetUniform(uniformName, vpMatrix);
                     else if (uniformName == "T_ORTHO")
                         SetUniform(uniformName, orthoMatrix);
                     else if (uniformName == "T_model")
@@ -149,7 +156,6 @@ namespace NewEngine.Engine.Rendering.Shading {
                 }
             }
         }
-
 
         public void SetUniform(string uniformName, int value) {
             GL.Uniform1(_resource.Uniforms[uniformName], value);

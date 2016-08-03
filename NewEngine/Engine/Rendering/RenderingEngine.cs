@@ -34,6 +34,12 @@ namespace NewEngine.Engine.Rendering {
         private Texture[] _shadowMaps = new Texture[NumShadowMaps];
         private Texture[] _shadowMapsTempTargets = new Texture[NumShadowMaps];
 
+
+        private Dictionary<string, List<GameObject>> batches = new Dictionary<string, List<GameObject>>();
+
+        // Temp variables below
+        private ParticleSystem _particleSystem;
+
         public RenderingEngine() {
             _lights = new List<BaseLight>();
             _samplerMap = new Dictionary<string, int> {
@@ -99,6 +105,8 @@ namespace NewEngine.Engine.Rendering {
             }
 
             LightMatrix = Matrix4.CreateScale(0, 0, 0);
+
+            _particleSystem = new ParticleSystem(100);
         }
 
         public BaseLight ActiveLight { get; private set; }
@@ -113,10 +121,19 @@ namespace NewEngine.Engine.Rendering {
             LogManager.Error("Failed to update uniform: " + uniformName + ", not a valid type in Rendering Engine");
         }
 
-        public void Render(GameObject gameObject) {
+        public void Render2(GameObject gameObject) {
             CoreEngine.BindAsRenderTarget();
 
             GL.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            RenderSkybox();
+        }
+
+        public void Render(GameObject gameObject, float deltaTime) {
+            CoreEngine.BindAsRenderTarget();
+
+            GL.ClearColor(0.0f, 0.0f, 0.3f, 0.0f);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             RenderSkybox();
@@ -144,6 +161,7 @@ namespace NewEngine.Engine.Rendering {
 
             }
 
+            _particleSystem.Draw(this, deltaTime);
 
             CoreEngine.GetCoreEngine.SwapBuffers();
         }
@@ -265,6 +283,34 @@ namespace NewEngine.Engine.Rendering {
         }
         public void RemoveLight(BaseLight light) {
             _lights.Remove(light);
+        }
+
+        public void AddBatch(Mesh mesh, GameObject gObj) {
+            if (batches.ContainsKey(mesh.Filename)) {
+                LogManager.Debug("adding to existing batch");
+                // add the gObj to the already existing batch
+                batches[mesh.Filename].Add(gObj);
+            }
+            else {
+                LogManager.Debug("creating new batch");
+                
+                // create a new entry in batches
+                List<GameObject> batchObj = new List<GameObject>();
+                batchObj.Add(gObj);
+                batches.Add(mesh.Filename, batchObj);
+            }
+        }
+
+        public void RemoveBatch(Mesh mesh, GameObject gObj) {
+            if (batches.ContainsKey(mesh.Filename)) {
+                if (batches[mesh.Filename].Contains(gObj)) {
+                    batches[mesh.Filename].Remove(gObj);
+
+                    if (batches[mesh.Filename].Count == 0) {
+                        batches.Remove(mesh.Filename);
+                    }
+                }
+            }
         }
 
         public void AddCamera(Camera camera) {
