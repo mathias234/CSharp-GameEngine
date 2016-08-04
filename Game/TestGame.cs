@@ -40,11 +40,12 @@ namespace Game {
 
             var particleObj = new GameObject("Particle");
 
-            particleObj.AddComponent(new ParticleSystem(300, new Vector3(-50, 2, -50), new Vector3(50, 2,50), new Vector4(1,1,1,1), new Vector4(1,1,1,1), 2, new Vector3(0, /*-9.825f*/0, 0), new Vector3(0f, 0, 0f), new Vector3(0, 0, 0), 3, 10, float.MaxValue, float.MaxValue, 300, false, false));
+            particleObj.AddComponent(new ParticleSystem(20, new Vector3(-20, 0, -20), new Vector3(20, 2, 20), new Vector4(0, 0, 0, 1), new Vector4(1, 1, 1, 1), 2, new Vector3(0, 0 /*-9.825f*/, 0), 
+                new Vector3(0, 0.1f, 0), new Vector3(0, 0.5f, 0), 2, 5, 1, 10, 2, true, false, true));
 
             particleObj.Transform.Position = new Vector3(0, 0, 0);
 
-            AddObject(spotLightObj);
+            //AddObject(spotLightObj);
             AddObject(_directionalLightObj);
             AddObject(floor);
             AddObject(particleObj);

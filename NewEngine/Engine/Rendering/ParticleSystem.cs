@@ -11,45 +11,26 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering {
-    public struct Particle : IEquatable<Particle>, IComparable<Particle> {
-        public Vector3 position, speed;
-        public float r, g, b, a;
-        public float size, angle, weight;
-        public float life;
-        public float cameraDistance;
-
-
-        public bool Equals(Particle other) {
-            if (Math.Abs(other.cameraDistance - cameraDistance) < 0.05f) return true;
-            return false;
-        }
-
-        public int CompareTo(Particle other) {
-            if (cameraDistance < other.cameraDistance)
-                return 1;
-            return 0;
-        }
-    }
-
     public class ParticleSystem : GameComponent {
         private static Random _random = new Random();
 
         private int _maxParticles;
-        private readonly Vector3 _startPostionMin;
-        private readonly Vector3 _startPostionMax;
+        private Vector3 _startPostionMin;
+        private Vector3 _startPostionMax;
         private float _spread;
         private Vector3 _directionMin;
         private Vector3 _directionMax;
         private Vector4 _colorMin;
-        private readonly Vector4 _colorMax;
+        private Vector4 _colorMax;
         private Vector3 _gravity;
 
         private float _sizeMin;
         private float _sizeMax;
-        private readonly float _lifeMin;
-        private readonly float _lifeMax;
-        private readonly bool _allowTransparency;
-        private readonly bool _overwriteOldParticles;
+        private float _lifeMin;
+        private float _lifeMax;
+        private bool _allowTransparency;
+        private bool _overwriteOldParticles;
+        private bool _fadeOut;
 
         private int _billboardVertexBuffer;
         private int _particlesPositionBuffer;
@@ -65,48 +46,7 @@ namespace NewEngine.Engine.Rendering {
         private int _lastUsedParticle = 0;
         private int _newParticlesEachFrame;
 
-
-        public int MaxParticles
-        {
-            get { return _maxParticles; }
-            set
-            {
-                _maxParticles = value;
-                Initialize();
-            }
-        }
-
-        public float Spread
-        {
-            get { return _spread; }
-            set { _spread = value; }
-        }
-
-        public float SizeMin
-        {
-            get { return _sizeMin; }
-            set { _sizeMin = value; }
-        }
-
-        public Vector3 DirectionMin
-        {
-            get { return _directionMin; }
-            set { _directionMin = value; }
-        }
-
-        public Vector3 Gravity
-        {
-            get { return _gravity; }
-            set { _gravity = value; }
-        }
-
-        public Vector4 ColorMin
-        {
-            get { return _colorMin; }
-            set { _colorMin = value; }
-        }
-
-        public ParticleSystem(int maxParticles, Vector3 startPostionMin, Vector3 startPostionMax, Vector4 colorMin, Vector4 colorMax, float spread, Vector3 gravity, Vector3 directionMin, Vector3 directionMax, float sizeMin, float sizeMax, float lifeMin, float lifeMax, int newParticlesEachFrame, bool allowTransparency, bool overwriteOldParticles) {
+        public ParticleSystem(int maxParticles, Vector3 startPostionMin, Vector3 startPostionMax, Vector4 colorMin, Vector4 colorMax, float spread, Vector3 gravity, Vector3 directionMin, Vector3 directionMax, float sizeMin, float sizeMax, float lifeMin, float lifeMax, int newParticlesEachFrame, bool allowTransparency, bool overwriteOldParticles, bool fadeOut) {
             _maxParticles = maxParticles;
             _startPostionMin = startPostionMin;
             _startPostionMax = startPostionMax;
@@ -123,6 +63,7 @@ namespace NewEngine.Engine.Rendering {
             _newParticlesEachFrame = newParticlesEachFrame;
             _allowTransparency = allowTransparency;
             _overwriteOldParticles = overwriteOldParticles;
+            _fadeOut = fadeOut;
 
             _particleShader = new Shader("particles");
 
@@ -139,8 +80,8 @@ namespace NewEngine.Engine.Rendering {
             _particles = new Particle[_maxParticles];
 
             for (var i = 0; i < _maxParticles; i++) {
-                _particles[i].life = -1.0f;
-                _particles[i].cameraDistance = -1.0f;
+                _particles[i].Life = -1.0f;
+                _particles[i].CameraDistance = -1.0f;
             }
 
             float[] vertexBufferData = {
@@ -166,8 +107,8 @@ namespace NewEngine.Engine.Rendering {
 
             var newParticles = _newParticlesEachFrame;
 
-            if (newParticles > MaxParticles) {
-                newParticles = MaxParticles;
+            if (newParticles > _maxParticles) {
+                newParticles = _maxParticles;
             }
 
             for (var i = 0; i < newParticles; i++) {
@@ -180,7 +121,7 @@ namespace NewEngine.Engine.Rendering {
                         continue;
                 }
 
-                _particles[particleIndex].life = GetRandomNumber(_lifeMin, _lifeMax);
+                _particles[particleIndex].Life = GetRandomNumber(_lifeMin, _lifeMax);
 
                 Vector3 startPostion = new Vector3(
                     Transform.Position.X + GetRandomNumber(_startPostionMin.X, _startPostionMax.X),
@@ -188,7 +129,7 @@ namespace NewEngine.Engine.Rendering {
                     Transform.Position.Z + GetRandomNumber(_startPostionMin.Z, _startPostionMax.Z)
                     );
 
-                _particles[particleIndex].position = startPostion;
+                _particles[particleIndex].Position = startPostion;
 
 
                 var newDir = new Vector3();
@@ -198,16 +139,16 @@ namespace NewEngine.Engine.Rendering {
                     GetRandomNumber(_directionMin.Y, _directionMax.Y),
                     GetRandomNumber(_directionMin.Z, _directionMax.Z));
 
-                _particles[particleIndex].speed = newDir * _spread;
+                _particles[particleIndex].Speed = newDir * _spread;
 
 
 
-                _particles[particleIndex].r = GetRandomNumber(_colorMin.X, _colorMax.X);
-                _particles[particleIndex].g = GetRandomNumber(_colorMin.Y, _colorMax.Y);
-                _particles[particleIndex].b = GetRandomNumber(_colorMin.Z, _colorMax.Z);
-                _particles[particleIndex].a = GetRandomNumber(_colorMin.W, _colorMax.W);
+                _particles[particleIndex].R = GetRandomNumber(_colorMin.X, _colorMax.X);
+                _particles[particleIndex].G = GetRandomNumber(_colorMin.Y, _colorMax.Y);
+                _particles[particleIndex].B = GetRandomNumber(_colorMin.Z, _colorMax.Z);
+                _particles[particleIndex].A = GetRandomNumber(_colorMin.W, _colorMax.W);
 
-                _particles[particleIndex].size = GetRandomNumber(_sizeMin, _sizeMax);
+                _particles[particleIndex].Size = GetRandomNumber(_sizeMin, _sizeMax);
             }
 
             var particleCount = 0;
@@ -215,30 +156,37 @@ namespace NewEngine.Engine.Rendering {
             for (var i = 0; i < _maxParticles; i++) {
                 var p = _particles[i];
 
-                if (!(p.life > 0.0f)) continue;
+                if (!(p.Life > 0.0f)) continue;
 
-                p.life -= deltaTime;
+                p.Life -= deltaTime;
 
-                if (p.life > 0.0f) {
-                    p.speed += _gravity * deltaTime * 0.5f;
-                    p.position += p.speed * deltaTime;
+                if (p.Life > 0.0f) {
+                    p.Speed += _gravity * deltaTime * 0.5f;
+                    p.Position += p.Speed * deltaTime;
 
-                    p.cameraDistance =
-                        (p.position - CoreEngine.GetCoreEngine.RenderingEngine.MainCamera.Transform.Position)
+                    p.CameraDistance =
+                        (p.Position - CoreEngine.GetCoreEngine.RenderingEngine.MainCamera.Transform.Position)
                             .LengthSquared;
 
-                    _particulePostitionSizeData[4 * particleCount + 0] = p.position.X;
-                    _particulePostitionSizeData[4 * particleCount + 1] = p.position.Y;
-                    _particulePostitionSizeData[4 * particleCount + 2] = p.position.Z;
-                    _particulePostitionSizeData[4 * particleCount + 3] = p.size;
+                    _particulePostitionSizeData[4 * particleCount + 0] = p.Position.X;
+                    _particulePostitionSizeData[4 * particleCount + 1] = p.Position.Y;
+                    _particulePostitionSizeData[4 * particleCount + 2] = p.Position.Z;
+                    _particulePostitionSizeData[4 * particleCount + 3] = p.Size;
 
-                    _particuleColorData[4 * particleCount + 0] = p.r;
-                    _particuleColorData[4 * particleCount + 1] = p.g;
-                    _particuleColorData[4 * particleCount + 2] = p.b;
-                    _particuleColorData[4 * particleCount + 3] = p.a;
+                    _particuleColorData[4 * particleCount + 0] = p.R;
+                    _particuleColorData[4 * particleCount + 1] = p.G;
+                    _particuleColorData[4 * particleCount + 2] = p.B;
+
+                    if (_fadeOut) {
+                        _particuleColorData[4 * particleCount + 3] = p.Life;
+                    }
+                    else {
+                        _particuleColorData[4 * particleCount + 3] = p.A;
+                    }
+
                 }
                 else {
-                    p.cameraDistance = -1.0f;
+                    p.CameraDistance = -1.0f;
                 }
 
                 _particles[i] = p;
@@ -267,8 +215,8 @@ namespace NewEngine.Engine.Rendering {
 
             _particleShader.Bind();
 
-            var material = new Material(new Texture("grassstraw.png"));
-            material.SetTexture("cutoutMask", new Texture("grassstraw_cutout.png"));
+            var material = new Material(new Texture("test2.png"));
+            material.SetTexture("cutoutMask", new Texture("test2_cutout.png"));
             material.SetVector3("CameraRight_worldspace", -renderingEngine.MainCamera.Transform.Right);
             material.SetVector3("CameraUp_worldspace", renderingEngine.MainCamera.Transform.Up);
 
@@ -304,15 +252,24 @@ namespace NewEngine.Engine.Rendering {
             GL.Disable(EnableCap.Blend);
         }
 
+        public float GetRandomNumber(double minimum, double maximum) {
+            return (float)(_random.NextDouble() * (maximum - minimum) + minimum);
+        }
 
-        private void SortParticles() {
-            BubbleSort(_particles);
+        public int MaxParticles
+        {
+            get { return _maxParticles; }
+            set
+            {
+                _maxParticles = value;
+                Initialize();
+            }
         }
 
         public static void BubbleSort(Particle[] a) {
             for (var i = 1; i <= a.Length - 1; ++i)
                 for (var j = 0; j < a.Length - i; ++j)
-                    if (a[j].cameraDistance < a[j + 1].cameraDistance)
+                    if (a[j].CameraDistance < a[j + 1].CameraDistance)
                         Swap(ref a[j], ref a[j + 1]);
 
         }
@@ -323,10 +280,13 @@ namespace NewEngine.Engine.Rendering {
             y = temp;
         }
 
+        private void SortParticles() {
+            BubbleSort(_particles);
+        }
 
         private int FindUnusedParticle() {
             for (var i = _lastUsedParticle; i < _maxParticles; i++) {
-                if (!(_particles[i].life < 0)) continue;
+                if (!(_particles[i].Life < 0)) continue;
 
                 _lastUsedParticle = i;
 
@@ -334,21 +294,109 @@ namespace NewEngine.Engine.Rendering {
             }
 
             for (var i = 0; i < _lastUsedParticle; i++) {
-                if (!(_particles[i].life < 0)) continue;
+                if (!(_particles[i].Life < 0)) continue;
 
                 _lastUsedParticle = i;
 
                 return i;
             }
 
-            if (_particles[0].life < 0)
+            if (_particles[0].Life < 0)
                 return 0;
             else
                 return int.MaxValue;
         }
+#region getter/setter
 
-        public float GetRandomNumber(double minimum, double maximum) {
-            return (float)(_random.NextDouble() * (maximum - minimum) + minimum);
+        public Vector3 StartPostionMin
+        {
+            get { return _startPostionMin; }
+            set { _startPostionMin = value; }
         }
+
+        public Vector3 StartPostionMax
+        {
+            get { return _startPostionMax; }
+            set { _startPostionMax = value; }
+        }
+
+        public float Spread
+        {
+            get { return _spread; }
+            set { _spread = value; }
+        }
+
+        public Vector3 DirectionMin
+        {
+            get { return _directionMin; }
+            set { _directionMin = value; }
+        }
+
+        public Vector3 DirectionMax
+        {
+            get { return _directionMax; }
+            set { _directionMax = value; }
+        }
+
+        public Vector4 ColorMin
+        {
+            get { return _colorMin; }
+            set { _colorMin = value; }
+        }
+
+        public Vector4 ColorMax
+        {
+            get { return _colorMax; }
+            set { _colorMax = value; }
+        }
+
+        public Vector3 Gravity
+        {
+            get { return _gravity; }
+            set { _gravity = value; }
+        }
+
+        public float SizeMin
+        {
+            get { return _sizeMin; }
+            set { _sizeMin = value; }
+        }
+
+        public float SizeMax
+        {
+            get { return _sizeMax; }
+            set { _sizeMax = value; }
+        }
+
+        public float LifeMin
+        {
+            get { return _lifeMin; }
+            set { _lifeMin = value; }
+        }
+
+        public float LifeMax
+        {
+            get { return _lifeMax; }
+            set { _lifeMax = value; }
+        }
+
+        public bool AllowTransparency
+        {
+            get { return _allowTransparency; }
+            set { _allowTransparency = value; }
+        }
+
+        public bool OverwriteOldParticles
+        {
+            get { return _overwriteOldParticles; }
+            set { _overwriteOldParticles = value; }
+        }
+
+        public bool FadeOut
+        {
+            get { return _fadeOut; }
+            set { _fadeOut = value; }
+        }
+#endregion
     }
 }
