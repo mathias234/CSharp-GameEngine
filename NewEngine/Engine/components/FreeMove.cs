@@ -5,7 +5,7 @@ using OpenTK.Input;
 namespace NewEngine.Engine.components {
    public class FreeMove : GameComponent {
        public override void Update(float deltaTime) {
-            float movAmt = 0.1f;
+            float movAmt = 1f;
 
             Vector3 input = new Vector3(0);
 

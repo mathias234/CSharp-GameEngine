@@ -38,9 +38,18 @@ namespace Game {
 
             spotLightObj.AddComponent(spotLight);
 
+            var particleObj = new GameObject("Particle");
+
+            particleObj.AddComponent(new ParticleSystem(300, new Vector3(-50, 2, -50), new Vector3(50, 2,50), new Vector4(1,1,1,1), new Vector4(1,1,1,1), 2, new Vector3(0, /*-9.825f*/0, 0), new Vector3(0f, 0, 0f), new Vector3(0, 0, 0), 3, 10, float.MaxValue, float.MaxValue, 300, false, false));
+
+            particleObj.Transform.Position = new Vector3(0, 0, 0);
+
             AddObject(spotLightObj);
             AddObject(_directionalLightObj);
             AddObject(floor);
+            AddObject(particleObj);
+
+
             CoreEngine.GetCoreEngine.RenderingEngine.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg",
                 "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
         }

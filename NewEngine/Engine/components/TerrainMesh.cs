@@ -110,8 +110,15 @@ namespace NewEngine.Engine.components {
             _mesh = new Mesh(verts.ToArray(), tris.ToArray(), true);
         }
 
-        public override void Render(string shader, RenderingEngine renderingEngine, bool baseShader) {
-            var shaderToUse = baseShader ? new Shader("Terrain/baseTerrain") : new Shader("terrain/terrain-" + shader);
+        public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine) {
+            Shader shaderToUse;
+
+            if (shaderType == "base") {
+                shaderToUse = new Shader("Terrain/baseTerrain");
+            }
+            else
+                shaderToUse = new Shader("terrain/terrain-" + shader);
+
 
             var terrainMaterial = new Material(_tex1, _specularIntensity, _specularPower, _tex1Nrm);
             terrainMaterial.SetTexture("tex2", _tex2);

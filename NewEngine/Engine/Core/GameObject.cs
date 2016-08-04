@@ -79,10 +79,10 @@ namespace NewEngine.Engine.Core {
             }
         }
 
-        public void RenderAll(string shader, RenderingEngine renderingEngine, bool baseShader) {
-            Render(shader, renderingEngine, baseShader);
+        public void RenderAll(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine) {
+            Render(shader, shaderType, deltaTime, renderingEngine);
             for (var i = 0; i < _children.Count; i++) {
-                _children[i].RenderAll(shader, renderingEngine, baseShader);
+                _children[i].RenderAll(shader, shaderType, deltaTime, renderingEngine);
             }
         }
 
@@ -92,9 +92,9 @@ namespace NewEngine.Engine.Core {
             }
         }
 
-        public void Render(string shader, RenderingEngine renderingEngine, bool baseShader) {
+        public void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine) {
             for (var i = 0; i < _components.Count; i++) {
-                _components[i].Render(shader, renderingEngine, baseShader);
+                _components[i].Render(shader, shaderType, deltaTime, renderingEngine);
             }
         }
 

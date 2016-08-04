@@ -12,12 +12,12 @@ uniform sampler2D cutoutMask;
 void main(){
 	// Output color = color of the texture at the specified UV
 	
-	vec2 uv =  vec2(((UV.x + 5) / 8), ((UV.y + 7) / 8));
+	vec2 uv = UV;//vec2(((UV.x + 5) / 8), ((UV.y + 7) / 8));
 	
-	vec4 cutout = texture(cutoutMask, uv);
+	 vec4 cutout = texture(cutoutMask, uv);
 	
-	if(cutout.r < 0.1) 
-		discard;
+	 if(cutout.r < 0.1) 
+	 discard;
 	
 	color = texture( diffuse, uv ) * particlecolor;
 

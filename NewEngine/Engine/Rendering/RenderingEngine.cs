@@ -15,6 +15,7 @@ namespace NewEngine.Engine.Rendering {
         private Matrix4 _biasMatrix = Matrix4.CreateTranslation(1.0f, 1.0f, 1.0f) * Matrix4.CreateScale(0.5f, 0.5f, 0.5f);
 
         private List<BaseLight> _lights;
+        private List<ParticleSystem> _particleSystems;
         private Dictionary<string, int> _samplerMap;
 
         private Mesh _skybox;
@@ -36,9 +37,6 @@ namespace NewEngine.Engine.Rendering {
 
 
         private Dictionary<string, List<GameObject>> batches = new Dictionary<string, List<GameObject>>();
-
-        // Temp variables below
-        private ParticleSystem _particleSystem;
 
         public RenderingEngine() {
             _lights = new List<BaseLight>();
@@ -106,7 +104,6 @@ namespace NewEngine.Engine.Rendering {
 
             LightMatrix = Matrix4.CreateScale(0, 0, 0);
 
-            _particleSystem = new ParticleSystem(100);
         }
 
         public BaseLight ActiveLight { get; private set; }
@@ -121,15 +118,6 @@ namespace NewEngine.Engine.Rendering {
             LogManager.Error("Failed to update uniform: " + uniformName + ", not a valid type in Rendering Engine");
         }
 
-        public void Render2(GameObject gameObject) {
-            CoreEngine.BindAsRenderTarget();
-
-            GL.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-            RenderSkybox();
-        }
-
         public void Render(GameObject gameObject, float deltaTime) {
             CoreEngine.BindAsRenderTarget();
 
@@ -139,12 +127,12 @@ namespace NewEngine.Engine.Rendering {
             RenderSkybox();
 
             // since we are rendering the "base" pass we do not need to specify the shader
-            gameObject.RenderAll(null, this, true);
+            gameObject.RenderAll(null, "base", deltaTime, this);
 
             foreach (var light in _lights) {
                 ActiveLight = light;
 
-                RenderShadowMap(ActiveLight, gameObject);
+                RenderShadowMap(ActiveLight, deltaTime, gameObject);
 
                 CoreEngine.BindAsRenderTarget();
 
@@ -153,7 +141,7 @@ namespace NewEngine.Engine.Rendering {
                 GL.DepthMask(false);
                 GL.DepthFunc(DepthFunction.Equal);
 
-                gameObject.RenderAll(light.GetType().Name, this, false);
+                gameObject.RenderAll(light.GetType().Name, "light", deltaTime, this);
 
                 GL.DepthMask(true);
                 GL.DepthFunc(DepthFunction.Less);
@@ -161,12 +149,13 @@ namespace NewEngine.Engine.Rendering {
 
             }
 
-            _particleSystem.Draw(this, deltaTime);
+            // render the particle system last
+            gameObject.RenderAll("", "ParticleSystem", deltaTime, this);
 
             CoreEngine.GetCoreEngine.SwapBuffers();
         }
 
-        private void RenderShadowMap(BaseLight light, GameObject gameObject) {
+        private void RenderShadowMap(BaseLight light, float deltaTime, GameObject gameObject) {
             var shadowInfo = light.ShadowInfo;
 
             int shadowMapIndex = 0;
@@ -204,7 +193,7 @@ namespace NewEngine.Engine.Rendering {
                 MainCamera = _altCamera;
 
                 if (flipFaces) GL.CullFace(CullFaceMode.Front);
-                gameObject.RenderAll("shadowMapGenerator", this, false);
+                gameObject.RenderAll("shadowMapGenerator", "shaderMapGenerator", deltaTime, this);
                 if (flipFaces) GL.CullFace(CullFaceMode.Back);
 
                 MainCamera = temp;
@@ -293,7 +282,7 @@ namespace NewEngine.Engine.Rendering {
             }
             else {
                 LogManager.Debug("creating new batch");
-                
+
                 // create a new entry in batches
                 List<GameObject> batchObj = new List<GameObject>();
                 batchObj.Add(gObj);

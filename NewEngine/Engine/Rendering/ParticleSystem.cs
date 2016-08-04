@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using NewEngine.Engine.components;
 using NewEngine.Engine.Core;
 using NewEngine.Engine.Rendering.Shading;
 using OpenTK;
@@ -30,153 +31,248 @@ namespace NewEngine.Engine.Rendering {
         }
     }
 
-    public class ParticleSystem {
-        public int Amount { get; set; }
+    public class ParticleSystem : GameComponent {
+        private static Random _random = new Random();
 
-        int _billboardVertexBuffer;
-        int _particlesPositionBuffer;
-        int _particlesColorBuffer;
+        private int _maxParticles;
+        private readonly Vector3 _startPostionMin;
+        private readonly Vector3 _startPostionMax;
+        private float _spread;
+        private Vector3 _directionMin;
+        private Vector3 _directionMax;
+        private Vector4 _colorMin;
+        private readonly Vector4 _colorMax;
+        private Vector3 _gravity;
 
-        private Particle[] particles;
+        private float _sizeMin;
+        private float _sizeMax;
+        private readonly float _lifeMin;
+        private readonly float _lifeMax;
+        private readonly bool _allowTransparency;
+        private readonly bool _overwriteOldParticles;
 
-        private static float[] particulePostitionSizeData;
-        private static float[] particuleColorData;
+        private int _billboardVertexBuffer;
+        private int _particlesPositionBuffer;
+        private int _particlesColorBuffer;
 
-        private Shader particleShader;
+        private Particle[] _particles;
 
-        public ParticleSystem(int amount) {
-            Amount = amount;
+        private static float[] _particulePostitionSizeData;
+        private static float[] _particuleColorData;
 
-            particleShader = new Shader("particles");
+        private Shader _particleShader;
 
-            particulePostitionSizeData = new float[amount * 4];
-            particuleColorData = new float[amount * 4];
-            particles = new Particle[amount];
+        private int _lastUsedParticle = 0;
+        private int _newParticlesEachFrame;
 
-            for (int i = 0; i < amount; i++) {
-                particles[i].life = -1.0f;
-                particles[i].cameraDistance = -1.0f;
+
+        public int MaxParticles
+        {
+            get { return _maxParticles; }
+            set
+            {
+                _maxParticles = value;
+                Initialize();
             }
+        }
 
+        public float Spread
+        {
+            get { return _spread; }
+            set { _spread = value; }
+        }
 
-            float[] vertexBufferData = new[] {
-                -0.5f, -0.5f, 0.0f,
-                0.5f, -0.5f, 0.0f,
-                -0.5f, 0.5f, 0.0f,
-                0.5f, 0.5f, 0.0f
-            };
+        public float SizeMin
+        {
+            get { return _sizeMin; }
+            set { _sizeMin = value; }
+        }
 
+        public Vector3 DirectionMin
+        {
+            get { return _directionMin; }
+            set { _directionMin = value; }
+        }
+
+        public Vector3 Gravity
+        {
+            get { return _gravity; }
+            set { _gravity = value; }
+        }
+
+        public Vector4 ColorMin
+        {
+            get { return _colorMin; }
+            set { _colorMin = value; }
+        }
+
+        public ParticleSystem(int maxParticles, Vector3 startPostionMin, Vector3 startPostionMax, Vector4 colorMin, Vector4 colorMax, float spread, Vector3 gravity, Vector3 directionMin, Vector3 directionMax, float sizeMin, float sizeMax, float lifeMin, float lifeMax, int newParticlesEachFrame, bool allowTransparency, bool overwriteOldParticles) {
+            _maxParticles = maxParticles;
+            _startPostionMin = startPostionMin;
+            _startPostionMax = startPostionMax;
+            _colorMin = colorMin;
+            _colorMax = colorMax;
+            _spread = spread;
+            _gravity = gravity;
+            _directionMin = directionMin;
+            _directionMax = directionMax;
+            _sizeMin = sizeMin;
+            _sizeMax = sizeMax;
+            _lifeMin = lifeMin;
+            _lifeMax = lifeMax;
+            _newParticlesEachFrame = newParticlesEachFrame;
+            _allowTransparency = allowTransparency;
+            _overwriteOldParticles = overwriteOldParticles;
+
+            _particleShader = new Shader("particles");
 
             GL.GenBuffers(1, out _billboardVertexBuffer);
+            GL.GenBuffers(1, out _particlesPositionBuffer);
+            GL.GenBuffers(1, out _particlesColorBuffer);
+
+            Initialize();
+        }
+
+        public void Initialize() {
+            _particulePostitionSizeData = new float[_maxParticles * 4];
+            _particuleColorData = new float[_maxParticles * 4];
+            _particles = new Particle[_maxParticles];
+
+            for (var i = 0; i < _maxParticles; i++) {
+                _particles[i].life = -1.0f;
+                _particles[i].cameraDistance = -1.0f;
+            }
+
+            float[] vertexBufferData = {
+                    -0.5f, -0.5f, 0.0f,
+                    0.5f, -0.5f, 0.0f,
+                    -0.5f, 0.5f, 0.0f,
+                    0.5f, 0.5f, 0.0f
+                };
+
             GL.BindBuffer(BufferTarget.ArrayBuffer, _billboardVertexBuffer);
             GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(sizeof(float) * vertexBufferData.Length), vertexBufferData, BufferUsageHint.StaticDraw);
 
-            GL.GenBuffers(1, out _particlesPositionBuffer);
             GL.BindBuffer(BufferTarget.ArrayBuffer, _particlesPositionBuffer);
-            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(Amount * 4 * sizeof(float)), IntPtr.Zero, BufferUsageHint.StreamDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(_maxParticles * 4 * sizeof(float)), IntPtr.Zero, BufferUsageHint.StreamDraw);
 
-            GL.GenBuffers(1, out _particlesColorBuffer);
             GL.BindBuffer(BufferTarget.ArrayBuffer, _particlesColorBuffer);
-            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(Amount * 4 * sizeof(float)), IntPtr.Zero, BufferUsageHint.StreamDraw);
-
-
+            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(_maxParticles * 4 * sizeof(float)), IntPtr.Zero, BufferUsageHint.StreamDraw);
         }
 
-        public void Draw(RenderingEngine renderingEngine, float deltaTime) {
+        public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine) {
+            if (shaderType != "ParticleSystem")
+                return;
 
+            var newParticles = _newParticlesEachFrame;
 
-            int newParticles = (int)(deltaTime * 10000.0f);
-            if (newParticles > (int)(0.016f * 10000.0f)) {
-                newParticles = (int)(0.015f * 10000.0f);
+            if (newParticles > MaxParticles) {
+                newParticles = MaxParticles;
             }
 
-            for (int i = 0; i < newParticles; i++) {
+            for (var i = 0; i < newParticles; i++) {
+                var particleIndex = FindUnusedParticle();
 
-                int particleIndex = FindUnusedParticle();
-                particles[particleIndex].life = GetRandomNumber(0, 5);
-                particles[particleIndex].position = new Vector3(GetRandomNumber(0, 5), GetRandomNumber(0,5), GetRandomNumber(0, 5));
+                if (particleIndex == int.MaxValue) {
+                    if (_overwriteOldParticles)
+                        particleIndex = 0;
+                    else
+                        continue;
+                }
 
-                float spread = 1.5f;
-                Vector3 mainDir = new Vector3(0, 0, 2);
+                _particles[particleIndex].life = GetRandomNumber(_lifeMin, _lifeMax);
+
+                Vector3 startPostion = new Vector3(
+                    Transform.Position.X + GetRandomNumber(_startPostionMin.X, _startPostionMax.X),
+                    Transform.Position.Y + GetRandomNumber(_startPostionMin.Y, _startPostionMax.Y),
+                    Transform.Position.Z + GetRandomNumber(_startPostionMin.Z, _startPostionMax.Z)
+                    );
+
+                _particles[particleIndex].position = startPostion;
 
 
-                Vector3 randomDir = new Vector3(
-                    GetRandomNumber(-1, 1),
-                    GetRandomNumber(-1, 1),
-                    GetRandomNumber(0.9, 1)
-                );
+                var newDir = new Vector3();
 
-                particles[particleIndex].speed = mainDir + randomDir * spread;
+                newDir = new Vector3(
+                    GetRandomNumber(_directionMin.X, _directionMax.X),
+                    GetRandomNumber(_directionMin.Y, _directionMax.Y),
+                    GetRandomNumber(_directionMin.Z, _directionMax.Z));
 
-                float color = GetRandomNumber(0.3f, 1);
+                _particles[particleIndex].speed = newDir * _spread;
 
 
-                particles[particleIndex].r = color;
-                particles[particleIndex].g = color / 1.2f;
-                particles[particleIndex].b = color / 2;
-                particles[particleIndex].a = 1;
 
-                particles[particleIndex].size = GetRandomNumber(5, 10) + 0.1f;
+                _particles[particleIndex].r = GetRandomNumber(_colorMin.X, _colorMax.X);
+                _particles[particleIndex].g = GetRandomNumber(_colorMin.Y, _colorMax.Y);
+                _particles[particleIndex].b = GetRandomNumber(_colorMin.Z, _colorMax.Z);
+                _particles[particleIndex].a = GetRandomNumber(_colorMin.W, _colorMax.W);
+
+                _particles[particleIndex].size = GetRandomNumber(_sizeMin, _sizeMax);
             }
 
-            int particleCount = 0;
+            var particleCount = 0;
 
-            for (int i = 0; i < Amount; i++) {
-                Particle p = particles[i];
+            for (var i = 0; i < _maxParticles; i++) {
+                var p = _particles[i];
+
+                if (!(p.life > 0.0f)) continue;
+
+                p.life -= deltaTime;
 
                 if (p.life > 0.0f) {
-                    p.life -= deltaTime;
+                    p.speed += _gravity * deltaTime * 0.5f;
+                    p.position += p.speed * deltaTime;
 
-                    if (p.life > 0.0f) {
-                        p.speed = new Vector3(0.0f, 1.2f, 0.0f) * deltaTime * 0.5f;
-                        p.position += p.speed * deltaTime;
+                    p.cameraDistance =
+                        (p.position - CoreEngine.GetCoreEngine.RenderingEngine.MainCamera.Transform.Position)
+                            .LengthSquared;
 
-                        p.cameraDistance =
-                            (p.position - CoreEngine.GetCoreEngine.RenderingEngine.MainCamera.Transform.Position)
-                                .LengthSquared;
+                    _particulePostitionSizeData[4 * particleCount + 0] = p.position.X;
+                    _particulePostitionSizeData[4 * particleCount + 1] = p.position.Y;
+                    _particulePostitionSizeData[4 * particleCount + 2] = p.position.Z;
+                    _particulePostitionSizeData[4 * particleCount + 3] = p.size;
 
-                        particulePostitionSizeData[4 * particleCount + 0] = p.position.X;
-                        particulePostitionSizeData[4 * particleCount + 1] = p.position.Y;
-                        particulePostitionSizeData[4 * particleCount + 2] = p.position.Z;
-                        particulePostitionSizeData[4 * particleCount + 3] = p.size;
-
-                        particuleColorData[4 * particleCount + 0] = p.r;
-                        particuleColorData[4 * particleCount + 1] = p.g;
-                        particuleColorData[4 * particleCount + 2] = p.b;
-                        particuleColorData[4 * particleCount + 3] = p.a;
-
-
-                    }
-                    else {
-                        p.cameraDistance = -1.0f;
-                    }
-                    particles[i] = p;
-
-                    particleCount++;
+                    _particuleColorData[4 * particleCount + 0] = p.r;
+                    _particuleColorData[4 * particleCount + 1] = p.g;
+                    _particuleColorData[4 * particleCount + 2] = p.b;
+                    _particuleColorData[4 * particleCount + 3] = p.a;
                 }
+                else {
+                    p.cameraDistance = -1.0f;
+                }
+
+                _particles[i] = p;
+
+                particleCount++;
             }
 
-            SortParticles();
+            if (_allowTransparency) {
+                SortParticles();
+            }
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, _particlesPositionBuffer);
-            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(Amount * 4 * sizeof(float)), IntPtr.Zero, BufferUsageHint.StreamDraw);
-            GL.BufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, (IntPtr)(particleCount * sizeof(float) * 4), particulePostitionSizeData);
+            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(_maxParticles * 4 * sizeof(float)), IntPtr.Zero, BufferUsageHint.StreamDraw);
+            GL.BufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, (IntPtr)(particleCount * sizeof(float) * 4), _particulePostitionSizeData);
 
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, _particlesColorBuffer);
-            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(Amount * 4 * sizeof(float)), IntPtr.Zero, BufferUsageHint.StreamDraw);
-            GL.BufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, (IntPtr)(particleCount * sizeof(float) * 4), particuleColorData);
+            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(_maxParticles * 4 * sizeof(float)), IntPtr.Zero, BufferUsageHint.StreamDraw);
+            GL.BufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, (IntPtr)(particleCount * sizeof(float) * 4), _particuleColorData);
 
-            GL.Enable(EnableCap.Blend);
-            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
-            particleShader.Bind();
-            Material material = new Material(new Texture("ParticleAtlas.png"));
-            material.SetTexture("cutoutMask", new Texture("ParticleAtlas_cutout.png"));
+            if (_allowTransparency) {
+                GL.Enable(EnableCap.Blend);
+                GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            }
+
+            _particleShader.Bind();
+
+            var material = new Material(new Texture("grassstraw.png"));
+            material.SetTexture("cutoutMask", new Texture("grassstraw_cutout.png"));
             material.SetVector3("CameraRight_worldspace", -renderingEngine.MainCamera.Transform.Right);
             material.SetVector3("CameraUp_worldspace", renderingEngine.MainCamera.Transform.Up);
 
-            particleShader.UpdateUniforms(new Transform(), material, renderingEngine);
+            _particleShader.UpdateUniforms(Transform, material, renderingEngine);
 
             GL.EnableVertexAttribArray(0);
             GL.BindBuffer(BufferTarget.ArrayBuffer, _billboardVertexBuffer);
@@ -204,50 +300,55 @@ namespace NewEngine.Engine.Rendering {
             GL.VertexAttribDivisor(0, 0);
             GL.VertexAttribDivisor(1, 0);
             GL.VertexAttribDivisor(2, 0);
+
+            GL.Disable(EnableCap.Blend);
         }
 
+
         private void SortParticles() {
-            BubbleSort(particles);
+            BubbleSort(_particles);
         }
 
         public static void BubbleSort(Particle[] a) {
-            for (int i = 1; i <= a.Length - 1; ++i)
-                for (int j = 0; j < a.Length - i; ++j)
+            for (var i = 1; i <= a.Length - 1; ++i)
+                for (var j = 0; j < a.Length - i; ++j)
                     if (a[j].cameraDistance < a[j + 1].cameraDistance)
                         Swap(ref a[j], ref a[j + 1]);
 
         }
 
         public static void Swap(ref Particle x, ref Particle y) {
-            Particle temp = x;
+            var temp = x;
             x = y;
             y = temp;
         }
 
-        private int lastUsedParticle = 0;
 
-        int FindUnusedParticle() {
-            for (int i = lastUsedParticle; i < Amount; i++) {
-                if (particles[i].life < 0) {
-                    lastUsedParticle = i;
-                    return i;
-                }
+        private int FindUnusedParticle() {
+            for (var i = _lastUsedParticle; i < _maxParticles; i++) {
+                if (!(_particles[i].life < 0)) continue;
+
+                _lastUsedParticle = i;
+
+                return i;
             }
 
-            for (int i = 0; i < lastUsedParticle; i++) {
-                if (particles[i].life < 0) {
-                    lastUsedParticle = i;
-                    return i;
-                }
+            for (var i = 0; i < _lastUsedParticle; i++) {
+                if (!(_particles[i].life < 0)) continue;
+
+                _lastUsedParticle = i;
+
+                return i;
             }
 
-            return 0;
+            if (_particles[0].life < 0)
+                return 0;
+            else
+                return int.MaxValue;
         }
 
-        static Random random = new Random();
-
         public float GetRandomNumber(double minimum, double maximum) {
-            return (float)(random.NextDouble() * (maximum - minimum) + minimum);
+            return (float)(_random.NextDouble() * (maximum - minimum) + minimum);
         }
     }
 }

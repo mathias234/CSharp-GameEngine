@@ -32,7 +32,7 @@ namespace NewEngine.Engine.components.UIComponents {
             return a > b ? a : b;
         }
 
-        public override void Render(string shader, RenderingEngine renderingEngine, bool baseShader) {
+        public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine) {
             Parent.Transform = _rectTransform;
             // we only need the ImageShader here so replace the shader being passed
 
