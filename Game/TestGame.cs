@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using NewEngine.Engine.components;
 using NewEngine.Engine.Core;
 using NewEngine.Engine.Physics.PhysicsComponents;
@@ -14,20 +15,12 @@ namespace Game {
         private List<GameObject> _spawnedObjects = new List<GameObject>();
 
         public override void Start() {
-            Material brickMaterial = new Material(new Texture("bricks.png"), 0.5f, 32, new Texture("bricks_nrm.png"), new Texture("bricks_disp.jpg"), 0.02f, 0);
-            //Material rockMaterial = new Material(new Texture("rock.jpg"), 0.5f, 32, new Texture("rock_nrm.jpg"), new Texture("rock_disp.jpg"), 0.02f, 0);
-
-            Mesh planeMeshCollider = new Mesh("plane.obj");
-
-            GameObject floor = new GameObject("floor");
-            floor.AddComponent(new MeshRenderer(planeMeshCollider, brickMaterial));
-            floor.AddComponent(new MeshCollider(planeMeshCollider));
 
 
             CreateCamera();
 
             _directionalLightObj = new GameObject("Directinal Light");
-            var directionalLight = new DirectionalLight(new Vector3(1), 0.2f, 10, 300);
+            var directionalLight = new DirectionalLight(new Vector3(1), 0.2f, 10, 80);
             _directionalLightObj.AddComponent(directionalLight);
             _directionalLightObj.Transform.Rotation *= Quaternion.FromAxisAngle(new Vector3(1, 0, 0), (float)MathHelper.DegreesToRadians(-45.0));
 
@@ -52,11 +45,37 @@ namespace Game {
 
             particleObj2.Transform.Position = new Vector3(100, 0, 0);
 
-            //AddObject(spotLightObj);
+            AddObject(spotLightObj);
             AddObject(_directionalLightObj);
-            AddObject(floor);
             AddObject(particleObj2);
             AddObject(particleObj);
+
+
+
+            string[] sponzaModels = {
+                "door", "ground", "roof", "window", "wood"
+            };
+
+            foreach (var sponzaModel in sponzaModels) {
+                float displacementOffset = 0;
+                float displacementScale = 0;
+
+                if (File.Exists("testgame/" + sponzaModel + "_disp.png")) {
+                    displacementScale = 0.02f;
+                    displacementOffset = -0.2f;
+                }
+
+                var material = new Material(new Texture("testgame/" + sponzaModel + ".jpg"), 0.5f, 32,
+                    new Texture("testgame/" + sponzaModel + "_nrm.jpg"),
+                    new Texture("testgame/" + sponzaModel + "_disp.jpg"), displacementScale, displacementOffset);
+                material.SetTexture("cutoutMask",
+                    new Texture("testgame/" + sponzaModel + "_mask.jpg"));
+                var sponza =
+                    new GameObject(sponzaModel).AddComponent(new MeshRenderer(new Mesh("testgame/" + sponzaModel + "/model.obj"),
+                        material));
+                AddObject(sponza);
+            }
+
 
 
             CoreEngine.GetCoreEngine.RenderingEngine.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg",

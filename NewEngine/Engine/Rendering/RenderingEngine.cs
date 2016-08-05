@@ -87,7 +87,6 @@ namespace NewEngine.Engine.Rendering {
                 int shadowMapSize = 1 << (i + 1);
                 _shadowMaps[i] = new Texture((IntPtr)0, shadowMapSize, shadowMapSize, TextureMinFilter.Linear, PixelInternalFormat.Rg32f, PixelFormat.Rgba, true);
                 _shadowMapsTempTargets[i] = new Texture((IntPtr)0, shadowMapSize, shadowMapSize, TextureMinFilter.Linear, PixelInternalFormat.Rg32f, PixelFormat.Rgba, true);
-
             }
 
             LightMatrix = Matrix4.CreateScale(0, 0, 0);
@@ -158,14 +157,10 @@ namespace NewEngine.Engine.Rendering {
 
 
             if (shadowInfo != null) {
-
-
                 _altCamera.SetProjection = shadowInfo.Projection;
 
                 ShadowCameraTransform shadowCameraTransform =
                     ActiveLight.CalcShadowCameraTransform(MainCamera.Transform);
-
-
 
                 _altCamera.Transform.Position = shadowCameraTransform.pos;
                 _altCamera.Transform.Rotation = shadowCameraTransform.rot;
@@ -181,14 +176,15 @@ namespace NewEngine.Engine.Rendering {
                 MainCamera = _altCamera;
 
                 if (flipFaces) GL.CullFace(CullFaceMode.Front);
-                gameObject.RenderAll("shadowMapGenerator", "shaderMapGenerator", deltaTime, this);
+                gameObject.RenderAll("shadowMapGenerator", "light", deltaTime, this);
                 if (flipFaces) GL.CullFace(CullFaceMode.Back);
 
                 MainCamera = temp;
 
-                float shadowSoftness = shadowInfo.ShadowSoftness;
+                var shadowSoftness = shadowInfo.ShadowSoftness;
+
                 if (Math.Abs(shadowSoftness) > 0.0001f)
-                    BlurShadowMap(shadowMapIndex, shadowInfo.ShadowSoftness);
+                    BlurShadowMap(shadowMapIndex, shadowSoftness);
             }
             else {
                 LightMatrix = Matrix4.CreateScale(0, 0, 0);

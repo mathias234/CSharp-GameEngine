@@ -19,24 +19,24 @@ namespace NewEngine.Engine.components {
                     false, shadowMapSizeAsPowerOf2, shadowSoftness, lightBleedReductionAmount, minVariance);
         }
 
-        //public override ShadowCameraTransform CalcShadowCameraTransform(Transform transform) {
-        //    ShadowCameraTransform result;
-        //    result.pos = transform.Position + transform.Forward * _halfShadowArea;
-        //    result.rot = Transform.GetTransformedRotation();
+        public override ShadowCameraTransform CalcShadowCameraTransform(Transform transform) {
+            ShadowCameraTransform result;
+            result.pos = transform.Position + new Vector3(0,0,1)* _halfShadowArea;
+            result.rot = Transform.GetTransformedRotation();
 
-        //    var worldTexelSize = (_halfShadowArea * 2) / (1 << ShadowInfo.ShadowMapSizeAsPowerOf2);
+            var worldTexelSize = (_halfShadowArea * 2) / (1 << ShadowInfo.ShadowMapSizeAsPowerOf2);
 
-        //    Vector3 lightSpaceCameraPos = result.pos.Rotate(result.rot.ConjugateExt());
+            Vector3 lightSpaceCameraPos = result.pos.Rotate(result.rot.ConjugateExt());
 
-        //    lightSpaceCameraPos.X = worldTexelSize * (float)Math.Floor(lightSpaceCameraPos.X / worldTexelSize);
-        //    lightSpaceCameraPos.Y = worldTexelSize * (float)Math.Floor(lightSpaceCameraPos.Y / worldTexelSize);
+            lightSpaceCameraPos.X = worldTexelSize * (float)Math.Floor(lightSpaceCameraPos.X / worldTexelSize);
+            lightSpaceCameraPos.Y = worldTexelSize * (float)Math.Floor(lightSpaceCameraPos.Y / worldTexelSize);
 
-        //    result.pos = lightSpaceCameraPos.Rotate(result.rot);
+            result.pos = lightSpaceCameraPos.Rotate(result.rot);
 
 
 
-        //    return result;
-        //}
+            return result;
+        }
 
         public Vector3 Direction => Transform.Forward;
     }

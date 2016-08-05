@@ -11,13 +11,13 @@ out mat3 tbnMatrix;
 
 uniform mat4 T_model;
 
-uniform mat4 T_VP;
+uniform mat4 T_MVP;
 
 uniform mat4 R_lightMatrix;
 
 void main()
 {
-    gl_Position = T_VP * T_model * vec4(position, 1.0);
+    gl_Position = T_MVP * vec4(position, 1.0);
 
     texCoord0 = texCoord;
 	shadowMapCoords0 = R_lightMatrix * vec4(position, 1.0);
