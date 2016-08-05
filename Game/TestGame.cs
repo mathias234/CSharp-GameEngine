@@ -15,7 +15,7 @@ namespace Game {
 
         public override void Start() {
             Material brickMaterial = new Material(new Texture("bricks.png"), 0.5f, 32, new Texture("bricks_nrm.png"), new Texture("bricks_disp.jpg"), 0.02f, 0);
-            Material rockMaterial = new Material(new Texture("rock.jpg"), 0.5f, 32, new Texture("rock_nrm.jpg"), new Texture("rock_disp.jpg"), 0.02f, 0);
+            //Material rockMaterial = new Material(new Texture("rock.jpg"), 0.5f, 32, new Texture("rock_nrm.jpg"), new Texture("rock_disp.jpg"), 0.02f, 0);
 
             Mesh planeMeshCollider = new Mesh("plane.obj");
 
@@ -43,11 +43,19 @@ namespace Game {
             particleObj.AddComponent(new ParticleSystem(20, new Vector3(-20, 0, -20), new Vector3(20, 2, 20), new Vector4(0, 0, 0, 1), new Vector4(1, 1, 1, 1), 2, new Vector3(0, 0 /*-9.825f*/, 0), 
                 new Vector3(0, 0.1f, 0), new Vector3(0, 0.5f, 0), 2, 5, 1, 10, 2, true, false, true));
 
-            particleObj.Transform.Position = new Vector3(0, 0, 0);
+
+            var particleObj2 = new GameObject("Particle2");
+
+            particleObj2.AddComponent(new ParticleSystem(20, new Vector3(-20, 0, -20), new Vector3(20, 2, 20), new Vector4(0, 0, 0, 1), new Vector4(1, 1, 1, 1), 2, new Vector3(0, 0 /*-9.825f*/, 0),
+                new Vector3(0, 0.1f, 0), new Vector3(0, 0.5f, 0), 2, 5, 1, 10, 2, true, false, true));
+
+
+            particleObj2.Transform.Position = new Vector3(100, 0, 0);
 
             //AddObject(spotLightObj);
             AddObject(_directionalLightObj);
             AddObject(floor);
+            AddObject(particleObj2);
             AddObject(particleObj);
 
 

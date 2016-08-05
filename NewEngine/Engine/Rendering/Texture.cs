@@ -96,6 +96,7 @@ namespace NewEngine.Engine.Rendering {
 
 
         ~Texture() {
+            LogManager.Debug("removing texture : " + _filename);
             if (_resource != null && _resource.RemoveReference()) {
                 if (_filename != null) {
                     _loadedTextures.Remove(_filename);

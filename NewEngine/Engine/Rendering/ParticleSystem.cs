@@ -45,6 +45,7 @@ namespace NewEngine.Engine.Rendering {
 
         private int _lastUsedParticle = 0;
         private int _newParticlesEachFrame;
+        private Material _material;
 
         public ParticleSystem(int maxParticles, Vector3 startPostionMin, Vector3 startPostionMax, Vector4 colorMin, Vector4 colorMax, float spread, Vector3 gravity, Vector3 directionMin, Vector3 directionMax, float sizeMin, float sizeMax, float lifeMin, float lifeMax, int newParticlesEachFrame, bool allowTransparency, bool overwriteOldParticles, bool fadeOut) {
             _maxParticles = maxParticles;
@@ -70,6 +71,9 @@ namespace NewEngine.Engine.Rendering {
             GL.GenBuffers(1, out _billboardVertexBuffer);
             GL.GenBuffers(1, out _particlesPositionBuffer);
             GL.GenBuffers(1, out _particlesColorBuffer);
+
+            _material = new Material(new Texture("test2.png"));
+            _material.SetTexture("cutoutMask", new Texture("test2_cutout.png"));
 
             Initialize();
         }
@@ -177,8 +181,8 @@ namespace NewEngine.Engine.Rendering {
                     _particuleColorData[4 * particleCount + 1] = p.G;
                     _particuleColorData[4 * particleCount + 2] = p.B;
 
-                    if (_fadeOut) {
-                        _particuleColorData[4 * particleCount + 3] = p.Life;
+                    if (_fadeOut && p.Life <= 1) {
+                        _particuleColorData[4 * particleCount + 3] = p.A * p.Life;
                     }
                     else {
                         _particuleColorData[4 * particleCount + 3] = p.A;
@@ -215,12 +219,11 @@ namespace NewEngine.Engine.Rendering {
 
             _particleShader.Bind();
 
-            var material = new Material(new Texture("test2.png"));
-            material.SetTexture("cutoutMask", new Texture("test2_cutout.png"));
-            material.SetVector3("CameraRight_worldspace", -renderingEngine.MainCamera.Transform.Right);
-            material.SetVector3("CameraUp_worldspace", renderingEngine.MainCamera.Transform.Up);
 
-            _particleShader.UpdateUniforms(Transform, material, renderingEngine);
+            _material.SetVector3("CameraRight_worldspace", -renderingEngine.MainCamera.Transform.Right);
+            _material.SetVector3("CameraUp_worldspace", renderingEngine.MainCamera.Transform.Up);
+
+            _particleShader.UpdateUniforms(Transform, _material, renderingEngine);
 
             GL.EnableVertexAttribArray(0);
             GL.BindBuffer(BufferTarget.ArrayBuffer, _billboardVertexBuffer);

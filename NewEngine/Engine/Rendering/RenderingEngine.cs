@@ -15,7 +15,6 @@ namespace NewEngine.Engine.Rendering {
         private Matrix4 _biasMatrix = Matrix4.CreateTranslation(1.0f, 1.0f, 1.0f) * Matrix4.CreateScale(0.5f, 0.5f, 0.5f);
 
         private List<BaseLight> _lights;
-        private List<ParticleSystem> _particleSystems;
         private Dictionary<string, int> _samplerMap;
 
         private Mesh _skybox;
@@ -36,8 +35,6 @@ namespace NewEngine.Engine.Rendering {
         private Texture[] _shadowMapsTempTargets = new Texture[NumShadowMaps];
 
 
-        private Dictionary<string, List<GameObject>> batches = new Dictionary<string, List<GameObject>>();
-
         public RenderingEngine() {
             _lights = new List<BaseLight>();
             _samplerMap = new Dictionary<string, int> {
@@ -57,15 +54,6 @@ namespace NewEngine.Engine.Rendering {
             };
 
             SetVector3("ambient", new Vector3(0.2f));
-            //SetTexture("shadowMap",
-            //    new Texture((IntPtr)0, 1024, 1024, TextureFilter.Linear, PixelInternalFormat.Rg32f,
-            //        PixelFormat.Rgba, true));
-
-
-            //SetTexture("shadowMapTempTarget",
-            //    new Texture((IntPtr)0, 1024, 1024, TextureFilter.Linear, PixelInternalFormat.Rg32f,
-            //    PixelFormat.Rgba, true));
-
 
             _skyboxShader = new Shader("skybox");
             _nullFilter = new Shader("filters/filter-null");
@@ -270,36 +258,9 @@ namespace NewEngine.Engine.Rendering {
         public void AddLight(BaseLight light) {
             _lights.Add(light);
         }
+
         public void RemoveLight(BaseLight light) {
             _lights.Remove(light);
-        }
-
-        public void AddBatch(Mesh mesh, GameObject gObj) {
-            if (batches.ContainsKey(mesh.Filename)) {
-                LogManager.Debug("adding to existing batch");
-                // add the gObj to the already existing batch
-                batches[mesh.Filename].Add(gObj);
-            }
-            else {
-                LogManager.Debug("creating new batch");
-
-                // create a new entry in batches
-                List<GameObject> batchObj = new List<GameObject>();
-                batchObj.Add(gObj);
-                batches.Add(mesh.Filename, batchObj);
-            }
-        }
-
-        public void RemoveBatch(Mesh mesh, GameObject gObj) {
-            if (batches.ContainsKey(mesh.Filename)) {
-                if (batches[mesh.Filename].Contains(gObj)) {
-                    batches[mesh.Filename].Remove(gObj);
-
-                    if (batches[mesh.Filename].Count == 0) {
-                        batches.Remove(mesh.Filename);
-                    }
-                }
-            }
         }
 
         public void AddCamera(Camera camera) {

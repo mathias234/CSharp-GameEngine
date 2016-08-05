@@ -3,12 +3,17 @@ using OpenTK;
 
 namespace NewEngine.Engine.Rendering.ResourceManagament {
     public abstract class MappedValues {
+        private static Texture defaultTexture;
+
         private Dictionary<string, CubemapTexture> _stringCubemapTextureMap;
         private Dictionary<string, float> _stringFloatMap;
         private Dictionary<string, Texture> _stringTextureMap;
         private Dictionary<string, Vector3> _stringVector3Map;
 
         protected MappedValues() {
+            if(defaultTexture == null)
+               defaultTexture = new Texture("default_mask.png");
+
             _stringVector3Map = new Dictionary<string, Vector3>();
             _stringFloatMap = new Dictionary<string, float>();
             _stringTextureMap = new Dictionary<string, Texture>();
@@ -52,7 +57,7 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
         }
 
         public Texture GetTexture(string name) {
-            return _stringTextureMap.ContainsKey(name) ? _stringTextureMap[name] : new Texture("default_mask.png");
+            return _stringTextureMap.ContainsKey(name) ? _stringTextureMap[name] : defaultTexture;
         }
 
 

@@ -10,7 +10,6 @@ use mklink /J in each game folder to link to the res folder that contains all th
 
 **Known Issues:**
 - Moving camera sometimes fades out directional light shadows
-- Issues when the engine gets under alot of load it start to blink
 - Textures are read upside-down (maybe needs more testing)
 
 **Future Plans:**

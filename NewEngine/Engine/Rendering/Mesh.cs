@@ -31,6 +31,7 @@ namespace NewEngine.Engine.Rendering {
         }
 
         ~Mesh() {
+            LogManager.Debug("removing mesh : " + _filename);
             if (_resource != null && _resource.RemoveReference()) {
                 if (_filename != null) {
                     _loadedModels.Remove(_filename);

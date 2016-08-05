@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using NewEngine.Engine.Core;
 using NewEngine.Engine.Rendering.ResourceManagament;
 
 namespace NewEngine.Engine.Rendering {
@@ -23,6 +24,7 @@ namespace NewEngine.Engine.Rendering {
 
 
         ~CubemapTexture() {
+            LogManager.Debug("removing CubemapTexture : " + _filename);
             if (_resource != null && _resource.RemoveReference()) {
                 if (_filename != null) {
                     _loadedCubemaps.Remove(_filename);

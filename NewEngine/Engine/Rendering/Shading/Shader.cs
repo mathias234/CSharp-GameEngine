@@ -43,8 +43,10 @@ namespace NewEngine.Engine.Rendering.Shading {
         }
 
         public virtual void UpdateUniforms(Transform transform, Material material, RenderingEngine renderingEngine) {
-            if (renderingEngine.MainCamera == null)
+            if (renderingEngine.MainCamera == null) {
+                LogManager.Debug("No Camera");
                 return;
+            }
 
 
             var modelMatrix = transform.GetTransformation();
@@ -95,15 +97,14 @@ namespace NewEngine.Engine.Rendering.Shading {
                     Texture texture;
 
                     if (material.GetTexture(uniformName) == null) {
-                        texture = new Texture("default.png");
+                        LogManager.Debug("texture does not exist");
                     }
                     else {
                         texture = material.GetTexture(uniformName);
+                        var samplerSlot = renderingEngine.GetSamplerSlot(uniformName);
+                        texture.Bind(samplerSlot, TextureTarget.Texture2D);
+                        SetUniform(uniformName, samplerSlot);
                     }
-
-                    var samplerSlot = renderingEngine.GetSamplerSlot(uniformName);
-                    texture.Bind(samplerSlot, TextureTarget.Texture2D);
-                    SetUniform(uniformName, samplerSlot);
                 }
                 else if (uniformType == "samplerCube") {
                     CubemapTexture texture;
@@ -123,7 +124,7 @@ namespace NewEngine.Engine.Rendering.Shading {
                 else if (uniformName.StartsWith("T_")) {
                     if (uniformName == "T_MVP")
                         SetUniform(uniformName, mvpMatrix);
-                    else if (uniformName == "T_VP") 
+                    else if (uniformName == "T_VP")
                         SetUniform(uniformName, vpMatrix);
                     else if (uniformName == "T_ORTHO")
                         SetUniform(uniformName, orthoMatrix);
