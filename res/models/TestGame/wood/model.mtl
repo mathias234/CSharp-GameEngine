@@ -1,5 +1,5 @@
 # Blender MTL File: 'CITY.blend'
-# Material Count: 2
+# Material Count: 3
 
 newmtl WOOD1
 Ns 96.078431
@@ -11,6 +11,17 @@ Ni 1.000000
 d 1.000000
 illum 2
 map_Kd E:\Blender-Assets\Textures\BricksSmallOld0080_5_S.jpg
+
+newmtl WOOD1_NONE
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd  E:\\Blender-Assets\\Textures\\WoodPlanksBare0343_2_S.jpg
 
 newmtl WOOD1_roof.png
 Ns 96.078431

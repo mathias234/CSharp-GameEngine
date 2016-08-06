@@ -9,10 +9,10 @@ use mklink /J in each game folder to link to the res folder that contains all th
 ```
 
 **Known Issues:**
-- Textures are read upside-down (maybe needs more testing)
 
 **Future Plans:**
 
 - FXAA or other anti aliasing techniques
 - More UI stuff like text, and clicking and stuff
 - Editor
+- Sound(3d and 2d)

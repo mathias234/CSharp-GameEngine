@@ -189,7 +189,7 @@ namespace NewEngine.Engine.Rendering {
                     Indices = Util.FromNullableIntArray(model.Indices.ToArray());
 
 
-                    AddVertices(Vertices, Indices, false);
+                    AddVertices(Vertices, Indices, true);
                     break;
                 case "fbx":
                     //var fbxModel = new FbxModel(Path.Combine("./res", "models", filename));
