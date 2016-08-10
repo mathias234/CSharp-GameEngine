@@ -74,6 +74,7 @@ namespace NewEngine.Engine.Rendering {
             bool clamp = false,
             FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0,
             TextureTarget target = TextureTarget.Texture2D) {
+
             _width = width;
             _height = height;
 
@@ -127,7 +128,13 @@ namespace NewEngine.Engine.Rendering {
             _resource.Bind(0, target);
         }
 
-        private static TextureResource LoadTexture(Bitmap image, TextureMinFilter filter, 
+
+        public void BindDepthBuffer(int samplerSlot, TextureTarget target) {
+            GL.ActiveTexture(TextureUnit.Texture0 + samplerSlot);
+            _resource.Bind(1, target);
+        }
+
+        private static TextureResource LoadTexture(Bitmap image, TextureMinFilter filter,
             PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra,
             bool clamp = false, FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0,
             TextureTarget target = TextureTarget.Texture2D) {
@@ -150,12 +157,13 @@ namespace NewEngine.Engine.Rendering {
             return resource;
         }
 
-        private static TextureResource LoadTexture(char[] data, int width, int height, TextureMinFilter filter, 
+        private static TextureResource LoadTexture(char[] data, int width, int height, TextureMinFilter filter,
             PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra,
             bool clamp = false,
             FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0,
             TextureTarget target = TextureTarget.Texture2D) {
             try {
+
                 var resource = new TextureResource(1, width, height, new List<char[]> { data }, new[] { filter },
                     new[] { internalFormat }, new[] { format }, clamp, new[] { attachment }, new[] { target });
 
@@ -169,14 +177,15 @@ namespace NewEngine.Engine.Rendering {
         }
 
 
-        private static TextureResource LoadTexture(IntPtr data, int width, int height, TextureMinFilter filter, 
+        private static TextureResource LoadTexture(IntPtr data, int width, int height, TextureMinFilter filter,
             PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra,
             bool clamp = false,
             FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0,
             TextureTarget target = TextureTarget.Texture2D) {
             try {
+
                 var resource = new TextureResource(1, width, height, new[] { data }, new[] { filter },
-                    new[] { internalFormat }, new[] { format }, clamp, new[] { attachment }, new[] { target });
+                new[] { internalFormat }, new[] { format }, clamp, new[] { attachment }, new[] { target });
 
                 return resource;
             }

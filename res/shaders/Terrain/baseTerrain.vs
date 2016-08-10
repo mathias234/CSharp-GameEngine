@@ -11,12 +11,19 @@ out mat3 tbnMatrix;
 uniform mat4 T_model;
 uniform mat4 T_MVP;
 
+uniform vec4 R_clipPlane;
+
+
 void main()
 {
     gl_Position = T_MVP * vec4(position, 1.0);
     texCoord0 = texCoord;
     worldPos0 = (T_model * vec4(position, 1.0)).xyz;
     
+	vec4 WorldPosition = (T_model * vec4(position, 1.0));
+	
+    gl_ClipDistance[0] = dot(WorldPosition, R_clipPlane);
+	
 	vec3 n = normalize((T_model * vec4(normal, 0.0)).xyz);
 	vec3 t = normalize((T_model * vec4(tangent, 0.0)).xyz);
 	

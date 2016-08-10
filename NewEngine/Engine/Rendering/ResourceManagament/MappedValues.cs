@@ -9,12 +9,14 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
         private Dictionary<string, float> _stringFloatMap;
         private Dictionary<string, Texture> _stringTextureMap;
         private Dictionary<string, Vector3> _stringVector3Map;
+        private Dictionary<string, Vector4> _stringVector4Map;
 
         protected MappedValues() {
             if(defaultTexture == null)
                defaultTexture = new Texture("default_mask.png");
 
             _stringVector3Map = new Dictionary<string, Vector3>();
+            _stringVector4Map = new Dictionary<string, Vector4>();
             _stringFloatMap = new Dictionary<string, float>();
             _stringTextureMap = new Dictionary<string, Texture>();
             _stringCubemapTextureMap = new Dictionary<string, CubemapTexture>();
@@ -34,6 +36,14 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
                 _stringVector3Map.Add(name, value);
         }
 
+        public void SetVector4(string name, Vector4 value) {
+            if (_stringVector4Map.ContainsKey(name))
+                _stringVector4Map[name] = value;
+            else
+                _stringVector4Map.Add(name, value);
+        }
+
+
         public void SetTexture(string name, Texture texture) {
             if (_stringTextureMap.ContainsKey(name))
                 _stringTextureMap[name] = texture;
@@ -50,6 +60,10 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
 
         public Vector3 GetVector3(string name) {
             return _stringVector3Map.ContainsKey(name) ? _stringVector3Map[name] : Vector3.Zero;
+        }
+
+        public Vector4 GetVector4(string name) {
+            return _stringVector4Map.ContainsKey(name) ? _stringVector4Map[name] : Vector4.Zero;
         }
 
         public float GetFloat(string name) {

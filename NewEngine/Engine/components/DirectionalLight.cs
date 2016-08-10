@@ -16,24 +16,13 @@ namespace NewEngine.Engine.components {
 
             if (shadowMapSizeAsPowerOf2 != 0)
                 ShadowInfo = new ShadowInfo(Matrix4.CreateOrthographicOffCenter(-_halfShadowArea, _halfShadowArea, -_halfShadowArea, _halfShadowArea, -_halfShadowArea, _halfShadowArea),
-                    false, shadowMapSizeAsPowerOf2, shadowSoftness, lightBleedReductionAmount, minVariance);
+                    true, shadowMapSizeAsPowerOf2, shadowSoftness, lightBleedReductionAmount, minVariance);
         }
 
         public override ShadowCameraTransform CalcShadowCameraTransform(Transform transform) {
             ShadowCameraTransform result;
-            result.pos = transform.Position + new Vector3(0,0,1)* _halfShadowArea;
+            result.pos = transform.Position ;
             result.rot = Transform.GetTransformedRotation();
-
-            var worldTexelSize = (_halfShadowArea * 2) / (1 << ShadowInfo.ShadowMapSizeAsPowerOf2);
-
-            Vector3 lightSpaceCameraPos = result.pos.Rotate(result.rot.ConjugateExt());
-
-            lightSpaceCameraPos.X = worldTexelSize * (float)Math.Floor(lightSpaceCameraPos.X / worldTexelSize);
-            lightSpaceCameraPos.Y = worldTexelSize * (float)Math.Floor(lightSpaceCameraPos.Y / worldTexelSize);
-
-            result.pos = lightSpaceCameraPos.Rotate(result.rot);
-
-
 
             return result;
         }

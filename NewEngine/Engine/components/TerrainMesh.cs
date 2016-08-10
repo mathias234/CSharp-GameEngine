@@ -8,6 +8,9 @@ using OpenTK;
 
 namespace NewEngine.Engine.components {
     public class TerrainMesh : GameComponent {
+        private Dictionary<string, Shader> _loadedShaders = new Dictionary<string, Shader>();
+        private Shader _baseShader;
+
         private float _dispOffset;
         private float _dispScale;
         private int _height;
@@ -29,6 +32,8 @@ namespace NewEngine.Engine.components {
         private Texture _tex2Nrm;
         private Texture _tex3;
         private Texture _tex3Nrm;
+
+        private Material _material;
 
         private int _width;
 
@@ -56,6 +61,8 @@ namespace NewEngine.Engine.components {
             _tex3 = new Texture(tex3);
             _tex3Nrm = new Texture(tex3Nrm);
             _layer2 = new Texture(layer2);
+
+            _baseShader = new Shader("terrain/baseTerrain");
 
             var image = new Bitmap(Path.Combine("./res/textures", heightmapTextureFilename));
 
@@ -106,31 +113,39 @@ namespace NewEngine.Engine.components {
                 }
             }
 
+            _material = new Material(_tex1, _specularIntensity, _specularPower, _tex1Nrm);
+            _material.SetTexture("tex2", _tex2);
+            _material.SetTexture("tex2Nrm", _tex2Nrm);
+            _material.SetTexture("layer1", _layer1);
+            _material.SetTexture("tex3", _tex3);
+            _material.SetTexture("tex3Nrm", _tex3Nrm);
+            _material.SetTexture("layer2", _layer2);
+            _material.SetFloat("dispMapScale", _dispScale);
+            _material.SetFloat("dispMapBias", _dispOffset);
+
 
             _mesh = new Mesh(verts.ToArray(), tris.ToArray(), true);
         }
 
-        public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine) {
+        public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage) {
             Shader shaderToUse;
 
             if (shaderType == "base") {
-                shaderToUse = new Shader("Terrain/baseTerrain");
+                shaderToUse = _baseShader;
             }
-            else
+            else if (shaderType != "light" && shaderType != "shadowMap") {
+                return;
+            }
+            else if (_loadedShaders.ContainsKey(shader)) {
+                shaderToUse = _loadedShaders[shader];
+            }
+            else {
                 shaderToUse = new Shader("terrain/terrain-" + shader);
+                _loadedShaders.Add(shader, shaderToUse);
+            }
 
-
-            var terrainMaterial = new Material(_tex1, _specularIntensity, _specularPower, _tex1Nrm);
-            terrainMaterial.SetTexture("tex2", _tex2);
-            terrainMaterial.SetTexture("tex2Nrm", _tex2Nrm);
-            terrainMaterial.SetTexture("layer1", _layer1);
-            terrainMaterial.SetTexture("tex3", _tex3);
-            terrainMaterial.SetTexture("tex3Nrm", _tex3Nrm);
-            terrainMaterial.SetTexture("layer2", _layer2);
-            terrainMaterial.SetFloat("dispMapScale", _dispScale);
-            terrainMaterial.SetFloat("dispMapBias", _dispOffset);
             shaderToUse.Bind();
-            shaderToUse.UpdateUniforms(new Transform(), terrainMaterial, renderingEngine);
+            shaderToUse.UpdateUniforms(Transform, _material, renderingEngine);
             _mesh.Draw();
         }
     }

@@ -32,22 +32,27 @@ namespace NewEngine.Engine.components.UIComponents {
             return a > b ? a : b;
         }
 
-        public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine) {
-            Parent.Transform = _rectTransform;
-            // we only need the ImageShader here so replace the shader being passed
+        public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage) {
+            if (renderStage == "Refract" || renderStage == "Reflect")
+                return;
+            if (renderStage == "ui") {
 
-            var t = (RectTransform) Transform;
+                Parent.Transform = _rectTransform;
+                // we only need the ImageShader here so replace the shader being passed
 
-            t.Position = new Vector3(t.Position);
+                var t = (RectTransform) Transform;
 
-            _imageShader.Bind();
-            _imageShader.UpdateUniforms(t, _material, renderingEngine);
+                t.Position = new Vector3(t.Position);
 
-            Begin2D();
+                _imageShader.Bind();
+                _imageShader.UpdateUniforms(t, _material, renderingEngine);
 
-            _mesh.Draw();
+                Begin2D();
 
-            End2D();
+                _mesh.Draw();
+
+                End2D();
+            }
         }
 
         private void UpdateMesh() {

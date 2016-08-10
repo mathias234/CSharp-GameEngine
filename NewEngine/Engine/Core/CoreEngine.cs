@@ -10,12 +10,17 @@ namespace NewEngine.Engine.Core {
     public class CoreEngine : GameWindow {
         private static int _width;
         private static int _height;
-
         private VSyncMode _vSync;
 
-
+        /// <summary>
+        /// Sets up a new CoreEngine, Call Start to start the engine and open the new window
+        /// </summary>
+        /// <param name="width">The width of the window</param>
+        /// <param name="height">The height of the window</param>
+        /// <param name="vSync">Decide what VSYNC the engine will use</param>
+        /// <param name="game">The start point of the game you are making, you will usually overwrite the Game class with your own</param>
         public CoreEngine(int width, int height, VSyncMode vSync, Game game)
-            : base(width, height, new GraphicsMode(32, 24, 0, 16)) {
+            : base(width, height, new GraphicsMode(32, 24, 0, 0)) {
             GetCoreEngine = this;
             _width = width;
             _height = height;
@@ -47,7 +52,6 @@ namespace NewEngine.Engine.Core {
             VSync = _vSync;
             Run(70);
         }
-
 
         private void Run(object sender, FrameEventArgs e) {
             Game.Update((float) e.Time);

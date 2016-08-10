@@ -15,7 +15,7 @@ namespace NewEngine.Engine.components {
             LogManager.Debug(Transform.Rotation.ToString());
         }
 
-        public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine) {
+        public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage) {
             _renderingEngine = renderingEngine;
         }
     }

@@ -32,6 +32,9 @@ namespace NewEngine.Engine.Core {
         }
 
         public static bool GetKey(Key keyCode) {
+            if (CoreEngine.GetCoreEngine.Focused == false)
+                return false;
+
             return Keyboard.GetState().IsKeyDown(keyCode);
         }
 
@@ -78,6 +81,5 @@ namespace NewEngine.Engine.Core {
             else if (val.CompareTo(max) > 0) return max;
             else return val;
         }
-
     }
 }

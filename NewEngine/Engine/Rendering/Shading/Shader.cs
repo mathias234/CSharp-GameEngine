@@ -82,6 +82,8 @@ namespace NewEngine.Engine.Rendering.Shading {
                     }
                     else if (uniformType == "vec3")
                         SetUniform(uniformName, renderingEngine.GetVector3(unprefixedUniformName));
+                    else if(uniformType == "vec4")
+                        SetUniform(uniformName, renderingEngine.GetVector4(unprefixedUniformName));
                     else if (uniformType == "float")
                         SetUniform(uniformName, renderingEngine.GetFloat(unprefixedUniformName));
                     else if (uniformType == "DirectionalLight")
@@ -94,32 +96,27 @@ namespace NewEngine.Engine.Rendering.Shading {
                         renderingEngine.UpdateUniformStruct(transform, material, this, uniformName, uniformType);
                 }
                 else if (uniformType == "sampler2D") {
-                    Texture texture;
-
                     if (material.GetTexture(uniformName) == null) {
-                        LogManager.Debug("texture does not exist");
+                        LogManager.Error("texture does not exist");
                     }
                     else {
-                        texture = material.GetTexture(uniformName);
+                        var texture = material.GetTexture(uniformName);
                         var samplerSlot = renderingEngine.GetSamplerSlot(uniformName);
                         texture.Bind(samplerSlot, TextureTarget.Texture2D);
                         SetUniform(uniformName, samplerSlot);
                     }
                 }
                 else if (uniformType == "samplerCube") {
-                    CubemapTexture texture;
-
                     if (material.GetCubemapTexture(uniformName) == null) {
-                        texture = new CubemapTexture("default.png", "default.png", "default.png", "default.png",
-                            "default.png", "default.png");
+                        LogManager.Error("cubemap texture does not exist");
                     }
                     else {
-                        texture = material.GetCubemapTexture(uniformName);
-                    }
+                        var texture = material.GetCubemapTexture(uniformName);
 
-                    var samplerSlot = renderingEngine.GetSamplerSlot(uniformName);
-                    texture.Bind(samplerSlot);
-                    SetUniform(uniformName, samplerSlot);
+                        var samplerSlot = renderingEngine.GetSamplerSlot(uniformName);
+                        texture.Bind(samplerSlot);
+                        SetUniform(uniformName, samplerSlot);
+                    }
                 }
                 else if (uniformName.StartsWith("T_")) {
                     if (uniformName == "T_MVP")

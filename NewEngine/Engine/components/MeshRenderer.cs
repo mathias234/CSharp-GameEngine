@@ -19,13 +19,13 @@ namespace NewEngine.Engine.components {
 
         public Mesh Mesh { get; set; }
 
-        public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine) {
+        public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage) {
             Shader shaderToUse;
             
             if (shaderType == "base") {
                 shaderToUse = _baseShader;
             }
-            else if (shaderType != "light") {
+            else if (shaderType != "light" && shaderType != "shadowMap") {
                 return;
             }
             else if (_loadedShaders.ContainsKey(shader)) {

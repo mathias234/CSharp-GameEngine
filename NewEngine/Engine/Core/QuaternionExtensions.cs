@@ -46,7 +46,7 @@ namespace NewEngine.Engine.Core {
         }
 
         public static Vector3 GetForward(this Quaternion quaternion) {
-            return new Vector3(0,0,1).Rotate(quaternion);
+            return new Vector3(0, 0, 1).Rotate(quaternion);
         }
 
         public static Quaternion ConjugateExt(this Quaternion quaternion) {
@@ -55,6 +55,42 @@ namespace NewEngine.Engine.Core {
 
         public static float Dot(this Quaternion quaternion, Quaternion r) {
             return quaternion.X * r.X + quaternion.Y * r.Y + quaternion.Z * r.Z + quaternion.W * r.W;
+        }
+
+        public static Vector3 ToEuler(this Quaternion quaternion) {
+            var eX = Math.Atan2(-2 * (quaternion.Y * quaternion.Z - quaternion.W * quaternion.X), quaternion.W * quaternion.W - quaternion.X * quaternion.X - quaternion.Y * quaternion.Y + quaternion.Z * quaternion.Z);
+            var eY = Math.Asin(2 * (quaternion.X * quaternion.Z + quaternion.W * quaternion.Y));
+            var eZ = Math.Atan2(-2 * (quaternion.X * quaternion.Y - quaternion.W * quaternion.Z), quaternion.W * quaternion.W + quaternion.X * quaternion.X - quaternion.Y * quaternion.Y - quaternion.Z * quaternion.Z);
+            return new Vector3((float)eX, (float)eY, (float)eZ);
+        }
+
+        public static Quaternion FromEuler(this Quaternion quaternion, Vector3 euler) {
+            var eX = euler.X;
+            var eY = euler.Y;
+            var eZ = euler.Z;
+
+            var c1 = Math.Cos(eX / 2);
+            var s1 = Math.Sin(eX / 2);
+            var c2 = Math.Cos(eY / 2);
+            var s2 = Math.Sin(eY / 2);
+            var c3 = Math.Cos(eZ / 2);
+            var s3 = Math.Sin(eZ / 2);
+
+
+            var qw = c1 * c2 * c3 - s1 * s2 * s3;
+            var qx = s1 * c2 * c3 + c1 * s2 * s3;
+            var qy = c1 * s2 * c3 - s1 * c2 * s3;
+            var qz = c1 * c2 * s3 + s1 * s2 * c3;
+
+            return new Quaternion((float)qx, (float)qy, (float)qz, (float)qw);
+        }
+
+        public static Quaternion InvertPitch(this Quaternion quaternion) {
+            Vector3 euler = quaternion.ToEuler();
+
+            Vector3 invertedEuler = new Vector3(-euler.X, euler.Y, -euler.Z);
+
+            return new Quaternion().FromEuler(invertedEuler);
         }
     }
 }

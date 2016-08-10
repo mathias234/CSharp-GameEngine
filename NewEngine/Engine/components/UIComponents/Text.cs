@@ -25,16 +25,20 @@ namespace NewEngine.Engine.components.UIComponents {
         }
 
 
-        public new Transform Transform {
-            set {
+        public new Transform Transform
+        {
+            set
+            {
                 Parent.Transform = value;
                 UpdateMesh();
             }
             get { return Parent.Transform; }
         }
 
-        public string text {
-            set {
+        public string text
+        {
+            set
+            {
                 _text = value;
                 UpdateText();
             }
@@ -47,31 +51,37 @@ namespace NewEngine.Engine.components.UIComponents {
             return a > b ? a : b;
         }
 
-        public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine) {
-            Parent.Transform = _rectTransform;
-            // we only need the ImageShader here so replace the shader being passed
+        public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage) {
+            if (renderStage == "Refract" || renderStage == "Reflect")
+                return;
 
-            var t = (RectTransform) Transform;
+            if (renderStage == "ui") {
+                Parent.Transform = _rectTransform;
+                // we only need the ImageShader here so replace the shader being passed
 
-            t.Position = new Vector3(t.Position);
+                var t = (RectTransform)Transform;
 
-            _imageShader.Bind();
-            _imageShader.UpdateUniforms(t, _material, renderingEngine);
+                t.Position = new Vector3(t.Position);
 
-            Begin2D();
+                _imageShader.Bind();
+                _imageShader.UpdateUniforms(t, _material, renderingEngine);
 
-            _mesh.Draw();
+                Begin2D();
 
-            End2D();
+                _mesh.Draw();
+
+                End2D();
+
+            }
         }
 
         private void UpdateMesh() {
             UpdateText();
             var texCoordY = 1.0f -
-                            1/Biggest(_rectTransform.Size.X, _rectTransform.Size.Y)*
+                            1 / Biggest(_rectTransform.Size.X, _rectTransform.Size.Y) *
                             (Biggest(_rectTransform.Size.X, _rectTransform.Size.Y) - _rectTransform.Size.Y);
             var texCoordX = 1.0f -
-                            1/Biggest(_rectTransform.Size.X, _rectTransform.Size.Y)*
+                            1 / Biggest(_rectTransform.Size.X, _rectTransform.Size.Y) *
                             (Biggest(_rectTransform.Size.X, _rectTransform.Size.Y) - _rectTransform.Size.X);
 
             // the Texture coords work, but they might be changed to look better? idk all this flipping and stuff seems wrong TODO: Fixme
@@ -103,7 +113,7 @@ namespace NewEngine.Engine.components.UIComponents {
 
 
         private void Begin2D() {
-            GL.Viewport(0, 0, (int) CoreEngine.GetWidth(), (int) CoreEngine.GetHeight());
+            GL.Viewport(0, 0, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight());
             GL.Disable(EnableCap.Lighting);
             GL.Disable(EnableCap.CullFace);
             GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.OneMinusSrcAlpha);

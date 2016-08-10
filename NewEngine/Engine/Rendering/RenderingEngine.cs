@@ -22,6 +22,9 @@ namespace NewEngine.Engine.Rendering {
         private Shader _skyboxShader;
         private Shader _nullFilter;
         private Shader _gausFilter;
+        private Shader _fxaaFilter;
+        private Shader _brightFilter;
+        private Shader _combineFilter;
 
         private Mesh _plane;
         private Transform _planeTransform;
@@ -29,6 +32,7 @@ namespace NewEngine.Engine.Rendering {
         private Texture _tempTarget;
 
 
+        // 13 is absolute max above that and everything glitches out
         public static int NumShadowMaps = 10;
 
         private Texture[] _shadowMaps = new Texture[NumShadowMaps];
@@ -50,22 +54,47 @@ namespace NewEngine.Engine.Rendering {
                 {"tex3", 9},
                 {"tex3Nrm", 10},
                 {"layer2", 11},
-                {"filterTexture", 12}
+                {"filterTexture", 12},
+                {"tempFilter", 13},
+                {"tempFilter2", 14},
+                {"displayTexture", 15},
+                {"reflectionTexture", 16},
+                {"refractionTexture", 17 },
+                {"refractionTextureDepth", 18 },
             };
 
-            SetVector3("ambient", new Vector3(0.2f));
+            SetVector3("ambient", new Vector3(0.3f));
+            SetFloat("fxaaSpanMax", 8);
+            SetFloat("fxaaReduceMin", 1 / 128.0f);
+            SetFloat("fxaaReduceMul", 1 / 8.0f);
+            SetFloat("bloomAmount", 0.2f);
+
+            SetVector4("clipPlane", new Vector4(0, -1, 0, 15));
+
+            SetTexture("displayTexture", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
+            SetTexture("tempFilter", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
+            SetTexture("tempFilter2", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
+
+
+            SetTexture("reflectionTexture", new Texture(IntPtr.Zero, 960, 540, TextureMinFilter.Linear));
+            SetTexture("refractionTexture", new Texture(IntPtr.Zero, 960, 540, TextureMinFilter.Linear));
+            SetTexture("refractionTextureDepth", new Texture(IntPtr.Zero, 960, 540, TextureMinFilter.Linear, PixelInternalFormat.DepthComponent, PixelFormat.DepthComponent, false, FramebufferAttachment.DepthAttachment));
 
             _skyboxShader = new Shader("skybox");
             _nullFilter = new Shader("filters/filter-null");
             _gausFilter = new Shader("filters/filter-gausBlur7x1");
+            _fxaaFilter = new Shader("filters/filter-fxaa");
+            _brightFilter = new Shader("filters/filter-bright");
+            _combineFilter = new Shader("filters/filter-combine");
 
             GL.ClearColor(0, 0, 0, 0);
 
             GL.FrontFace(FrontFaceDirection.Cw);
-            GL.CullFace(CullFaceMode.Back);
+            //GL.CullFace(CullFaceMode.Back);
             GL.Enable(EnableCap.CullFace);
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.DepthClamp);
+            GL.Enable(EnableCap.ClipPlane0);
 
             _altCamera = new Camera(Matrix4.Identity);
             _altCameraObject = new GameObject("alt camera").AddComponent(_altCamera);
@@ -90,7 +119,6 @@ namespace NewEngine.Engine.Rendering {
             }
 
             LightMatrix = Matrix4.CreateScale(0, 0, 0);
-
         }
 
         public BaseLight ActiveLight { get; private set; }
@@ -106,40 +134,97 @@ namespace NewEngine.Engine.Rendering {
         }
 
         public void Render(GameObject gameObject, float deltaTime) {
-            CoreEngine.BindAsRenderTarget();
+            SetVector4("clipPlane", new Vector4(0, 0, 0, 0));
 
-            GL.ClearColor(0.0f, 0.0f, 0.3f, 0.0f);
+            RenderObject(GetTexture("displayTexture"), gameObject, deltaTime, "default");
+
+
+            // render the particle system last
+            gameObject.RenderAll("", "ParticleSystem", deltaTime, this, "particle");
+            gameObject.RenderAll("", "ui", deltaTime, this, "ui");
+
+
+            RenderReflectRefractBuffers(gameObject, deltaTime);
+
+            GetTexture("displayTexture").BindAsRenderTarget();
+
+            // important to render the water AFTER the refract reflect render targets, else it will lagg behind
+            gameObject.RenderAll("", "water", deltaTime, this, "water");
+
+            DoPostProccess();
+
+
+            CoreEngine.GetCoreEngine.SwapBuffers();
+        }
+
+        private void DoPostProccess() {
+            SetVector3("inverseFilterTextureSize", new Vector3(1.0f / GetTexture("displayTexture").Width, 1.0f / GetTexture("displayTexture").Height, 0.0f));
+
+
+            ApplyFilter(_brightFilter, GetTexture("tempFilter"), GetTexture("tempFilter2"));
+
+            BlurTexture(GetTexture("tempFilter2"), 10, Vector2.UnitX);
+            BlurTexture(GetTexture("tempFilter2"), 10, Vector2.UnitY);
+
+            BlurTexture(GetTexture("tempFilter2"), 10, Vector2.UnitX);
+            BlurTexture(GetTexture("tempFilter2"), 10, Vector2.UnitY);
+
+            ApplyFilter(_combineFilter, GetTexture("tempFilter2"), GetTexture("tempFilter"));
+
+
+            ApplyFilter(_fxaaFilter, GetTexture("tempFilter"), null);
+        }
+
+        // fill the Reflect and Refract textures
+        private void RenderReflectRefractBuffers(GameObject gameObject, float deltaTime) {
+
+            var distance = 2 * (MainCamera.Transform.Position.Y - gameObject.Transform.Position.Y);
+
+            MainCamera.Transform.Position -= new Vector3(0, distance, 0);
+            MainCamera.Transform.Rotation = MainCamera.Transform.Rotation.InvertPitch();
+
+            SetVector4("clipPlane", new Vector4(0, 1, 0, -gameObject.Transform.Position.Y + 1));
+            RenderObject(GetTexture("reflectionTexture"), gameObject, deltaTime, "Reflect");
+
+            MainCamera.Transform.Position += new Vector3(0, distance, 0);
+            MainCamera.Transform.Rotation = MainCamera.Transform.Rotation.InvertPitch(); ;
+
+            SetVector4("clipPlane", new Vector4(0, -1, 0, gameObject.Transform.Position.Y + 1));
+            RenderObject(GetTexture("refractionTexture"), gameObject, deltaTime, "Refract");
+            RenderObject(GetTexture("refractionTextureDepth"), gameObject, deltaTime, "Refract");
+        }
+
+        // renders all the 3d objects no lighting
+        private void RenderObject(Texture mainRenderTarget, GameObject gameObject, float deltaTime, string renderStage) {
+            mainRenderTarget.BindAsRenderTarget();
+            GL.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             RenderSkybox();
 
             // since we are rendering the "base" pass we do not need to specify the shader
-            gameObject.RenderAll(null, "base", deltaTime, this);
+            gameObject.RenderAll(null, "base", deltaTime, this, renderStage);
 
             foreach (var light in _lights) {
                 ActiveLight = light;
 
                 RenderShadowMap(ActiveLight, deltaTime, gameObject);
 
-                CoreEngine.BindAsRenderTarget();
+                mainRenderTarget.BindAsRenderTarget();
 
                 GL.Enable(EnableCap.Blend);
                 GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.One);
                 GL.DepthMask(false);
                 GL.DepthFunc(DepthFunction.Equal);
 
-                gameObject.RenderAll(light.GetType().Name, "light", deltaTime, this);
+                gameObject.RenderAll(light.GetType().Name, "light", deltaTime, this, "lightStage");
 
                 GL.DepthMask(true);
                 GL.DepthFunc(DepthFunction.Less);
                 GL.Disable(EnableCap.Blend);
-
             }
 
-            // render the particle system last
-            gameObject.RenderAll("", "ParticleSystem", deltaTime, this);
 
-            CoreEngine.GetCoreEngine.SwapBuffers();
         }
 
         private void RenderShadowMap(BaseLight light, float deltaTime, GameObject gameObject) {
@@ -174,10 +259,11 @@ namespace NewEngine.Engine.Rendering {
 
                 var temp = MainCamera;
                 MainCamera = _altCamera;
-
+                GL.Disable(EnableCap.CullFace);
                 if (flipFaces) GL.CullFace(CullFaceMode.Front);
-                gameObject.RenderAll("shadowMapGenerator", "light", deltaTime, this);
+                gameObject.RenderAll("shadowMapGenerator", "shadowMap", deltaTime, this, "shadows");
                 if (flipFaces) GL.CullFace(CullFaceMode.Back);
+                GL.Enable(EnableCap.CullFace);
 
                 MainCamera = temp;
 
@@ -218,6 +304,26 @@ namespace NewEngine.Engine.Rendering {
 
             SetVector3("blurScale", new Vector3(0.0f, blurAmount / shadowMap.Height, 0.0f));
             ApplyFilter(_gausFilter, tempTarget, shadowMap);
+        }
+
+        public void BlurTexture(Texture texture, float blurAmount, Vector2 axis) {
+            SetVector3("blurScale", new Vector3(0.0f, blurAmount / texture.Height, 0.0f));
+
+            var temp = GetTexture("tempFilter");
+
+            if (axis == Vector2.UnitX) {
+                SetVector3("blurScale", new Vector3(0.0f, blurAmount / texture.Width, 0.0f));
+            }
+            else if (axis == Vector2.UnitY) {
+                SetVector3("blurScale", new Vector3(0.0f, blurAmount / texture.Height, 0.0f));
+            }
+
+            ApplyFilter(_gausFilter, texture, GetTexture("tempFilter"));
+
+            // put the blured texture back into the original texture
+            ApplyFilter(_nullFilter, GetTexture("tempFilter"), texture);
+
+            SetTexture("tempFilter", temp);
         }
 
         public void ApplyFilter(Shader filter, Texture source, Texture dest) {

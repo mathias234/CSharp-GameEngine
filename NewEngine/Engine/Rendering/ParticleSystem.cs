@@ -105,7 +105,7 @@ namespace NewEngine.Engine.Rendering {
             GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(_maxParticles * 4 * sizeof(float)), IntPtr.Zero, BufferUsageHint.StreamDraw);
         }
 
-        public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine) {
+        public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage) {
             if (shaderType != "ParticleSystem")
                 return;
 
