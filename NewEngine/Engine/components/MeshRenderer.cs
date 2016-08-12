@@ -40,5 +40,17 @@ namespace NewEngine.Engine.components {
             shaderToUse.UpdateUniforms(Parent.Transform, Material, renderingEngine);
             Mesh.Draw();
         }
+
+        public override void AddToEngine(CoreEngine engine) {
+            base.AddToEngine(engine);
+
+            engine.RenderingEngine.AddObjectToBatch(Mesh, Parent);
+        }
+
+        public override void OnDestroyed(CoreEngine engine) {
+            base.OnDestroyed(engine);
+
+            engine.RenderingEngine.RemoveFromBatch(Mesh, Parent);
+        }
     }
 }

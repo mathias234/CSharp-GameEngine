@@ -45,18 +45,27 @@ namespace NewEngine.Engine.components {
 
             Shader shaderToUse;
 
-                shaderToUse = _baseShader;
+            shaderToUse = _baseShader;
 
-                GL.Enable(EnableCap.Blend);
-                GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
-                _material.SetFloat("moveFactor", _material.GetFloat("moveFactor") + _waveSpeed * deltaTime);
+            _material.SetFloat("moveFactor", _material.GetFloat("moveFactor") + _waveSpeed * deltaTime);
 
-                shaderToUse.Bind();
-                shaderToUse.UpdateUniforms(Parent.Transform, _material, renderingEngine);
-                _waterMesh.Draw();
+            shaderToUse.Bind();
+            shaderToUse.UpdateUniforms(Parent.Transform, _material, renderingEngine);
+            _waterMesh.Draw();
 
-                GL.Disable(EnableCap.Blend);
+            GL.Disable(EnableCap.Blend);
+        }
+
+        public override void AddToEngine(CoreEngine engine) {
+            engine.RenderingEngine.AddWater(Parent);
+        }
+
+        public override void OnDestroyed(CoreEngine engine) {
+            // FIXME: probably not going to work
+            engine.RenderingEngine.RemoveWater(Parent);
         }
     }
 }

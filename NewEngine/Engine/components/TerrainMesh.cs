@@ -148,5 +148,17 @@ namespace NewEngine.Engine.components {
             shaderToUse.UpdateUniforms(Transform, _material, renderingEngine);
             _mesh.Draw();
         }
+
+        public override void AddToEngine(CoreEngine engine) {
+            base.AddToEngine(engine);
+
+            engine.RenderingEngine.AddObjectToBatch(new Mesh("plane.obj"), Parent);
+        }
+
+        public override void OnDestroyed(CoreEngine engine) {
+            base.OnDestroyed(engine);
+
+            engine.RenderingEngine.RemoveFromBatch(new Mesh("plane.obj"), Parent);
+        }
     }
 }

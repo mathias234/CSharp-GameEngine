@@ -1,4 +1,5 @@
-﻿using OpenTK;
+﻿using NewEngine.Engine.Rendering;
+using OpenTK;
 
 namespace NewEngine.Engine.components {
     public class ShadowInfo {
@@ -18,6 +19,7 @@ namespace NewEngine.Engine.components {
         public float ShadowSoftness { get; set; }
         public float LightBleedReductionAmount { get; set; }
         public float MinVariance { get; set; }
+        public Texture ShadowMap { get; set; }
         public int ShadowMapSizeAsPowerOf2;
     }
 }

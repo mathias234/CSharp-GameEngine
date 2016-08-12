@@ -62,7 +62,7 @@ namespace NewEngine.Engine.Core {
         }
 
         private void Render(object sender, FrameEventArgs e) {
-            Game.Render(RenderingEngine, (float)e.Time);
+            RenderingEngine.RenderBatches((float)e.Time);
         }
 
         private void ResizeWindow(object sender, EventArgs e) {

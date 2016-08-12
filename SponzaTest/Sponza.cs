@@ -69,6 +69,14 @@ namespace SponzaTest {
             AddObject(p2);
             AddObject(p3);
             AddObject(p4);
+
+            var water = new GameObject("water");
+            water.AddComponent(new WaterMesh(300, 300, 0.05f, 0.02f, 0.2f, 12));
+            AddObject(water);
+
+
+            CoreEngine.GetCoreEngine.RenderingEngine.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg",
+                "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
         }
 
         public override void Update(float deltaTime) {

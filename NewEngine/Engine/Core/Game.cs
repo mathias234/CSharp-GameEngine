@@ -11,10 +11,6 @@ namespace NewEngine.Engine.Core {
             GetRootObject.UpdateAll(deltaTime);
         }
 
-        public virtual void Render(RenderingEngine renderingEngine, float deltaTime) {
-            renderingEngine.Render(GetRootObject, deltaTime);
-        }
-
         public void AddObject(GameObject gObj) {
             gObj.Parent = _root;
             _root.AddChild(gObj);

@@ -16,6 +16,8 @@ namespace NewEngine.Engine.Rendering {
 
         private List<BaseLight> _lights;
         private Dictionary<string, int> _samplerMap;
+        private Dictionary<string, List<GameObject>> _batches = new Dictionary<string, List<GameObject>>();
+        private List<GameObject> _waters = new List<GameObject>();
 
         private Mesh _skybox;
         private Material _skyboxMaterial;
@@ -30,13 +32,6 @@ namespace NewEngine.Engine.Rendering {
         private Transform _planeTransform;
         private Material _planeMaterial;
         private Texture _tempTarget;
-
-
-        // 13 is absolute max above that and everything glitches out
-        public static int NumShadowMaps = 10;
-
-        private Texture[] _shadowMaps = new Texture[NumShadowMaps];
-        private Texture[] _shadowMapsTempTargets = new Texture[NumShadowMaps];
 
 
         public RenderingEngine() {
@@ -61,6 +56,7 @@ namespace NewEngine.Engine.Rendering {
                 {"reflectionTexture", 16},
                 {"refractionTexture", 17 },
                 {"refractionTextureDepth", 18 },
+                { "tempShadowMap", 19}
             };
 
             SetVector3("ambient", new Vector3(0.3f));
@@ -69,11 +65,12 @@ namespace NewEngine.Engine.Rendering {
             SetFloat("fxaaReduceMul", 1 / 8.0f);
             SetFloat("bloomAmount", 0.2f);
 
-            SetVector4("clipPlane", new Vector4(0, -1, 0, 15));
+            SetVector4("clipPlane", new Vector4(0, 0, 0, 15));
 
             SetTexture("displayTexture", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
             SetTexture("tempFilter", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
             SetTexture("tempFilter2", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
+            SetTexture("tempShadowMap", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
 
 
             SetTexture("reflectionTexture", new Texture(IntPtr.Zero, 960, 540, TextureMinFilter.Linear));
@@ -112,12 +109,6 @@ namespace NewEngine.Engine.Rendering {
             _planeTransform = new Transform();
             _planeTransform.Rotate(new Vector3(0, 1, 0), MathHelper.DegreesToRadians(180.0f));
 
-            for (int i = 0; i < NumShadowMaps; i++) {
-                int shadowMapSize = 1 << (i + 1);
-                _shadowMaps[i] = new Texture((IntPtr)0, shadowMapSize, shadowMapSize, TextureMinFilter.Linear, PixelInternalFormat.Rg32f, PixelFormat.Rgba, true);
-                _shadowMapsTempTargets[i] = new Texture((IntPtr)0, shadowMapSize, shadowMapSize, TextureMinFilter.Linear, PixelInternalFormat.Rg32f, PixelFormat.Rgba, true);
-            }
-
             LightMatrix = Matrix4.CreateScale(0, 0, 0);
         }
 
@@ -133,33 +124,24 @@ namespace NewEngine.Engine.Rendering {
             LogManager.Error("Failed to update uniform: " + uniformName + ", not a valid type in Rendering Engine");
         }
 
-        public void Render(GameObject gameObject, float deltaTime) {
-            SetVector4("clipPlane", new Vector4(0, 0, 0, 0));
+        public void RenderBatches(float deltaTime) {
+            RenderShadowMap(deltaTime);
+            RenderReflectRefractBuffers(deltaTime);
 
-            RenderObject(GetTexture("displayTexture"), gameObject, deltaTime, "default");
+            RenderObject(GetTexture("displayTexture"), deltaTime, "base");
+            //RenderObject(GetTexture("displayTexture"), deltaTime, "ui");
 
-
-            // render the particle system last
-            gameObject.RenderAll("", "ParticleSystem", deltaTime, this, "particle");
-            gameObject.RenderAll("", "ui", deltaTime, this, "ui");
-
-
-            RenderReflectRefractBuffers(gameObject, deltaTime);
-
-            GetTexture("displayTexture").BindAsRenderTarget();
-
-            // important to render the water AFTER the refract reflect render targets, else it will lagg behind
-            gameObject.RenderAll("", "water", deltaTime, this, "water");
+            foreach (var water in _waters) {
+                water.RenderAll(null, null, deltaTime, this, "water");
+            }
 
             DoPostProccess();
-
 
             CoreEngine.GetCoreEngine.SwapBuffers();
         }
 
         private void DoPostProccess() {
             SetVector3("inverseFilterTextureSize", new Vector3(1.0f / GetTexture("displayTexture").Width, 1.0f / GetTexture("displayTexture").Height, 0.0f));
-
 
             ApplyFilter(_brightFilter, GetTexture("tempFilter"), GetTexture("tempFilter2"));
 
@@ -173,111 +155,112 @@ namespace NewEngine.Engine.Rendering {
 
 
             ApplyFilter(_fxaaFilter, GetTexture("tempFilter"), null);
+            // ApplyFilter(_fxaaFilter, _lights[1].ShadowInfo.ShadowMap, null);
         }
 
         // fill the Reflect and Refract textures
-        private void RenderReflectRefractBuffers(GameObject gameObject, float deltaTime) {
+        private void RenderReflectRefractBuffers(float deltaTime) {
 
-            var distance = 2 * (MainCamera.Transform.Position.Y - gameObject.Transform.Position.Y);
+            var distance = 2 * (MainCamera.Transform.Position.Y - 0);
 
             MainCamera.Transform.Position -= new Vector3(0, distance, 0);
             MainCamera.Transform.Rotation = MainCamera.Transform.Rotation.InvertPitch();
 
-            SetVector4("clipPlane", new Vector4(0, 1, 0, -gameObject.Transform.Position.Y + 1));
-            RenderObject(GetTexture("reflectionTexture"), gameObject, deltaTime, "Reflect");
+            SetVector4("clipPlane", new Vector4(0, 1, 0, -1));
+            RenderObject(GetTexture("reflectionTexture"), deltaTime, "reflect");
 
             MainCamera.Transform.Position += new Vector3(0, distance, 0);
             MainCamera.Transform.Rotation = MainCamera.Transform.Rotation.InvertPitch(); ;
 
-            SetVector4("clipPlane", new Vector4(0, -1, 0, gameObject.Transform.Position.Y + 1));
-            RenderObject(GetTexture("refractionTexture"), gameObject, deltaTime, "Refract");
-            RenderObject(GetTexture("refractionTextureDepth"), gameObject, deltaTime, "Refract");
+            SetVector4("clipPlane", new Vector4(0, -1, 0, 1));
+            RenderObject(GetTexture("refractionTexture"), deltaTime, "refract");
+            RenderObject(GetTexture("refractionTextureDepth"), deltaTime, "refract");
+
+            SetVector4("clipPlane", new Vector4(0, 0, 0, 0));
         }
 
-        // renders all the 3d objects no lighting
-        private void RenderObject(Texture mainRenderTarget, GameObject gameObject, float deltaTime, string renderStage) {
+        private void RenderObject(Texture mainRenderTarget, float deltaTime, string renderStage) {
             mainRenderTarget.BindAsRenderTarget();
+
             GL.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             RenderSkybox();
 
-            // since we are rendering the "base" pass we do not need to specify the shader
-            gameObject.RenderAll(null, "base", deltaTime, this, renderStage);
+            foreach (var batch in _batches) {
+                foreach (var gameObject in batch.Value) {
+                    gameObject.RenderAll(null, "base", deltaTime, this, renderStage);
 
-            foreach (var light in _lights) {
-                ActiveLight = light;
+                    foreach (var light in _lights) {
+                        ActiveLight = light;
+                        GL.Enable(EnableCap.Blend);
+                        GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.One);
+                        GL.DepthMask(false);
+                        GL.DepthFunc(DepthFunction.Equal);
 
-                RenderShadowMap(ActiveLight, deltaTime, gameObject);
+                        if (light.ShadowInfo != null)
+                            SetTexture("shadowMap", light.ShadowInfo.ShadowMap);
 
-                mainRenderTarget.BindAsRenderTarget();
+                        gameObject.RenderAll(light.GetType().Name, "light", deltaTime, this, "lightStage");
 
-                GL.Enable(EnableCap.Blend);
-                GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.One);
-                GL.DepthMask(false);
-                GL.DepthFunc(DepthFunction.Equal);
-
-                gameObject.RenderAll(light.GetType().Name, "light", deltaTime, this, "lightStage");
-
-                GL.DepthMask(true);
-                GL.DepthFunc(DepthFunction.Less);
-                GL.Disable(EnableCap.Blend);
+                        GL.DepthMask(true);
+                        GL.DepthFunc(DepthFunction.Less);
+                        GL.Disable(EnableCap.Blend);
+                    }
+                }
             }
-
 
         }
 
-        private void RenderShadowMap(BaseLight light, float deltaTime, GameObject gameObject) {
-            var shadowInfo = light.ShadowInfo;
+        private void RenderShadowMap(float deltaTime) {
+            foreach (var light in _lights) {
+                if (light.ShadowInfo != null) {
+                    light.ShadowInfo.ShadowMap.BindAsRenderTarget();
 
-            int shadowMapIndex = 0;
-
-            if (shadowInfo != null)
-                shadowMapIndex = shadowInfo.ShadowMapSizeAsPowerOf2 - 1;
-
-            SetTexture("shadowMap", _shadowMaps[shadowMapIndex]);
-            _shadowMaps[shadowMapIndex].BindAsRenderTarget();
-            GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
-            GL.ClearColor(1.0f, 1.0f, 0.0f, 0.0f);
+                    GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
+                    GL.ClearColor(1.0f, 1.0f, 0.0f, 0.0f);
 
 
-            if (shadowInfo != null) {
-                _altCamera.SetProjection = shadowInfo.Projection;
+                    _altCamera.SetProjection = light.ShadowInfo.Projection;
+                    ShadowCameraTransform shadowCameraTransform = light.CalcShadowCameraTransform(MainCamera.Transform);
 
-                ShadowCameraTransform shadowCameraTransform =
-                    ActiveLight.CalcShadowCameraTransform(MainCamera.Transform);
+                    _altCamera.Transform.Position = shadowCameraTransform.pos;
+                    _altCamera.Transform.Rotation = shadowCameraTransform.rot;
 
-                _altCamera.Transform.Position = shadowCameraTransform.pos;
-                _altCamera.Transform.Rotation = shadowCameraTransform.rot;
+                    LightMatrix = _altCamera.GetViewProjection() * _biasMatrix;
 
-                LightMatrix = _altCamera.GetViewProjection() * _biasMatrix;
+                    SetFloat("shadowVarianceMin", light.ShadowInfo.MinVariance);
+                    SetFloat("shadowBleedingReduction", light.ShadowInfo.LightBleedReductionAmount);
 
-                SetFloat("shadowVarianceMin", shadowInfo.MinVariance);
-                SetFloat("shadowBleedingReduction", shadowInfo.LightBleedReductionAmount);
+                    var flipFaces = light.ShadowInfo.FlipFaces;
 
-                var flipFaces = shadowInfo.FlipFaces;
+                    var temp = MainCamera;
+                    MainCamera = _altCamera;
 
-                var temp = MainCamera;
-                MainCamera = _altCamera;
-                GL.Disable(EnableCap.CullFace);
-                if (flipFaces) GL.CullFace(CullFaceMode.Front);
-                gameObject.RenderAll("shadowMapGenerator", "shadowMap", deltaTime, this, "shadows");
-                if (flipFaces) GL.CullFace(CullFaceMode.Back);
-                GL.Enable(EnableCap.CullFace);
+                    if (flipFaces) GL.CullFace(CullFaceMode.Front);
 
-                MainCamera = temp;
+                    foreach (var batch in _batches) {
+                        foreach (var batchObj in batch.Value) {
+                            batchObj.RenderAll("shadowMapGenerator", "shadowMap", deltaTime, this, "shadows");
+                        }
+                    }
 
-                var shadowSoftness = shadowInfo.ShadowSoftness;
+                    if (flipFaces) GL.CullFace(CullFaceMode.Back);
 
-                if (Math.Abs(shadowSoftness) > 0.0001f)
-                    BlurShadowMap(shadowMapIndex, shadowSoftness);
+                    MainCamera = temp;
+
+                    var shadowSoftness = light.ShadowInfo.ShadowSoftness;
+
+                    if (Math.Abs(shadowSoftness) > 0.0001f)
+                        BlurShadowMap(light, shadowSoftness);
+
+                }
+                else {
+                    LightMatrix = Matrix4.CreateScale(0, 0, 0);
+                    SetFloat("shadowVarianceMin", 0.00002f);
+                    SetFloat("shadowBleedingReduction", 0.0f);
+                }
             }
-            else {
-                LightMatrix = Matrix4.CreateScale(0, 0, 0);
-                SetFloat("shadowVarianceMin", 0.00002f);
-                SetFloat("shadowBleedingReduction", 0.0f);
-            }
-
         }
 
         private void RenderSkybox() {
@@ -295,9 +278,9 @@ namespace NewEngine.Engine.Rendering {
             _skyboxMaterial.SetCubemapTexture("skybox", cubemap);
         }
 
-        public void BlurShadowMap(int shadowMapIndex, float blurAmount) {
-            var shadowMap = _shadowMaps[shadowMapIndex];
-            var tempTarget = _shadowMapsTempTargets[shadowMapIndex];
+        public void BlurShadowMap(BaseLight light, float blurAmount) {
+            var shadowMap = light.ShadowInfo.ShadowMap;
+            var tempTarget = GetTexture("tempShadowMap");
 
             SetVector3("blurScale", new Vector3(blurAmount / shadowMap.Width, 0.0f, 0.0f));
             ApplyFilter(_gausFilter, shadowMap, tempTarget);
@@ -359,6 +342,36 @@ namespace NewEngine.Engine.Rendering {
 
         public void AddLight(BaseLight light) {
             _lights.Add(light);
+        }
+
+        public void AddObjectToBatch(Mesh mesh, GameObject gameObject) {
+            if (_batches.ContainsKey(mesh.Filename)) {
+                _batches[mesh.Filename].Add(gameObject);
+            }
+            else {
+                var obj = new List<GameObject>();
+                obj.Add(gameObject);
+                _batches.Add(mesh.Filename, obj);
+            }
+        }
+
+        public void RemoveFromBatch(Mesh mesh, GameObject gameObject) {
+            if (_batches.ContainsKey(mesh.Filename)) {
+                var batch = _batches[mesh.Filename];
+                batch.Remove(gameObject);
+
+                _batches[mesh.Filename] = batch;
+            }
+        }
+
+        public void AddWater(GameObject gameObject) {
+            _waters.Add(gameObject);
+        }
+
+        public void RemoveWater(GameObject gameObject) {
+            if (_waters.Contains(gameObject)) {
+                _waters.Remove(gameObject);
+            }
         }
 
         public void RemoveLight(BaseLight light) {

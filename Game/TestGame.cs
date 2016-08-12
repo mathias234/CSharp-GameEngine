@@ -22,12 +22,12 @@ namespace Game {
             CreateCamera();
 
             _directionalLightObj = new GameObject("Directinal Light");
-            var directionalLight = new DirectionalLight(new Vector3(1), 0.5f, 10, 120 * 2, 1f);
+            var directionalLight = new DirectionalLight(new Vector3(1), 0.5f, 10, 40, 0.2f);
             _directionalLightObj.AddComponent(directionalLight);
-            _directionalLightObj.Transform.Rotation *= Quaternion.FromAxisAngle(new Vector3(1, 0, 0), (float)MathHelper.DegreesToRadians(-90.0));
+            _directionalLightObj.Transform.Rotation *= Quaternion.FromAxisAngle(new Vector3(1, 0, 0), (float)MathHelper.DegreesToRadians(-40));
 
             var spotLightObj = new GameObject("Spot Light");
-            var spotLight = new SpotLight(new Vector3(1, 1, 0), 0.2f, new Attenuation(0, 0, 0.02f), MathHelper.DegreesToRadians(40), 9, 1.0f, 0.6f);
+            var spotLight = new SpotLight(new Vector3(1, 1, 0), 0.7f, new Attenuation(0, 0, 0.2f), MathHelper.DegreesToRadians(70), 9, 0.5f, 0.6f);
             spotLightObj.Transform.Position = new Vector3(5, 1, 0);
             spotLightObj.Transform.Rotate(new Vector3(0, 1, 0), MathHelper.DegreesToRadians(90));
 
@@ -57,6 +57,7 @@ namespace Game {
             var planeMesh = new Mesh("plane.obj");
 
             var mainMaterial = new Material(new Texture("bricks.png"), 0.5f, 32f, new Texture("bricks_nrm.png"), new Texture("bricks_disp.jpg"), 0.01f);
+            var rockMaterial = new Material(new Texture("rock.jpg"), 0.5f, 32f, new Texture("rock_nrm.jpg"), new Texture("rock_disp.jpg"), 0.01f);
 
             plane.AddComponent(new MeshRenderer(planeMesh, mainMaterial));
             plane.AddComponent(new BoxCollider(300, 1, 300, 0));
@@ -65,8 +66,8 @@ namespace Game {
 
             cube.Transform.Position = new Vector3(0, 1, 0);
 
-            //AddObject(plane);
-            //AddObject(cube);
+            AddObject(plane);
+            AddObject(cube);
 
 
             var terrain = new GameObject("terrain");
@@ -146,7 +147,7 @@ namespace Game {
                 .AddComponent(new FreeMove())
                 .AddComponent(new Camera(Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f), CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000)));
 
-            _camera.Transform.Position = new Vector3(150, 20, 150);
+            _camera.Transform.Position = new Vector3(0, 4, 5);
 
             AddObject(_camera);
         }
