@@ -17,7 +17,7 @@ namespace NewEngine.Engine.Rendering {
         private List<BaseLight> _lights;
         private Dictionary<string, int> _samplerMap;
         private Dictionary<string, List<GameObject>> _batches = new Dictionary<string, List<GameObject>>();
-        private List<GameObject> _waters = new List<GameObject>();
+        private List<GameObject> _nonBatched = new List<GameObject>();
 
         private Mesh _skybox;
         private Material _skyboxMaterial;
@@ -129,11 +129,7 @@ namespace NewEngine.Engine.Rendering {
             RenderReflectRefractBuffers(deltaTime);
 
             RenderObject(GetTexture("displayTexture"), deltaTime, "base");
-            //RenderObject(GetTexture("displayTexture"), deltaTime, "ui");
-
-            foreach (var water in _waters) {
-                water.RenderAll(null, null, deltaTime, this, "water");
-            }
+            RenderObject(GetTexture("displayTexture"), deltaTime, "ui");
 
             DoPostProccess();
 
@@ -201,7 +197,7 @@ namespace NewEngine.Engine.Rendering {
                         if (light.ShadowInfo != null)
                             SetTexture("shadowMap", light.ShadowInfo.ShadowMap);
 
-                        gameObject.RenderAll(light.GetType().Name, "light", deltaTime, this, "lightStage");
+                        gameObject.RenderAll(light.GetType().Name, "light", deltaTime, this, renderStage);
 
                         GL.DepthMask(true);
                         GL.DepthFunc(DepthFunction.Less);
@@ -210,6 +206,27 @@ namespace NewEngine.Engine.Rendering {
                 }
             }
 
+
+            foreach (var nonBatched in _nonBatched) {
+                nonBatched.RenderAll(null, "base", deltaTime, this, renderStage);
+
+                foreach (var light in _lights) {
+                    ActiveLight = light;
+                    GL.Enable(EnableCap.Blend);
+                    GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.One);
+                    GL.DepthMask(false);
+                    GL.DepthFunc(DepthFunction.Equal);
+
+                    if (light.ShadowInfo != null)
+                        SetTexture("shadowMap", light.ShadowInfo.ShadowMap);
+
+                    nonBatched.RenderAll(light.GetType().Name, "light", deltaTime, this, renderStage);
+
+                    GL.DepthMask(true);
+                    GL.DepthFunc(DepthFunction.Less);
+                    GL.Disable(EnableCap.Blend);
+                }
+            }
         }
 
         private void RenderShadowMap(float deltaTime) {
@@ -244,6 +261,11 @@ namespace NewEngine.Engine.Rendering {
                             batchObj.RenderAll("shadowMapGenerator", "shadowMap", deltaTime, this, "shadows");
                         }
                     }
+
+                    foreach (var gameObject in _nonBatched) {
+                        gameObject.RenderAll("shadowMapGenerator", "shadowMap", deltaTime, this, "shadows");
+                    }
+
 
                     if (flipFaces) GL.CullFace(CullFaceMode.Back);
 
@@ -364,13 +386,13 @@ namespace NewEngine.Engine.Rendering {
             }
         }
 
-        public void AddWater(GameObject gameObject) {
-            _waters.Add(gameObject);
+        public void AddNonBatched(GameObject gameObject) {
+            _nonBatched.Add(gameObject);
         }
 
-        public void RemoveWater(GameObject gameObject) {
-            if (_waters.Contains(gameObject)) {
-                _waters.Remove(gameObject);
+        public void RemoveNonBatched(GameObject gameObject) {
+            if (_nonBatched.Contains(gameObject)) {
+                _nonBatched.Remove(gameObject);
             }
         }
 

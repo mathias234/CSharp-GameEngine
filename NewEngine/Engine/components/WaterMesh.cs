@@ -40,12 +40,14 @@ namespace NewEngine.Engine.components {
         }
 
         public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage) {
-            if (renderStage != "water")
+            if (shaderType.ToLower() != "base") { 
                 return;
+            }
+            if (renderStage.ToLower() != "base") {
+                return;
+            }
 
-            Shader shaderToUse;
-
-            shaderToUse = _baseShader;
+            var shaderToUse = _baseShader;
 
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
@@ -60,12 +62,12 @@ namespace NewEngine.Engine.components {
         }
 
         public override void AddToEngine(CoreEngine engine) {
-            engine.RenderingEngine.AddWater(Parent);
+            engine.RenderingEngine.AddNonBatched(Parent);
         }
 
         public override void OnDestroyed(CoreEngine engine) {
             // FIXME: probably not going to work
-            engine.RenderingEngine.RemoveWater(Parent);
+            engine.RenderingEngine.RemoveNonBatched(Parent);
         }
     }
 }
