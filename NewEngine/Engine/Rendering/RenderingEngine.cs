@@ -16,7 +16,7 @@ namespace NewEngine.Engine.Rendering {
 
         private List<BaseLight> _lights;
         private Dictionary<string, int> _samplerMap;
-        private Dictionary<string, List<GameObject>> _batches = new Dictionary<string, List<GameObject>>();
+        private Dictionary<Material, BatchMeshRenderer> _batches = new Dictionary<Material, BatchMeshRenderer>();
         private List<GameObject> _nonBatched = new List<GameObject>();
 
         private Mesh _skybox;
@@ -184,25 +184,22 @@ namespace NewEngine.Engine.Rendering {
             RenderSkybox();
 
             foreach (var batch in _batches) {
-                foreach (var gameObject in batch.Value) {
-                    gameObject.RenderAll(null, "base", deltaTime, this, renderStage);
+                batch.Value.Render(null, "base", deltaTime, this, renderStage);
+                foreach (var light in _lights) {
+                    ActiveLight = light;
+                    GL.Enable(EnableCap.Blend);
+                    GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.One);
+                    GL.DepthMask(false);
+                    GL.DepthFunc(DepthFunction.Equal);
 
-                    foreach (var light in _lights) {
-                        ActiveLight = light;
-                        GL.Enable(EnableCap.Blend);
-                        GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.One);
-                        GL.DepthMask(false);
-                        GL.DepthFunc(DepthFunction.Equal);
+                    if (light.ShadowInfo != null)
+                        SetTexture("shadowMap", light.ShadowInfo.ShadowMap);
 
-                        if (light.ShadowInfo != null)
-                            SetTexture("shadowMap", light.ShadowInfo.ShadowMap);
+                    batch.Value.Render(light.GetType().Name, "light", deltaTime, this, renderStage);
 
-                        gameObject.RenderAll(light.GetType().Name, "light", deltaTime, this, renderStage);
-
-                        GL.DepthMask(true);
-                        GL.DepthFunc(DepthFunction.Less);
-                        GL.Disable(EnableCap.Blend);
-                    }
+                    GL.DepthMask(true);
+                    GL.DepthFunc(DepthFunction.Less);
+                    GL.Disable(EnableCap.Blend);
                 }
             }
 
@@ -257,9 +254,7 @@ namespace NewEngine.Engine.Rendering {
                     if (flipFaces) GL.CullFace(CullFaceMode.Front);
 
                     foreach (var batch in _batches) {
-                        foreach (var batchObj in batch.Value) {
-                            batchObj.RenderAll("shadowMapGenerator", "shadowMap", deltaTime, this, "shadows");
-                        }
+                        batch.Value.Render("shadowMapGenerator", "shadowMap", deltaTime, this, "shadows");
                     }
 
                     foreach (var gameObject in _nonBatched) {
@@ -366,24 +361,23 @@ namespace NewEngine.Engine.Rendering {
             _lights.Add(light);
         }
 
-        public void AddObjectToBatch(Mesh mesh, GameObject gameObject) {
-            if (_batches.ContainsKey(mesh.Filename)) {
-                _batches[mesh.Filename].Add(gameObject);
+        public void AddObjectToBatch(Material material, Mesh mesh, GameObject gameObject) {
+            if (_batches.ContainsKey(material)) {
+                _batches[material].AddGameObject(mesh, gameObject);
             }
             else {
-                var obj = new List<GameObject>();
-                obj.Add(gameObject);
-                _batches.Add(mesh.Filename, obj);
+                _batches.Add(material, new BatchMeshRenderer(material,  mesh, gameObject));
             }
         }
 
-        public void RemoveFromBatch(Mesh mesh, GameObject gameObject) {
-            if (_batches.ContainsKey(mesh.Filename)) {
-                var batch = _batches[mesh.Filename];
-                batch.Remove(gameObject);
+        public void RemoveFromBatch(Material material, Mesh mesh, GameObject gameObject) {
+            //if (_batches.ContainsKey(material)) {
+            //    var batch = _batches[material];
+            //    batch.Meshes.Remove(mesh);
+            //    batch.GameObjects.Remove(gameObject);
 
-                _batches[mesh.Filename] = batch;
-            }
+            //    _batches[material] = batch;
+            //}
         }
 
         public void AddNonBatched(GameObject gameObject) {

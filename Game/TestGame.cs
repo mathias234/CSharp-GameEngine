@@ -22,7 +22,7 @@ namespace Game {
             CreateCamera();
 
             _directionalLightObj = new GameObject("Directinal Light");
-            var directionalLight = new DirectionalLight(new Vector3(1), 0.5f, 10, 40, 0.2f);
+            var directionalLight = new DirectionalLight(new Vector3(1), 0.5f, 11, 80, 0.2f);
             _directionalLightObj.AddComponent(directionalLight);
             _directionalLightObj.Transform.Rotation *= Quaternion.FromAxisAngle(new Vector3(1, 0, 0), (float)MathHelper.DegreesToRadians(-40));
 
@@ -35,7 +35,7 @@ namespace Game {
 
             var particleObj = new GameObject("Particle");
 
-            particleObj.AddComponent(new ParticleSystem(20, new Vector3(-20, 0, -20), new Vector3(20, 2, 20), new Vector4(0, 0, 0, 1), new Vector4(1, 1, 1, 1), 2, new Vector3(0, 0 /*-9.825f*/, 0), 
+            particleObj.AddComponent(new ParticleSystem(20, new Vector3(-20, 0, -20), new Vector3(20, 2, 20), new Vector4(0, 0, 0, 1), new Vector4(1, 1, 1, 1), 2, new Vector3(0, 0 /*-9.825f*/, 0),
                 new Vector3(0, 0.1f, 0), new Vector3(0, 0.5f, 0), 2, 5, 1, 10, 2, true, false, true));
 
             var particleObj2 = new GameObject("Particle2");
@@ -51,9 +51,9 @@ namespace Game {
             //AddObject(particleObj);
 
             var plane = new GameObject("plane");
-            var cube = new GameObject("cube");
+            var cube = new GameObject("cubebase");
 
-            var cubeMesh = new Mesh("cube.obj");
+            var cubeMesh = new Mesh("HighResPlane.obj");
             var planeMesh = new Mesh("plane.obj");
 
             var mainMaterial = new Material(new Texture("bricks.png"), 0.5f, 32f, new Texture("bricks_nrm.png"), new Texture("bricks_disp.jpg"), 0.01f);
@@ -62,9 +62,9 @@ namespace Game {
             plane.AddComponent(new MeshRenderer(planeMesh, mainMaterial));
             plane.AddComponent(new BoxCollider(300, 1, 300, 0));
             cube.AddComponent(new MeshRenderer(cubeMesh, mainMaterial));
-            cube.AddComponent(new BoxCollider(1,1,1,0));
+            cube.AddComponent(new BoxCollider(1, 1, 1, 0));
 
-            cube.Transform.Position = new Vector3(0, 1, 0);
+            cube.Transform.Position = new Vector3(0, 10, 0);
 
             AddObject(plane);
             AddObject(cube);
@@ -99,6 +99,8 @@ namespace Game {
 
             CoreEngine.GetCoreEngine.RenderingEngine.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg",
                 "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
+            mat = new Material(new Texture("test.png"));
+            mesh = new Mesh("cube.obj");
         }
 
         public override void Update(float deltaTime) {
@@ -127,13 +129,16 @@ namespace Game {
             }
         }
 
+        private Material mat;
+        private Mesh mesh;
+
         public void StartMassiveSpawn() {
             for (var x = -5; x < 5; x++) {
                 for (var z = -5; z < 5; z++) {
                     var gObj = new GameObject("sphere: " + x + ":" + z) {
                         Transform = { Position = _camera.Transform.Position + new Vector3(5 * x, 0, 5 * z) }
                     };
-                    gObj.AddComponent(new MeshRenderer(new Mesh("cube.obj"), new Material(new Texture("test.png"))));
+                    gObj.AddComponent(new MeshRenderer(mesh, mat));
                     gObj.AddComponent(new BoxCollider(2, 2, 2, 1));
                     AddObject(gObj);
                     _spawnedObjects.Add(gObj);
