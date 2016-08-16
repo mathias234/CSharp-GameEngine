@@ -17,12 +17,10 @@ namespace Game {
         private List<GameObject> _spawnedObjects = new List<GameObject>();
 
         public override void Start() {
-
-
             CreateCamera();
 
             _directionalLightObj = new GameObject("Directinal Light");
-            var directionalLight = new DirectionalLight(new Vector3(1), 0.5f, 11, 75, 1);
+            var directionalLight = new DirectionalLight(new Vector3(1), 0.5f, 10, 140*2, 0.9f);
             _directionalLightObj.AddComponent(directionalLight);
             _directionalLightObj.Transform.Rotation *= Quaternion.FromAxisAngle(new Vector3(1, 0, 0), (float)MathHelper.DegreesToRadians(-40));
 
@@ -48,23 +46,25 @@ namespace Game {
             //AddObject(spotLightObj);
             AddObject(_directionalLightObj);
             //AddObject(particleObj2);
-            //AddObject(particleObj);
+            AddObject(particleObj);
 
             var plane = new GameObject("plane");
             var cube = new GameObject("cubebase");
 
-            var cubeMesh = new Mesh("HighResPlane.obj");
+            var cubeMesh = new Mesh("plane.obj");
             var planeMesh = new Mesh("plane.obj");
 
             var mainMaterial = new Material(new Texture("bricks.png"), 0.5f, 32f, new Texture("bricks_nrm.png"), new Texture("bricks_disp.jpg"), 0.01f);
-            var rockMaterial = new Material(new Texture("rock.jpg"), 0.5f, 32f, new Texture("rock_nrm.jpg"), new Texture("rock_disp.jpg"), 0.01f);
+            var rockMaterial = new Material(new Texture("rock.jpg"), 0.5f, 32f, new Texture("rock_nrm.jpg"), new Texture("rock_disp.jpg"), 0.1f);
 
-            plane.AddComponent(new MeshRenderer(planeMesh, mainMaterial));
-            plane.AddComponent(new BoxCollider(300, 1, 300, 0));
+            plane.AddComponent(new MeshRenderer(planeMesh, rockMaterial));
+            plane.AddComponent(new BoxCollider(300, 0.1f, 300, 0));
             cube.AddComponent(new MeshRenderer(cubeMesh, mainMaterial));
             cube.AddComponent(new BoxCollider(1, 1, 1, 0));
 
-            cube.Transform.Position = new Vector3(0, 10, 0);
+            cube.Transform.Position = new Vector3(-100, 10, 0);
+            plane.Transform.Position = new Vector3(-100, 0, 0);
+            cube.Transform.Scale = new Vector3(0.2f);
 
             AddObject(plane);
             AddObject(cube);
@@ -100,7 +100,7 @@ namespace Game {
             CoreEngine.GetCoreEngine.RenderingEngine.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg",
                 "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
             mat = new Material(new Texture("test.png"));
-            mesh = new Mesh("cube.obj");
+            mesh = new Mesh("sphere.obj");
         }
 
         public override void Update(float deltaTime) {
@@ -139,7 +139,7 @@ namespace Game {
                         Transform = { Position = _camera.Transform.Position + new Vector3(5 * x, 0, 5 * z) }
                     };
                     gObj.AddComponent(new MeshRenderer(mesh, mat));
-                    //gObj.AddComponent(new BoxCollider(2, 2, 2, 1));
+                    gObj.AddComponent(new SphereCollider(2, 1));
                     AddObject(gObj);
                     _spawnedObjects.Add(gObj);
                 }

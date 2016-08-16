@@ -40,25 +40,18 @@ namespace NewEngine.Engine.components {
         }
 
         public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage) {
-            if (shaderType.ToLower() != "base") { 
+            if (shaderType.ToLower() != "base") {
                 return;
             }
-            if (renderStage.ToLower() != "base") {
+            if (renderStage.ToLower() == "refract" || renderStage.ToLower() == "reflect") {
                 return;
             }
-
-            var shaderToUse = _baseShader;
-
-            GL.Enable(EnableCap.Blend);
-            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
             _material.SetFloat("moveFactor", _material.GetFloat("moveFactor") + _waveSpeed * deltaTime);
 
-            shaderToUse.Bind();
-            shaderToUse.UpdateUniforms(Parent.Transform, _material, renderingEngine);
+            _baseShader.Bind();
+            _baseShader.UpdateUniforms(Parent.Transform, _material, renderingEngine);
             _waterMesh.Draw();
-
-            GL.Disable(EnableCap.Blend);
         }
 
         public override void AddToEngine(CoreEngine engine) {

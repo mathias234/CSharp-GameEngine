@@ -106,8 +106,12 @@ namespace NewEngine.Engine.Rendering {
         }
 
         public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage) {
-            if (shaderType != "ParticleSystem")
+            if (shaderType.ToLower() != "base") {
                 return;
+            }
+            if (renderStage.ToLower() == "refract" || renderStage.ToLower() == "reflect") {
+                return;
+            }
 
             var newParticles = _newParticlesEachFrame;
 
@@ -254,6 +258,17 @@ namespace NewEngine.Engine.Rendering {
 
             GL.Disable(EnableCap.Blend);
         }
+
+        public override void AddToEngine(CoreEngine engine) {
+            base.AddToEngine(engine);
+            engine.RenderingEngine.AddNonBatched(Parent);
+        }
+
+        public override void OnDestroyed(CoreEngine engine) {
+            base.AddToEngine(engine);
+            engine.RenderingEngine.RemoveNonBatched(Parent);
+        }
+
 
         public float GetRandomNumber(double minimum, double maximum) {
             return (float)(_random.NextDouble() * (maximum - minimum) + minimum);

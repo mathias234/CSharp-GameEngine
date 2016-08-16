@@ -99,7 +99,6 @@ namespace NewEngine.Engine.Rendering {
             GL.EnableVertexAttribArray(3);
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, _resource.Vbo);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _resource.Ibo);
 
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, 0);
             GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, Vector3.SizeInBytes);
@@ -108,6 +107,7 @@ namespace NewEngine.Engine.Rendering {
             GL.VertexAttribPointer(3, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes,
                 Vector3.SizeInBytes + Vector2.SizeInBytes + Vector3.SizeInBytes);
 
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _resource.Ibo);
             GL.DrawElements(BeginMode.Triangles, _resource.Size, DrawElementsType.UnsignedInt, 0);
 
             GL.DisableVertexAttribArray(0);

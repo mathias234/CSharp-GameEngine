@@ -20,6 +20,7 @@ namespace NewEngine.Engine.components {
         public float LightBleedReductionAmount { get; set; }
         public float MinVariance { get; set; }
         public Texture ShadowMap { get; set; }
+        public Texture TempShadowMap { get; set; }
         public int ShadowMapSizeAsPowerOf2;
     }
 }

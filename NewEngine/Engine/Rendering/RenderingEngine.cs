@@ -63,14 +63,13 @@ namespace NewEngine.Engine.Rendering {
             SetFloat("fxaaSpanMax", 8);
             SetFloat("fxaaReduceMin", 1 / 128.0f);
             SetFloat("fxaaReduceMul", 1 / 8.0f);
-            SetFloat("bloomAmount", 0.2f);
+            SetFloat("bloomAmount", 0.12f);
 
             SetVector4("clipPlane", new Vector4(0, 0, 0, 15));
 
             SetTexture("displayTexture", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
             SetTexture("tempFilter", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
             SetTexture("tempFilter2", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
-            SetTexture("tempShadowMap", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
 
 
             SetTexture("reflectionTexture", new Texture(IntPtr.Zero, 960, 540, TextureMinFilter.Linear));
@@ -129,7 +128,6 @@ namespace NewEngine.Engine.Rendering {
             RenderReflectRefractBuffers(deltaTime);
 
             RenderObject(GetTexture("displayTexture"), deltaTime, "base");
-            RenderObject(GetTexture("displayTexture"), deltaTime, "ui");
 
             DoPostProccess();
 
@@ -141,11 +139,11 @@ namespace NewEngine.Engine.Rendering {
 
             ApplyFilter(_brightFilter, GetTexture("tempFilter"), GetTexture("tempFilter2"));
 
-            BlurTexture(GetTexture("tempFilter2"), 10, Vector2.UnitX);
             BlurTexture(GetTexture("tempFilter2"), 10, Vector2.UnitY);
+            BlurTexture(GetTexture("tempFilter2"), 10, Vector2.UnitX);
 
-            BlurTexture(GetTexture("tempFilter2"), 10, Vector2.UnitX);
             BlurTexture(GetTexture("tempFilter2"), 10, Vector2.UnitY);
+            BlurTexture(GetTexture("tempFilter2"), 10, Vector2.UnitX);
 
             ApplyFilter(_combineFilter, GetTexture("tempFilter2"), GetTexture("tempFilter"));
 
@@ -162,13 +160,13 @@ namespace NewEngine.Engine.Rendering {
             MainCamera.Transform.Position -= new Vector3(0, distance, 0);
             MainCamera.Transform.Rotation = MainCamera.Transform.Rotation.InvertPitch();
 
-            SetVector4("clipPlane", new Vector4(0, 1, 0, -1));
+            SetVector4("clipPlane", new Vector4(0, 1, 0, -0.1f));
             RenderObject(GetTexture("reflectionTexture"), deltaTime, "reflect");
 
             MainCamera.Transform.Position += new Vector3(0, distance, 0);
             MainCamera.Transform.Rotation = MainCamera.Transform.Rotation.InvertPitch(); ;
 
-            SetVector4("clipPlane", new Vector4(0, -1, 0, 1));
+            SetVector4("clipPlane", new Vector4(0, -1, 0, 0.1f));
             RenderObject(GetTexture("refractionTexture"), deltaTime, "refract");
             RenderObject(GetTexture("refractionTextureDepth"), deltaTime, "refract");
 
@@ -297,7 +295,7 @@ namespace NewEngine.Engine.Rendering {
 
         public void BlurShadowMap(BaseLight light, float blurAmount) {
             var shadowMap = light.ShadowInfo.ShadowMap;
-            var tempTarget = GetTexture("tempShadowMap");
+            var tempTarget = light.ShadowInfo.TempShadowMap;
 
             SetVector3("blurScale", new Vector3(blurAmount / shadowMap.Width, 0.0f, 0.0f));
             ApplyFilter(_gausFilter, shadowMap, tempTarget);

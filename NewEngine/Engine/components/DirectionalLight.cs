@@ -26,6 +26,7 @@ namespace NewEngine.Engine.components {
 
                 int shadowMapSize = 1 << (shadowMapSizeAsPowerOf2 + 1);
                 ShadowInfo.ShadowMap = new Texture((IntPtr)0, shadowMapSize, shadowMapSize, TextureMinFilter.Linear, PixelInternalFormat.Rg32f, PixelFormat.Rgba, true);
+                ShadowInfo.TempShadowMap = new Texture((IntPtr)0, shadowMapSize, shadowMapSize, TextureMinFilter.Linear, PixelInternalFormat.Rg32f, PixelFormat.Rgba, true);
             }
 
         }
