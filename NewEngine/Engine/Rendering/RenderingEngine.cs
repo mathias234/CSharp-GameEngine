@@ -371,13 +371,11 @@ namespace NewEngine.Engine.Rendering {
         }
 
         public void RemoveFromBatch(Material material, Mesh mesh, GameObject gameObject) {
-            //if (_batches.ContainsKey(material)) {
-            //    var batch = _batches[material];
-            //    batch.Meshes.Remove(mesh);
-            //    batch.GameObjects.Remove(gameObject);
-
-            //    _batches[material] = batch;
-            //}
+            if (_batches.ContainsKey(material)) {
+                if (_batches[material].RemoveGameObject(mesh, gameObject) == 0) {
+                    _batches.Remove(material);
+                }
+            }
         }
 
         public void AddNonBatched(GameObject gameObject) {

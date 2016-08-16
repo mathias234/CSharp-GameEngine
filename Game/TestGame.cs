@@ -22,7 +22,7 @@ namespace Game {
             CreateCamera();
 
             _directionalLightObj = new GameObject("Directinal Light");
-            var directionalLight = new DirectionalLight(new Vector3(1), 0.5f, 11, 80, 0.2f);
+            var directionalLight = new DirectionalLight(new Vector3(1), 0.5f, 11, 75, 1);
             _directionalLightObj.AddComponent(directionalLight);
             _directionalLightObj.Transform.Rotation *= Quaternion.FromAxisAngle(new Vector3(1, 0, 0), (float)MathHelper.DegreesToRadians(-40));
 
@@ -45,7 +45,7 @@ namespace Game {
 
             particleObj2.Transform.Position = new Vector3(100, 0, 0);
 
-            AddObject(spotLightObj);
+            //AddObject(spotLightObj);
             AddObject(_directionalLightObj);
             //AddObject(particleObj2);
             //AddObject(particleObj);
@@ -139,7 +139,7 @@ namespace Game {
                         Transform = { Position = _camera.Transform.Position + new Vector3(5 * x, 0, 5 * z) }
                     };
                     gObj.AddComponent(new MeshRenderer(mesh, mat));
-                    gObj.AddComponent(new BoxCollider(2, 2, 2, 1));
+                    //gObj.AddComponent(new BoxCollider(2, 2, 2, 1));
                     AddObject(gObj);
                     _spawnedObjects.Add(gObj);
                 }

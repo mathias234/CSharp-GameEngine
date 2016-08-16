@@ -14,16 +14,18 @@ namespace NewEngine.Engine.Rendering {
     public class BatchMeshRenderer {
         private Material _material;
 
-        private Dictionary<Mesh, List<GameObject>> meshGameObjects = new Dictionary<Mesh, List<GameObject>>();
+        private Dictionary<Mesh, List<GameObject>> _meshGameObjects = new Dictionary<Mesh, List<GameObject>>();
         private Dictionary<string, Shader> _loadedShaders = new Dictionary<string, Shader>();
 
-
         private Shader _baseShader;
+
+        private Matrix4[] _matrices;
+
 
         public BatchMeshRenderer(Material material, Mesh meshes, GameObject gameObjects) {
             _material = material;
 
-            meshGameObjects.Add(meshes, new[] { gameObjects }.ToList());
+            _meshGameObjects.Add(meshes, new[] { gameObjects }.ToList());
 
             _baseShader = new Shader("batching/forward-batched-ambient");
 
@@ -51,32 +53,46 @@ namespace NewEngine.Engine.Rendering {
                 _loadedShaders.Add(shader, shaderToUse);
             }
 
-            foreach (var mesh in meshGameObjects) {
-                List<Matrix4> matrices = new List<Matrix4>();
+            // with alot of objects this will put a strain on the garbage collector, maybe find a fix
+            for (int j = 0; j < _meshGameObjects.Count; j++) {
+                _matrices = new Matrix4[_meshGameObjects.ElementAt(j).Value.Count];
 
-                foreach (var gameObject in mesh.Value) {
-                    matrices.Add(gameObject.Transform.GetTransformation());
+                for (int i = 0; i < _matrices.Length; i++) {
+                    _matrices[i] = _meshGameObjects.ElementAt(j).Value[i].Transform.GetTransformation();
+
                 }
-                mesh.Key.BindBatch(matrices.ToArray(), mesh.Value.Count);
+                _meshGameObjects.ElementAt(j).Key.BindBatch(_matrices, _meshGameObjects.ElementAt(j).Value.Count);
             }
 
             shaderToUse.Bind();
-            shaderToUse.UpdateUniforms(meshGameObjects.ElementAt(0).Value[0].Transform, _material, renderingEngine);
+            shaderToUse.UpdateUniforms(_meshGameObjects.ElementAt(0).Value[0].Transform, _material, renderingEngine);
 
-            foreach (var mesh in meshGameObjects) {
+            foreach (var mesh in _meshGameObjects) {
                 mesh.Key.DrawInstanced(mesh.Value.Count);
             }
         }
 
         public void AddGameObject(Mesh mesh, GameObject gObj) {
-            if (meshGameObjects.ContainsKey(mesh)) {
-                meshGameObjects[mesh].Add(gObj);
+            if (_meshGameObjects.ContainsKey(mesh)) {
+                _meshGameObjects[mesh].Add(gObj);
             }
             else {
-                meshGameObjects.Add(mesh, new[] { gObj }.ToList());
+                _meshGameObjects.Add(mesh, new[] { gObj }.ToList());
             }
 
             Initialize();
+        }
+
+        public int RemoveGameObject(Mesh mesh, GameObject gameObject) {
+            if (_meshGameObjects.ContainsKey(mesh)) {
+                if (_meshGameObjects[mesh].Contains(gameObject)) {
+                    _meshGameObjects[mesh].Remove(gameObject);
+                }
+                if (_meshGameObjects[mesh].Count == 0)
+                    _meshGameObjects.Remove(mesh);
+            }
+
+            return _meshGameObjects.Count;
         }
     }
 }
