@@ -82,17 +82,14 @@ namespace Game {
                 "default_normal.png", "terrain1/tex2.jpg", "terrain1/tex2Nrm.jpg", "terrain1/layer1.jpg",
                 "terrain1/tex2.jpg", "terrain1/tex2Nrm.jpg", "terrain1/layer1.jpg"));
 
-            water.AddComponent(new WaterMesh(100, 100, 0.05f, 0.02f, 0.2f, 12));
-            water2.AddComponent(new WaterMesh(100, 100, 0.05f, 0.02f, 0.2f, 12));
+            water.AddComponent(new WaterMesh(300, 300, 0.05f, 0.02f, 0.2f, 12));
 
             terrain.Transform.Position = new Vector3(0, -15, 0);
-            water.Transform.Position = new Vector3(105, 5, 50);
-            water2.Transform.Position = new Vector3(105, -5, 150);
+            water.Transform.Position = new Vector3(0, 0, 0);
 
 
             AddObject(terrain);
             AddObject(water);
-            AddObject(water2);
 
 
             //var ui = new GameObject("UI");

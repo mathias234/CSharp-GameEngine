@@ -10,10 +10,12 @@ use mklink /J in each game folder to link to the res folder that contains all th
 ```
 
 **Known Issues:**
+- You can currently only have ONE shadow caster
+- Batching sometimes moves objects to wrong positions, needs more testing
+
+- General preformance and memory improvements required
 
 **Future Plans:**
-
-- FXAA or other anti aliasing techniques
 - More UI stuff like text, and clicking and stuff
 - Editor
-- Sound(3d and 2d)
+- Sound(3d and 2d) - IMPORTANT!
