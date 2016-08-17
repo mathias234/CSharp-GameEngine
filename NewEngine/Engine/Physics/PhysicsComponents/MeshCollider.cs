@@ -28,7 +28,7 @@ namespace NewEngine.Engine.Physics.PhysicsComponents {
 
         public override void OnEnable() {
             PhysicsObject = new StaticMesh(_vertices, _indices,
-                new AffineTransform(ToBepuVector3(Parent.Transform.GetTransformedPosition())));
+                new AffineTransform(ToBepuVector3(gameObject.Transform.GetTransformedPosition())));
 
 
             PhysicsEngine.AddToPhysicsEngine(PhysicsObject);

@@ -49,7 +49,6 @@ C:\engine\NewEngine\bin\Debug\BEPUik.dll
 C:\engine\NewEngine\bin\Debug\BEPUphysics.dll
 C:\engine\NewEngine\bin\Debug\BEPUutilities.dll
 C:\engine\NewEngine\bin\Debug\OpenTK.dll
-C:\engine\NewEngine\bin\Debug\OpenTK.GLControl.dll
 C:\engine\NewEngine\bin\Debug\BEPUik.xml
 C:\engine\NewEngine\bin\Debug\BEPUphysics.xml
 C:\engine\NewEngine\bin\Debug\BEPUutilities.xml

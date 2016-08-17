@@ -94,5 +94,14 @@ namespace NewEngine.Engine.Rendering {
 
             return _meshGameObjects.Count;
         }
+
+        public void UpdateObject(Mesh mesh, GameObject gameObject) {
+            if (_meshGameObjects.ContainsKey(mesh)) {
+                if (_meshGameObjects[mesh].Contains(gameObject)) {
+                    _meshGameObjects[mesh].Remove(gameObject);
+                    AddGameObject(mesh, gameObject);
+                }
+            }
+        }
     }
 }

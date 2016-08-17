@@ -5,9 +5,9 @@ namespace NewEngine.Engine.components {
     public abstract class GameComponent {
         public bool IsEnabled;
 
-        public Transform Transform => Parent.Transform;
+        public Transform Transform => gameObject.Transform;
 
-        public GameObject Parent { get; set; }
+        public GameObject gameObject;
 
         public virtual void Update(float deltaTime) {}
 

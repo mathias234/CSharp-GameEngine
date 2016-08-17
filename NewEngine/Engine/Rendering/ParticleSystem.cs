@@ -261,12 +261,12 @@ namespace NewEngine.Engine.Rendering {
 
         public override void AddToEngine(CoreEngine engine) {
             base.AddToEngine(engine);
-            engine.RenderingEngine.AddNonBatched(Parent);
+            engine.RenderingEngine.AddNonBatched(gameObject);
         }
 
         public override void OnDestroyed(CoreEngine engine) {
             base.AddToEngine(engine);
-            engine.RenderingEngine.RemoveNonBatched(Parent);
+            engine.RenderingEngine.RemoveNonBatched(gameObject);
         }
 
 

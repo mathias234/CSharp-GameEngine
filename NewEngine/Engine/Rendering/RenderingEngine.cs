@@ -72,10 +72,6 @@ namespace NewEngine.Engine.Rendering {
             SetTexture("tempFilter2", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
 
 
-            SetTexture("reflectionTexture", new Texture(IntPtr.Zero, 960, 540, TextureMinFilter.Linear));
-            SetTexture("refractionTexture", new Texture(IntPtr.Zero, 960, 540, TextureMinFilter.Linear));
-            SetTexture("refractionTextureDepth", new Texture(IntPtr.Zero, 960, 540, TextureMinFilter.Linear, PixelInternalFormat.DepthComponent, PixelFormat.DepthComponent, false, FramebufferAttachment.DepthAttachment));
-
             _skyboxShader = new Shader("skybox");
             _nullFilter = new Shader("filters/filter-null");
             _gausFilter = new Shader("filters/filter-gausBlur7x1");
@@ -125,7 +121,6 @@ namespace NewEngine.Engine.Rendering {
 
         public void RenderBatches(float deltaTime) {
             RenderShadowMap(deltaTime);
-            RenderReflectRefractBuffers(deltaTime);
 
             RenderObject(GetTexture("displayTexture"), deltaTime, "base");
 
@@ -155,25 +150,9 @@ namespace NewEngine.Engine.Rendering {
         // fill the Reflect and Refract textures
         private void RenderReflectRefractBuffers(float deltaTime) {
 
-            var distance = 2 * (MainCamera.Transform.Position.Y - 0);
-
-            MainCamera.Transform.Position -= new Vector3(0, distance, 0);
-            MainCamera.Transform.Rotation = MainCamera.Transform.Rotation.InvertPitch();
-
-            SetVector4("clipPlane", new Vector4(0, 1, 0, -0.1f));
-            RenderObject(GetTexture("reflectionTexture"), deltaTime, "reflect");
-
-            MainCamera.Transform.Position += new Vector3(0, distance, 0);
-            MainCamera.Transform.Rotation = MainCamera.Transform.Rotation.InvertPitch(); ;
-
-            SetVector4("clipPlane", new Vector4(0, -1, 0, 0.1f));
-            RenderObject(GetTexture("refractionTexture"), deltaTime, "refract");
-            RenderObject(GetTexture("refractionTextureDepth"), deltaTime, "refract");
-
-            SetVector4("clipPlane", new Vector4(0, 0, 0, 0));
         }
 
-        private void RenderObject(Texture mainRenderTarget, float deltaTime, string renderStage) {
+        public void RenderObject(Texture mainRenderTarget, float deltaTime, string renderStage) {
             mainRenderTarget.BindAsRenderTarget();
 
             GL.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -222,6 +201,8 @@ namespace NewEngine.Engine.Rendering {
                     GL.Disable(EnableCap.Blend);
                 }
             }
+
+            GetTexture("displayTexture").BindAsRenderTarget();
         }
 
         private void RenderShadowMap(float deltaTime) {
@@ -373,6 +354,12 @@ namespace NewEngine.Engine.Rendering {
                 if (_batches[material].RemoveGameObject(mesh, gameObject) == 0) {
                     _batches.Remove(material);
                 }
+            }
+        }
+
+        public void UpdateBatch(Material material, Mesh mesh, GameObject gameObject) {
+            if (_batches.ContainsKey(material)) {
+                _batches[material].UpdateObject(mesh, gameObject);
             }
         }
 

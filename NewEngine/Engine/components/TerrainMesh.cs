@@ -153,13 +153,13 @@ namespace NewEngine.Engine.components {
         public override void AddToEngine(CoreEngine engine) {
             base.AddToEngine(engine);
 
-            engine.RenderingEngine.AddNonBatched(Parent);
+            engine.RenderingEngine.AddNonBatched(gameObject);
         }
 
         public override void OnDestroyed(CoreEngine engine) {
             base.OnDestroyed(engine);
 
-            engine.RenderingEngine.RemoveNonBatched(Parent);
+            engine.RenderingEngine.RemoveNonBatched(gameObject);
         }
     }
 }

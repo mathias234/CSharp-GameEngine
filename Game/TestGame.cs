@@ -20,7 +20,7 @@ namespace Game {
             CreateCamera();
 
             _directionalLightObj = new GameObject("Directinal Light");
-            var directionalLight = new DirectionalLight(new Vector3(1), 0.5f, 10, 140*2, 0.9f);
+            var directionalLight = new DirectionalLight(new Vector3(1), 0.5f, 10, 1000, 0.9f);
             _directionalLightObj.AddComponent(directionalLight);
             _directionalLightObj.Transform.Rotation *= Quaternion.FromAxisAngle(new Vector3(1, 0, 0), (float)MathHelper.DegreesToRadians(-40));
 
@@ -49,7 +49,7 @@ namespace Game {
             AddObject(particleObj);
 
             var plane = new GameObject("plane");
-            var cube = new GameObject("cubebase");
+            cube = new GameObject("cubebase");
 
             var cubeMesh = new Mesh("plane.obj");
             var planeMesh = new Mesh("plane.obj");
@@ -62,9 +62,13 @@ namespace Game {
             cube.AddComponent(new MeshRenderer(cubeMesh, mainMaterial));
             cube.AddComponent(new BoxCollider(1, 1, 1, 0));
 
+
             cube.Transform.Position = new Vector3(-100, 10, 0);
             plane.Transform.Position = new Vector3(-100, 0, 0);
             cube.Transform.Scale = new Vector3(0.2f);
+
+            cube.Transform.Rotate(new Vector3(1, 1, 0), MathHelper.DegreesToRadians(132));
+
 
             AddObject(plane);
             AddObject(cube);
@@ -72,19 +76,23 @@ namespace Game {
 
             var terrain = new GameObject("terrain");
             var water = new GameObject("water");
+            var water2 = new GameObject("water2");
 
             terrain.AddComponent(new TerrainMesh("terrain1/terrain.jpg", 300, 300, 0.1f, "terrain1/tex1.jpg",
                 "default_normal.png", "terrain1/tex2.jpg", "terrain1/tex2Nrm.jpg", "terrain1/layer1.jpg",
                 "terrain1/tex2.jpg", "terrain1/tex2Nrm.jpg", "terrain1/layer1.jpg"));
 
-            water.AddComponent(new WaterMesh(300, 300, 0.05f, 0.02f, 0.2f, 12));
+            water.AddComponent(new WaterMesh(100, 100, 0.05f, 0.02f, 0.2f, 12));
+            water2.AddComponent(new WaterMesh(100, 100, 0.05f, 0.02f, 0.2f, 12));
 
             terrain.Transform.Position = new Vector3(0, -15, 0);
-            water.Transform.Position = new Vector3(0, 0, 0);
+            water.Transform.Position = new Vector3(105, 5, 50);
+            water2.Transform.Position = new Vector3(105, -5, 150);
 
 
             AddObject(terrain);
             AddObject(water);
+            AddObject(water2);
 
 
             //var ui = new GameObject("UI");
@@ -104,6 +112,8 @@ namespace Game {
         }
 
         public override void Update(float deltaTime) {
+            cube.Transform.Position += new Vector3(42, 10, 0);
+
             //LogManager.Debug(GetRootObject.GetChildren().Count.ToString());
 
             base.Update(deltaTime);
@@ -131,6 +141,7 @@ namespace Game {
 
         private Material mat;
         private Mesh mesh;
+        private GameObject cube;
 
         public void StartMassiveSpawn() {
             for (var x = -5; x < 5; x++) {

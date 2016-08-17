@@ -22,10 +22,10 @@ namespace NewEngine.Engine.components.UIComponents {
 
         public new Transform Transform {
             set {
-                Parent.Transform = value;
+                gameObject.Transform = value;
                 UpdateMesh();
             }
-            get { return Parent.Transform; }
+            get { return gameObject.Transform; }
         }
 
         public float Biggest(float a, float b) {
@@ -37,7 +37,7 @@ namespace NewEngine.Engine.components.UIComponents {
                 return;
             if (renderStage == "ui") {
 
-                Parent.Transform = _rectTransform;
+                gameObject.Transform = _rectTransform;
                 // we only need the ImageShader here so replace the shader being passed
 
                 var t = (RectTransform) Transform;

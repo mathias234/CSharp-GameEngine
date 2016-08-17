@@ -18,13 +18,13 @@ namespace NewEngine.Engine.components {
         public override void AddToEngine(CoreEngine engine) {
             base.AddToEngine(engine);
 
-            engine.RenderingEngine.AddObjectToBatch(Material, Mesh, Parent);
+            engine.RenderingEngine.AddObjectToBatch(Material, Mesh, gameObject);
         }
 
         public override void OnDestroyed(CoreEngine engine) {
             base.OnDestroyed(engine);
 
-            engine.RenderingEngine.RemoveFromBatch(Material, Mesh, Parent);
+            engine.RenderingEngine.RemoveFromBatch(Material, Mesh, gameObject);
         }
     }
 }

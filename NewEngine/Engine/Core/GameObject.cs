@@ -51,7 +51,7 @@ namespace NewEngine.Engine.Core {
 
         public GameObject AddComponent(GameComponent component) {
             _components.Add(component);
-            component.Parent = this;
+            component.gameObject = this;
             return this;
         }
 
