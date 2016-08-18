@@ -23,7 +23,7 @@ namespace SponzaTest {
             _directionalLightObj.AddComponent(directionalLight);
             _directionalLightObj.Transform.Rotate(new Vector3(1, 0, 0), MathHelper.RadiansToDegrees(90));
             _directionalLightObj.Transform.Position = new Vector3(0, 0, 0);
-            AddObject(_directionalLightObj);
+            //AddObject(_directionalLightObj);
 
 
             string[] sponzaModels = {
@@ -69,11 +69,6 @@ namespace SponzaTest {
             AddObject(p2);
             AddObject(p3);
             AddObject(p4);
-
-            var water = new GameObject("water");
-            water.AddComponent(new WaterMesh(300, 300, 0.05f, 0.02f, 0.2f, 12));
-            AddObject(water);
-
 
             CoreEngine.GetCoreEngine.RenderingEngine.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg",
                 "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");

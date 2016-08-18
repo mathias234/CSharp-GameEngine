@@ -20,7 +20,7 @@ namespace Game {
             CreateCamera();
 
             _directionalLightObj = new GameObject("Directinal Light");
-            var directionalLight = new DirectionalLight(new Vector3(1), 0.5f, 10, 1000, 0.9f);
+            var directionalLight = new DirectionalLight(new Vector3(1), 0.5f, 10, 140, 0.9f);
             _directionalLightObj.AddComponent(directionalLight);
             _directionalLightObj.Transform.Rotation *= Quaternion.FromAxisAngle(new Vector3(1, 0, 0), (float)MathHelper.DegreesToRadians(-40));
 
@@ -84,8 +84,7 @@ namespace Game {
 
             water.AddComponent(new WaterMesh(300, 300, 0.05f, 0.02f, 0.2f, 12));
 
-            terrain.Transform.Position = new Vector3(0, -15, 0);
-            water.Transform.Position = new Vector3(0, 0, 0);
+            water.Transform.Position = new Vector3(0, 15, 0);
 
 
             AddObject(terrain);
@@ -106,6 +105,8 @@ namespace Game {
                 "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
             mat = new Material(new Texture("test.png"));
             mesh = new Mesh("sphere.obj");
+            treeBranch = new Mesh("tree/branch.obj");
+            treeLeaf = new Mesh("tree/leaf.obj");
         }
 
         public override void Update(float deltaTime) {
@@ -118,6 +119,24 @@ namespace Game {
 
             if (Input.GetKeyDown(Key.E)) {
                 StartMassiveSpawn();
+            }
+
+
+            if (Input.GetKeyDown(Key.R)) {
+                var branch = new GameObject("branch") {
+                    Transform = { Position = new Vector3(_camera.Transform.Position.X, 25, _camera.Transform.Position.Z)  }
+                };
+                branch.AddComponent(new MeshRenderer(treeBranch, mat));
+                AddObject(branch);
+
+                var leaf = new GameObject("leaf") {
+                    Transform = { Position = new Vector3(_camera.Transform.Position.X, 25, _camera.Transform.Position.Z) }
+                };
+                leaf.AddComponent(new MeshRenderer(treeLeaf, mat));
+                AddObject(leaf);
+
+                _spawnedObjects.Add(branch);
+                _spawnedObjects.Add(leaf);
             }
 
             if (Input.GetKeyDown(Key.Q)) {
@@ -139,6 +158,8 @@ namespace Game {
         private Material mat;
         private Mesh mesh;
         private GameObject cube;
+        private Mesh treeBranch;
+        private Mesh treeLeaf;
 
         public void StartMassiveSpawn() {
             for (var x = -5; x < 5; x++) {

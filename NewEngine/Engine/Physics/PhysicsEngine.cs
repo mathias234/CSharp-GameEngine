@@ -9,7 +9,7 @@ namespace NewEngine.Engine.Physics {
     public static class PhysicsEngine {
         private static Space _physicsSpace;
 
-        public static void Start() {}
+        public static void Start() { }
 
         public static void Update(float deltaTime) {
             _physicsSpace?.Update(deltaTime);
@@ -17,7 +17,13 @@ namespace NewEngine.Engine.Physics {
 
         public static void AddToPhysicsEngine(ISpaceObject obj) {
             if (_physicsSpace == null) {
-                _physicsSpace = new Space(new ParallelLooper()) {ForceUpdater = {Gravity = new Vector3(0, -9.81f, 0)}};
+                var parallelLooper = new ParallelLooper();
+
+                for (var i = 0; i < System.Environment.ProcessorCount; i++) {
+                    parallelLooper.AddThread();
+                }
+
+                _physicsSpace = new Space(parallelLooper) { ForceUpdater = { Gravity = new Vector3(0, -9.81f, 0) } };
             }
 
             if (obj == null)
@@ -44,7 +50,7 @@ namespace NewEngine.Engine.Physics {
                 T = tempResult.HitData.T
             };
 
-            var hitObject = GetOwner((ISpaceObject) tempResult.HitObject, CoreEngine.GetCoreEngine.Game.GetRootObject);
+            var hitObject = GetOwner((ISpaceObject)tempResult.HitObject, CoreEngine.GetCoreEngine.Game.GetRootObject);
 
             result = new RayCastResult(hit, hitObject);
         }

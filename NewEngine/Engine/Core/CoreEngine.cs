@@ -56,9 +56,9 @@ namespace NewEngine.Engine.Core {
         private void Run(object sender, FrameEventArgs e) {
             Game.Update((float) e.Time);
 
-            PhysicsEngine.Update((float) e.Time);
-
             Input.Update(Mouse);
+
+            PhysicsEngine.Update((float) e.Time);
         }
 
         private void Render(object sender, FrameEventArgs e) {
