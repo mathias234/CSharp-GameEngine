@@ -102,7 +102,9 @@
     <Compile Include="Engine\Rendering\MeshLoading\IndexedModel.cs" />
     <Compile Include="Engine\Rendering\MeshLoading\Obj\ObjIndex.cs" />
     <Compile Include="Engine\Rendering\MeshLoading\Obj\ObjModel.cs" />
+    <Compile Include="Engine\Rendering\Batch.cs" />
     <Compile Include="Engine\Rendering\Particle.cs" />
+    <Compile Include="Engine\Rendering\BatchMeshRenderer.cs" />
     <Compile Include="Engine\Rendering\ParticleSystem.cs" />
     <Compile Include="Engine\Rendering\PrimitiveObjects.cs" />
     <Compile Include="Engine\Rendering\ResourceManagament\CubemapResource.cs" />

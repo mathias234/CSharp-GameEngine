@@ -6,10 +6,10 @@ in vec3 toCameraVector;
 
 out vec4 fragColor;
 
-uniform sampler2D R_reflectionTexture;
-uniform sampler2D R_refractionTexture;
+uniform sampler2D reflectionTexture;
+uniform sampler2D refractionTexture;
 uniform sampler2D diffuse;
-uniform sampler2D R_refractionTextureDepth;
+uniform sampler2D refractionTextureDepth;
 
 uniform float moveFactor;
 uniform float waveStrength;
@@ -23,7 +23,7 @@ void main()
 	
 	float near = 0.1;
 	float far = 1000;
-	float depth = texture(R_refractionTextureDepth, refractTexCoord).r;
+	float depth = texture(refractionTextureDepth, refractTexCoord).r;
 	float floorDistance = 2.0 * near * far / (far + near - (2.0 * depth - 1.0) * (far - near));
 	
 	depth = gl_FragCoord.z;
@@ -44,8 +44,8 @@ void main()
 	reflectTexCoord.y = clamp(reflectTexCoord.y, -0.999, -0.001);
 
 	
-	vec4 reflectColor = texture(R_reflectionTexture, reflectTexCoord);
-	vec4 refractColor = texture(R_refractionTexture, refractTexCoord);
+	vec4 reflectColor = texture(reflectionTexture, reflectTexCoord);
+	vec4 refractColor = texture(refractionTexture, refractTexCoord);
 	
 	vec3 viewVector = normalize(toCameraVector);
 	float refractiveFactor = dot(viewVector, vec3(0.0, 1.0,0.0));

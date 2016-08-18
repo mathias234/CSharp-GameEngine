@@ -16,7 +16,7 @@ namespace NewEngine.Engine.Physics.PhysicsComponents {
         }
 
         public override void OnEnable() {
-            PhysicsObject = new Box(ToBepuVector3(Parent.Transform.Position), _width, _height, _length, _mass);
+            PhysicsObject = new Box(ToBepuVector3(gameObject.Transform.Position), _width, _height, _length, _mass);
 
             PhysicsEngine.AddToPhysicsEngine(PhysicsObject);
         }
@@ -24,8 +24,8 @@ namespace NewEngine.Engine.Physics.PhysicsComponents {
         public override void Update(float deltaTime) {
             var obj = (Box) PhysicsObject;
             if (obj == null) return;
-            Parent.Transform.Position = FromBepuVector3(obj.Position);
-            Parent.Transform.Rotation = FromBepuQuaternion(obj.Orientation);
+            gameObject.Transform.Position = FromBepuVector3(obj.Position);
+            gameObject.Transform.Rotation = FromBepuQuaternion(obj.Orientation);
         }
     }
 }

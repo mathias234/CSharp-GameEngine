@@ -3,6 +3,7 @@ using NewEngine.Engine.Core;
 using NewEngine.Engine.Rendering;
 using NewEngine.Engine.Rendering.Shading;
 using OpenTK;
+using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.components {
     public class SpotLight : PointLight {
@@ -13,8 +14,10 @@ namespace NewEngine.Engine.components {
             Cutoff = (float)Math.Cos(viewAngle / 2);
             Shader = new Shader("forward-SpotLight");
 
-            if (shadowMapSizeAsPowerOf2 != 0)
-                ShadowInfo = new ShadowInfo(Matrix4.CreatePerspectiveFieldOfView(viewAngle, 1.0f, 0.1f, Range), false, shadowMapSizeAsPowerOf2, shadowSoftness, lightBleedReductionAmount, minVariance);
+            //if (shadowMapSizeAsPowerOf2 != 0) {
+            //    ShadowInfo = new ShadowInfo(Matrix4.CreatePerspectiveFieldOfView(viewAngle, 1.0f, 0.1f, Range), false, shadowMapSizeAsPowerOf2, shadowSoftness, lightBleedReductionAmount, minVariance);
+            //    ShadowInfo.ShadowMap = new Texture((IntPtr)0, 1024/2, 1024/2, TextureMinFilter.Linear, PixelInternalFormat.Rg32f, PixelFormat.Rgba, true);
+            //}
         }
 
         public float Cutoff { get; set; }

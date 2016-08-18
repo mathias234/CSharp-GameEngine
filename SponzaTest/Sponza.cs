@@ -23,7 +23,7 @@ namespace SponzaTest {
             _directionalLightObj.AddComponent(directionalLight);
             _directionalLightObj.Transform.Rotate(new Vector3(1, 0, 0), MathHelper.RadiansToDegrees(90));
             _directionalLightObj.Transform.Position = new Vector3(0, 0, 0);
-            AddObject(_directionalLightObj);
+            //AddObject(_directionalLightObj);
 
 
             string[] sponzaModels = {
@@ -69,6 +69,9 @@ namespace SponzaTest {
             AddObject(p2);
             AddObject(p3);
             AddObject(p4);
+
+            CoreEngine.GetCoreEngine.RenderingEngine.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg",
+                "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
         }
 
         public override void Update(float deltaTime) {

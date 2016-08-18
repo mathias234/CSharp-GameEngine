@@ -1,7 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using BEPUphysics.BroadPhaseEntries;
+using BEPUphysics.CollisionShapes;
 using NewEngine.Engine.Core;
+using NewEngine.Engine.Physics;
 using NewEngine.Engine.Rendering;
 using NewEngine.Engine.Rendering.Shading;
 using OpenTK;
@@ -113,6 +116,17 @@ namespace NewEngine.Engine.components {
                 }
             }
 
+            BEPUutilities.Vector3[] vertsVec3 = new BEPUutilities.Vector3[verts.Count];
+
+            int g = 0;
+            foreach (var vertex in verts) {
+                vertsVec3[g] = new BEPUutilities.Vector3( vertex.Position.X, vertex.Position.Y, vertex.Position.Z);
+                g++;
+            }
+
+            // using physics slows down the game once the physics interaction starts by a lot because a terrain has alot of vertices this is only temporary, a mesh will be split up into chunks for better prefomance later
+            PhysicsEngine.AddToPhysicsEngine(new StaticMesh(vertsVec3, tris.ToArray()));
+
             _material = new Material(_tex1, _specularIntensity, _specularPower, _tex1Nrm);
             _material.SetTexture("tex2", _tex2);
             _material.SetTexture("tex2Nrm", _tex2Nrm);
@@ -144,9 +158,22 @@ namespace NewEngine.Engine.components {
                 _loadedShaders.Add(shader, shaderToUse);
             }
 
+
             shaderToUse.Bind();
             shaderToUse.UpdateUniforms(Transform, _material, renderingEngine);
             _mesh.Draw();
+        }
+
+        public override void AddToEngine(CoreEngine engine) {
+            base.AddToEngine(engine);
+
+            engine.RenderingEngine.AddNonBatched(gameObject);
+        }
+
+        public override void OnDestroyed(CoreEngine engine) {
+            base.OnDestroyed(engine);
+
+            engine.RenderingEngine.RemoveNonBatched(gameObject);
         }
     }
 }

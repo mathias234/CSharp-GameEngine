@@ -16,7 +16,7 @@ void main(){
 	
 	 vec4 cutout = texture(cutoutMask, uv);
 	
-	 if(cutout.r < 0.1) 
+	 if(cutout.r < 0.9) 
 	 discard;
 	
 	color = texture( diffuse, uv ) * particlecolor;

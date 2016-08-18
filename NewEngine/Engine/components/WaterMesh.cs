@@ -33,6 +33,11 @@ namespace NewEngine.Engine.components {
             _waterMesh = new Mesh(vertices, indices, true);
 
             _material = new Material(new Texture("dudvMap.png"), 3, 32, new Texture("matchingNormalMap.png"));
+
+            _material.SetTexture("reflectionTexture", new Texture(IntPtr.Zero, 960, 540, TextureMinFilter.Linear));
+            _material.SetTexture("refractionTexture", new Texture(IntPtr.Zero, 960, 540, TextureMinFilter.Linear));
+            _material.SetTexture("refractionTextureDepth", new Texture(IntPtr.Zero, 960, 540, TextureMinFilter.Linear, PixelInternalFormat.DepthComponent, PixelFormat.DepthComponent, false, FramebufferAttachment.DepthAttachment));
+
             _material.SetFloat("moveFactor", 0);
             _material.SetFloat("waveStrength", waveStrength);
             _material.SetFloat("refractivePower", refractivePower);
@@ -40,23 +45,44 @@ namespace NewEngine.Engine.components {
         }
 
         public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage) {
-            if (renderStage != "water")
+            if (shaderType.ToLower() != "base") {
                 return;
+            }
+            if (renderStage.ToLower() == "refract" || renderStage.ToLower() == "reflect") {
+                return;
+            }
 
-            Shader shaderToUse;
+            var distance = 2 * (renderingEngine.MainCamera.Transform.Position.Y - Transform.Position.Y);
 
-                shaderToUse = _baseShader;
+            renderingEngine.MainCamera.Transform.Position -= new Vector3(0, distance, 0);
+            renderingEngine.MainCamera.Transform.Rotation = renderingEngine.MainCamera.Transform.Rotation.InvertPitch();
 
-                GL.Enable(EnableCap.Blend);
-                GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            renderingEngine.SetVector4("clipPlane", new Vector4(0, 1, 0, -(Transform.Position.Y + 0.1f)));
+            renderingEngine.RenderObject(_material.GetTexture("reflectionTexture"), deltaTime, "reflect");
 
-                _material.SetFloat("moveFactor", _material.GetFloat("moveFactor") + _waveSpeed * deltaTime);
+            renderingEngine.MainCamera.Transform.Position += new Vector3(0, distance, 0);
+            renderingEngine.MainCamera.Transform.Rotation = renderingEngine.MainCamera.Transform.Rotation.InvertPitch(); ;
 
-                shaderToUse.Bind();
-                shaderToUse.UpdateUniforms(Parent.Transform, _material, renderingEngine);
-                _waterMesh.Draw();
+            renderingEngine.SetVector4("clipPlane", new Vector4(0, -1, 0, Transform.Position.Y + 0.1f));
+            renderingEngine.RenderObject(_material.GetTexture("refractionTexture"), deltaTime, "refract");
+            renderingEngine.RenderObject(_material.GetTexture("refractionTextureDepth"), deltaTime, "refract");
 
-                GL.Disable(EnableCap.Blend);
+            renderingEngine.SetVector4("clipPlane", new Vector4(0, 0, 0, 0));
+
+            _material.SetFloat("moveFactor", _material.GetFloat("moveFactor") + _waveSpeed * deltaTime);
+
+            _baseShader.Bind();
+            _baseShader.UpdateUniforms(gameObject.Transform, _material, renderingEngine);
+            _waterMesh.Draw();
+        }
+
+        public override void AddToEngine(CoreEngine engine) {
+            engine.RenderingEngine.AddNonBatched(gameObject);
+        }
+
+        public override void OnDestroyed(CoreEngine engine) {
+            // FIXME: probably not going to work
+            engine.RenderingEngine.RemoveNonBatched(gameObject);
         }
     }
 }
