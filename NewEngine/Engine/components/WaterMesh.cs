@@ -58,14 +58,14 @@ namespace NewEngine.Engine.components {
             renderingEngine.MainCamera.Transform.Rotation = renderingEngine.MainCamera.Transform.Rotation.InvertPitch();
 
             renderingEngine.SetVector4("clipPlane", new Vector4(0, 1, 0, -(Transform.Position.Y + 0.1f)));
-            renderingEngine.RenderObject(_material.GetTexture("reflectionTexture"), deltaTime, "reflect");
+            renderingEngine.RenderObject(_material.GetTexture("reflectionTexture"), deltaTime, "reflect", false);
 
             renderingEngine.MainCamera.Transform.Position += new Vector3(0, distance, 0);
             renderingEngine.MainCamera.Transform.Rotation = renderingEngine.MainCamera.Transform.Rotation.InvertPitch(); ;
 
             renderingEngine.SetVector4("clipPlane", new Vector4(0, -1, 0, Transform.Position.Y + 0.1f));
-            renderingEngine.RenderObject(_material.GetTexture("refractionTexture"), deltaTime, "refract");
-            renderingEngine.RenderObject(_material.GetTexture("refractionTextureDepth"), deltaTime, "refract");
+            renderingEngine.RenderObject(_material.GetTexture("refractionTexture"), deltaTime, "refract", false);
+            renderingEngine.RenderObject(_material.GetTexture("refractionTextureDepth"), deltaTime, "refract", false);
 
             renderingEngine.SetVector4("clipPlane", new Vector4(0, 0, 0, 0));
 

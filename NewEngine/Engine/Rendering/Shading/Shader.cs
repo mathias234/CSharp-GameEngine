@@ -146,6 +146,9 @@ namespace NewEngine.Engine.Rendering.Shading {
                     if (uniformType == "vec3") {
                         SetUniform(uniformName, material.GetVector3(uniformName));
                     }
+                    else if (uniformType == "vec4") {
+                        SetUniform(uniformName, material.GetVector4(uniformName));
+                    }
                     else if (uniformType == "float") {
                         SetUniform(uniformName, material.GetFloat(uniformName));
                     }

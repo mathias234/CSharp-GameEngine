@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using NewEngine.Engine.components;
+using NewEngine.Engine.components.UIComponents;
 using NewEngine.Engine.Core;
 using NewEngine.Engine.Rendering.ResourceManagament;
 using NewEngine.Engine.Rendering.Shading;
@@ -18,6 +19,7 @@ namespace NewEngine.Engine.Rendering {
         private Dictionary<string, int> _samplerMap;
         private Dictionary<Material, BatchMeshRenderer> _batches = new Dictionary<Material, BatchMeshRenderer>();
         private List<GameObject> _nonBatched = new List<GameObject>();
+        private List<UiComponent> _ui = new List<UiComponent>();
 
         private Mesh _skybox;
         private Material _skyboxMaterial;
@@ -122,7 +124,7 @@ namespace NewEngine.Engine.Rendering {
         public void RenderBatches(float deltaTime) {
             RenderShadowMap(deltaTime);
 
-            RenderObject(GetTexture("displayTexture"), deltaTime, "base");
+            RenderObject(GetTexture("displayTexture"), deltaTime, "base", true);
 
             DoPostProccess();
 
@@ -152,7 +154,7 @@ namespace NewEngine.Engine.Rendering {
 
         }
 
-        public void RenderObject(Texture mainRenderTarget, float deltaTime, string renderStage) {
+        public void RenderObject(Texture mainRenderTarget, float deltaTime, string renderStage, bool drawUI) {
             mainRenderTarget.BindAsRenderTarget();
 
             GL.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -199,6 +201,12 @@ namespace NewEngine.Engine.Rendering {
                     GL.DepthMask(true);
                     GL.DepthFunc(DepthFunction.Less);
                     GL.Disable(EnableCap.Blend);
+                }
+            }
+
+            if (drawUI) {
+                foreach (var uiComponent in _ui) {
+                    uiComponent.Render(null, "ui", deltaTime, this, "ui");
                 }
             }
 
@@ -370,6 +378,16 @@ namespace NewEngine.Engine.Rendering {
         public void RemoveNonBatched(GameObject gameObject) {
             if (_nonBatched.Contains(gameObject)) {
                 _nonBatched.Remove(gameObject);
+            }
+        }
+
+        public void AddUI(UiComponent uiComponent) {
+           _ui.Add(uiComponent);
+        }
+
+        public void RemoveUI(UiComponent uiComponent) {
+            if (_ui.Contains(uiComponent)) {
+                _ui.Remove(uiComponent);
             }
         }
 

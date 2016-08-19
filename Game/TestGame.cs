@@ -1,13 +1,15 @@
 ﻿using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using NewEngine.Engine.components;
-using NewEngine.Engine.components.UIComponents;
 using NewEngine.Engine.Core;
+using NewEngine.Engine.Physics;
 using NewEngine.Engine.Physics.PhysicsComponents;
 using NewEngine.Engine.Rendering;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
+using Image = NewEngine.Engine.components.UIComponents.Image;
 
 namespace Game {
     public class TestGame : NewEngine.Engine.Core.Game {
@@ -91,15 +93,10 @@ namespace Game {
             AddObject(water);
 
 
-            //var ui = new GameObject("UI");
-            //ui.AddComponent(new Image(new RectTransform(220, 220, 650, 340),
-            //    CoreEngine.GetCoreEngine.RenderingEngine.GetTexture("refractionTexture")));
+            var ui = new GameObject("UI");
+            ui.AddComponent(new Image(new RectTransform(220, 220, 650, 340), Color.FromArgb(32, 255, 0, 0), null));
 
-            //ui.AddComponent(new Image(new RectTransform(220, 220, -650, -340),
-            //    CoreEngine.GetCoreEngine.RenderingEngine.GetTexture("reflectionTexture")));
-
-
-            //AddObject(ui);
+            AddObject(ui);
 
             CoreEngine.GetCoreEngine.RenderingEngine.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg",
                 "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
@@ -123,14 +120,19 @@ namespace Game {
 
 
             if (Input.GetKeyDown(Key.R)) {
+
+                RayCastResult result;
+
+                PhysicsEngine.Raycast(new Ray(_camera.Transform.Position, -Vector3.UnitY), 10000, out result);
+
                 var branch = new GameObject("branch") {
-                    Transform = { Position = new Vector3(_camera.Transform.Position.X, 25, _camera.Transform.Position.Z)  }
+                    Transform = { Position = new Vector3(_camera.Transform.Position.X, result.HitData.Location.Y, _camera.Transform.Position.Z)  }
                 };
                 branch.AddComponent(new MeshRenderer(treeBranch, mat));
                 AddObject(branch);
 
                 var leaf = new GameObject("leaf") {
-                    Transform = { Position = new Vector3(_camera.Transform.Position.X, 25, _camera.Transform.Position.Z) }
+                    Transform = { Position = new Vector3(_camera.Transform.Position.X, result.HitData.Location.Y, _camera.Transform.Position.Z) }
                 };
                 leaf.AddComponent(new MeshRenderer(treeLeaf, mat));
                 AddObject(leaf);

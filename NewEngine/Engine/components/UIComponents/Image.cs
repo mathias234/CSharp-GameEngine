@@ -1,4 +1,5 @@
-﻿using NewEngine.Engine.Core;
+﻿using System.Drawing;
+using NewEngine.Engine.Core;
 using NewEngine.Engine.Rendering;
 using NewEngine.Engine.Rendering.Shading;
 using OpenTK;
@@ -10,18 +11,29 @@ namespace NewEngine.Engine.components.UIComponents {
         private Mesh _mesh;
         private RectTransform _rectTransform;
         private Shader _imageShader;
+        private Texture _defaultTexture;
 
-        public Image(RectTransform rect, Texture texture) {
+        public Image(RectTransform rect, Color color, Texture texture) {
+            _defaultTexture = new Texture("default_mask.png");
             _rectTransform = rect;
-            _material = new Material(texture);
+
+            if(texture == null)
+                _material = new Material(_defaultTexture);
+            else
+                _material = new Material(texture);
+
+            _material.SetVector4("color", new Vector4((float)color.R/256, (float)color.G / 256, (float)color.B / 256, (float)color.A / 256));
+
             _imageShader = new Shader("UI/UIImage");
 
             UpdateMesh();
         }
 
 
-        public new Transform Transform {
-            set {
+        public new Transform Transform
+        {
+            set
+            {
                 gameObject.Transform = value;
                 UpdateMesh();
             }
@@ -33,8 +45,7 @@ namespace NewEngine.Engine.components.UIComponents {
         }
 
         public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage) {
-            if (renderStage == "Refract" || renderStage == "Reflect")
-                return;
+
             if (renderStage == "ui") {
 
                 gameObject.Transform = _rectTransform;
@@ -57,10 +68,10 @@ namespace NewEngine.Engine.components.UIComponents {
 
         private void UpdateMesh() {
             var texCoordY = 1.0f -
-                            1/Biggest(_rectTransform.Size.X, _rectTransform.Size.Y)*
+                            1 / Biggest(_rectTransform.Size.X, _rectTransform.Size.Y) *
                             (Biggest(_rectTransform.Size.X, _rectTransform.Size.Y) - _rectTransform.Size.Y);
             var texCoordX = 1.0f -
-                            1/Biggest(_rectTransform.Size.X, _rectTransform.Size.Y)*
+                            1 / Biggest(_rectTransform.Size.X, _rectTransform.Size.Y) *
                             (Biggest(_rectTransform.Size.X, _rectTransform.Size.Y) - _rectTransform.Size.X);
 
             // the Texture coords work, but they might be changed to look better? idk all this flipping and stuff seems wrong TODO: Fixme
@@ -80,25 +91,29 @@ namespace NewEngine.Engine.components.UIComponents {
         }
 
         private void Begin2D() {
-            GL.Viewport(0, 0, (int) CoreEngine.GetWidth(), (int) CoreEngine.GetHeight());
+            GL.Viewport(0, 0, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight());
             GL.Disable(EnableCap.Lighting);
             GL.Disable(EnableCap.CullFace);
-            GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.OneMinusSrcAlpha);
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
         }
 
         private void End2D() {
             GL.Enable(EnableCap.Lighting);
             GL.Enable(EnableCap.CullFace);
+            GL.Disable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.One);
         }
 
 
         public override void AddToEngine(CoreEngine engine) {
             base.AddToEngine(engine);
+            engine.RenderingEngine.AddUI(this);
         }
 
         public override void OnDestroyed(CoreEngine engine) {
             base.OnDestroyed(engine);
+            engine.RenderingEngine.RemoveUI(this);
         }
     }
 }

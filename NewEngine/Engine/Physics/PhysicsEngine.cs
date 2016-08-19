@@ -50,7 +50,8 @@ namespace NewEngine.Engine.Physics {
                 T = tempResult.HitData.T
             };
 
-            var hitObject = GetOwner((ISpaceObject)tempResult.HitObject, CoreEngine.GetCoreEngine.Game.GetRootObject);
+            GameObject hitObject = null;// GetOwner((ISpaceObject)tempResult.HitObject, CoreEngine.GetCoreEngine.Game.GetRootObject);
+
 
             result = new RayCastResult(hit, hitObject);
         }
