@@ -12,6 +12,4 @@ void main()
 	
 	fragColor = texture(diffuse, texCoords) * lightingAmt;
 	
-	// use this for testing shadow map	
-	//fragColor = vec4(1,1,1,1) * CalcShadowAmount(R_shadowMap, shadowMapCoords0);
 }

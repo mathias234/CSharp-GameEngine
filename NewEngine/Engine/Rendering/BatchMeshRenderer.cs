@@ -37,22 +37,6 @@ namespace NewEngine.Engine.Rendering {
         }
 
         public void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage) {
-            Shader shaderToUse;
-
-            if (shaderType == "base") {
-                shaderToUse = _baseShader;
-            }
-            else if (shaderType != "light" && shaderType != "shadowMap") {
-                return;
-            }
-            else if (_loadedShaders.ContainsKey(shader)) {
-                shaderToUse = _loadedShaders[shader];
-            }
-            else {
-                shaderToUse = new Shader("batching/forward-batched-" + shader);
-                _loadedShaders.Add(shader, shaderToUse);
-            }
-
             // with alot of objects this will put a strain on the garbage collector, maybe find a fix
             for (int j = 0; j < _meshGameObjects.Count; j++) {
                 _matrices = new Matrix4[_meshGameObjects.ElementAt(j).Value.Count];
@@ -64,8 +48,8 @@ namespace NewEngine.Engine.Rendering {
                 _meshGameObjects.ElementAt(j).Key.BindBatch(_matrices, _meshGameObjects.ElementAt(j).Value.Count);
             }
 
-            shaderToUse.Bind();
-            shaderToUse.UpdateUniforms(_meshGameObjects.ElementAt(0).Value[0].Transform, _material, renderingEngine);
+            _material.Shader.Bind(shaderType);
+            _material.Shader.UpdateUniforms(_meshGameObjects.ElementAt(0).Value[0].Transform, _material, renderingEngine, shaderType);
 
             foreach (var mesh in _meshGameObjects) {
                 mesh.Key.DrawInstanced(mesh.Value.Count);

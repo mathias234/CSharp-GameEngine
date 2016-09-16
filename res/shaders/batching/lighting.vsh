@@ -18,7 +18,7 @@ uniform vec4 R_clipPlane;
 
 void main()
 {
-    gl_Position = T_VP * model * vec4(position, 1.0);
+    gl_Position = (T_VP * model) * vec4(position, 1.0);
 
     texCoord0 = texCoord;
 	shadowMapCoords0 = R_lightMatrix * vec4(position, 1.0);

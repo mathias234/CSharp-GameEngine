@@ -32,7 +32,11 @@ namespace NewEngine.Engine.components {
 
             _waterMesh = new Mesh(vertices, indices, true);
 
-            _material = new Material(new Texture("dudvMap.png"), 3, 32, new Texture("matchingNormalMap.png"));
+            _material = new Material(new Shader("water/baseWater"));
+            _material.SetMainTexture(new Texture("dudvMap.png"));
+            _material.SetFloat("specularIntensity", 3);
+            _material.SetFloat("specularPower", 32);
+            _material.SetTexture("normalMap", new Texture("matchingNormalMap.png"));
 
             _material.SetTexture("reflectionTexture", new Texture(IntPtr.Zero, 960, 540, TextureMinFilter.Linear));
             _material.SetTexture("refractionTexture", new Texture(IntPtr.Zero, 960, 540, TextureMinFilter.Linear));
@@ -72,7 +76,7 @@ namespace NewEngine.Engine.components {
             _material.SetFloat("moveFactor", _material.GetFloat("moveFactor") + _waveSpeed * deltaTime);
 
             _baseShader.Bind();
-            _baseShader.UpdateUniforms(gameObject.Transform, _material, renderingEngine);
+            _baseShader.UpdateUniforms(gameObject.Transform, _material, renderingEngine, renderStage);
             _waterMesh.Draw();
         }
 

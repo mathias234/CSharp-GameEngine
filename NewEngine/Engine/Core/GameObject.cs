@@ -9,6 +9,7 @@ namespace NewEngine.Engine.Core {
         private List<GameComponent> _components;
         private CoreEngine _engine;
         private GameObject _parent;
+        public bool IsActive; // TODO: ludumdare hack
 
         public GameObject(string name) {
             _children = new List<GameObject>();
@@ -16,6 +17,7 @@ namespace NewEngine.Engine.Core {
             Transform = new Transform();
             Transform.Name = name;
             Name = name;
+            IsActive = true;
             Engine = null;
         }
 

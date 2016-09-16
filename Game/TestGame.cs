@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using NewEngine.Engine.components;
 using NewEngine.Engine.Core;
 using NewEngine.Engine.Physics;
 using NewEngine.Engine.Physics.PhysicsComponents;
 using NewEngine.Engine.Rendering;
+using NewEngine.Engine.Rendering.Shading;
 using OpenTK;
-using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 using Image = NewEngine.Engine.components.UIComponents.Image;
 
@@ -21,10 +20,12 @@ namespace Game {
         public override void Start() {
             CreateCamera();
 
+            RenderingEngine.AmbientLight = new Vector3(0.3f);
+
             _directionalLightObj = new GameObject("Directinal Light");
             var directionalLight = new DirectionalLight(new Vector3(1), 0.5f, 10, 140, 0.9f);
             _directionalLightObj.AddComponent(directionalLight);
-            _directionalLightObj.Transform.Rotation *= Quaternion.FromAxisAngle(new Vector3(1, 0, 0), (float)MathHelper.DegreesToRadians(-40));
+            _directionalLightObj.Transform.Rotation *= Quaternion.FromAxisAngle(new Vector3(1, 0, 0), (float)MathHelper.DegreesToRadians(-80));
 
             var spotLightObj = new GameObject("Spot Light");
             var spotLight = new SpotLight(new Vector3(1, 1, 0), 0.7f, new Attenuation(0, 0, 0.2f), MathHelper.DegreesToRadians(70), 9, 0.5f, 0.6f);
@@ -56,10 +57,24 @@ namespace Game {
             var cubeMesh = new Mesh("plane.obj");
             var planeMesh = new Mesh("plane.obj");
 
-            var mainMaterial = new Material(new Texture("bricks.png"), 0.5f, 32f, new Texture("bricks_nrm.png"), new Texture("bricks_disp.jpg"), 0.01f);
-            var rockMaterial = new Material(new Texture("rock.jpg"), 0.5f, 32f, new Texture("rock_nrm.jpg"), new Texture("rock_disp.jpg"), 0.1f);
+            mainMaterial = new Material(new Shader("forwardShader.shader"));
 
-            plane.AddComponent(new MeshRenderer(planeMesh, rockMaterial));
+            mainMaterial.SetTexture("diffuse", new Texture("bricks.png"));
+
+            mainMaterial.SetTexture("normalMap", new Texture("bricks_nrm.png"));
+
+            mainMaterial.SetTexture("dispMap", new Texture("bricks_disp.jpg"));
+
+            mainMaterial.SetFloat("dispMapScale", 0.01f);
+
+            var baseBias = mainMaterial.GetFloat("dispMapScale") / 2.0f;
+
+            mainMaterial.SetFloat("dispMapBias", -baseBias + baseBias * 0);
+
+            mainMaterial.SetFloat("specularIntensity", 0.5f);
+            mainMaterial.SetFloat("specularPower", 32);
+
+
             plane.AddComponent(new BoxCollider(300, 0.1f, 300, 0));
             cube.AddComponent(new MeshRenderer(cubeMesh, mainMaterial));
             cube.AddComponent(new BoxCollider(1, 1, 1, 0));
@@ -88,19 +103,12 @@ namespace Game {
 
             water.Transform.Position = new Vector3(0, 15, 0);
 
-
             AddObject(terrain);
             AddObject(water);
 
-
-            var ui = new GameObject("UI");
-            ui.AddComponent(new Image(new RectTransform(220, 220, 650, 340), Color.FromArgb(32, 255, 0, 0), null));
-
-            AddObject(ui);
-
             CoreEngine.GetCoreEngine.RenderingEngine.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg",
                 "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
-            mat = new Material(new Texture("test.png"));
+
             mesh = new Mesh("sphere.obj");
             treeBranch = new Mesh("tree/branch.obj");
             treeLeaf = new Mesh("tree/leaf.obj");
@@ -115,7 +123,7 @@ namespace Game {
             var flameColor = new Vector3(0, 1.0f, 1.0f);
 
             if (Input.GetKeyDown(Key.E)) {
-                StartMassiveSpawn();
+               StartMassiveSpawn();
             }
 
 
@@ -128,13 +136,13 @@ namespace Game {
                 var branch = new GameObject("branch") {
                     Transform = { Position = new Vector3(_camera.Transform.Position.X, result.HitData.Location.Y, _camera.Transform.Position.Z)  }
                 };
-                branch.AddComponent(new MeshRenderer(treeBranch, mat));
+                branch.AddComponent(new MeshRenderer(treeBranch, mainMaterial));
                 AddObject(branch);
 
                 var leaf = new GameObject("leaf") {
                     Transform = { Position = new Vector3(_camera.Transform.Position.X, result.HitData.Location.Y, _camera.Transform.Position.Z) }
                 };
-                leaf.AddComponent(new MeshRenderer(treeLeaf, mat));
+                leaf.AddComponent(new MeshRenderer(treeLeaf, mainMaterial));
                 AddObject(leaf);
 
                 _spawnedObjects.Add(branch);
@@ -157,7 +165,7 @@ namespace Game {
             }
         }
 
-        private Material mat;
+        private Material mainMaterial;
         private Mesh mesh;
         private GameObject cube;
         private Mesh treeBranch;
@@ -169,8 +177,8 @@ namespace Game {
                     var gObj = new GameObject("sphere: " + x + ":" + z) {
                         Transform = { Position = _camera.Transform.Position + new Vector3(5 * x, 0, 5 * z) }
                     };
-                    gObj.AddComponent(new MeshRenderer(mesh, mat));
-                    gObj.AddComponent(new SphereCollider(2, 1));
+                    gObj.AddComponent(new MeshRenderer(mesh, mainMaterial));
+                    //gObj.AddComponent(new SphereCollider(2, 1));
                     AddObject(gObj);
                     _spawnedObjects.Add(gObj);
                 }
@@ -179,11 +187,12 @@ namespace Game {
 
         public void CreateCamera() {
             _camera = new GameObject("main camera")
-                .AddComponent(new FreeLook())
+                .AddComponent(new FreeLook(true, true))
                 .AddComponent(new FreeMove())
                 .AddComponent(new Camera(Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f), CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000)));
 
-            _camera.Transform.Position = new Vector3(0, 4, 5);
+            _camera.Transform.Position = new Vector3(50, 50, 190);
+            _camera.Transform.Rotate(new Vector3(1, 0, 0), -0.4f );
 
             AddObject(_camera);
         }

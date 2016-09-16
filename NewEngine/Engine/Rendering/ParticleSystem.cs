@@ -41,8 +41,6 @@ namespace NewEngine.Engine.Rendering {
         private static float[] _particulePostitionSizeData;
         private static float[] _particuleColorData;
 
-        private Shader _particleShader;
-
         private int _lastUsedParticle = 0;
         private int _newParticlesEachFrame;
         private Material _material;
@@ -66,13 +64,12 @@ namespace NewEngine.Engine.Rendering {
             _overwriteOldParticles = overwriteOldParticles;
             _fadeOut = fadeOut;
 
-            _particleShader = new Shader("particles");
-
             GL.GenBuffers(1, out _billboardVertexBuffer);
             GL.GenBuffers(1, out _particlesPositionBuffer);
             GL.GenBuffers(1, out _particlesColorBuffer);
 
-            _material = new Material(new Texture("test2.png"));
+            _material = new Material(new Shader("particles"));
+            _material.SetMainTexture(new Texture("test2.png"));
             _material.SetTexture("cutoutMask", new Texture("test2_cutout.png"));
 
             Initialize();
@@ -221,13 +218,13 @@ namespace NewEngine.Engine.Rendering {
                 GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             }
 
-            _particleShader.Bind();
+            _material.Shader.Bind();
 
 
             _material.SetVector3("CameraRight_worldspace", -renderingEngine.MainCamera.Transform.Right);
             _material.SetVector3("CameraUp_worldspace", renderingEngine.MainCamera.Transform.Up);
 
-            _particleShader.UpdateUniforms(Transform, _material, renderingEngine);
+            _material.Shader.UpdateUniforms(Transform, _material, renderingEngine, renderStage);
 
             GL.EnableVertexAttribArray(0);
             GL.BindBuffer(BufferTarget.ArrayBuffer, _billboardVertexBuffer);
