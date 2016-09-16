@@ -57,7 +57,7 @@ namespace Game {
             var cubeMesh = new Mesh("plane.obj");
             var planeMesh = new Mesh("plane.obj");
 
-            mainMaterial = new Material(new Shader("forwardShader.shader"));
+            mainMaterial = new Material(new Shader("batching/forwardBatchingShader.shader"));
 
             mainMaterial.SetTexture("diffuse", new Texture("bricks.png"));
 

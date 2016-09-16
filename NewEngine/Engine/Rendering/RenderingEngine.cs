@@ -190,7 +190,7 @@ namespace NewEngine.Engine.Rendering {
             }
 
             foreach (var nonBatched in _nonBatched) {
-                nonBatched.RenderAll(null, "base", deltaTime, this, renderStage);
+                nonBatched.RenderAll(null, "ambient", deltaTime, this, renderStage);
 
                 foreach (var light in _lights) {
                     ActiveLight = light;
@@ -202,7 +202,7 @@ namespace NewEngine.Engine.Rendering {
                     if (light.ShadowInfo != null)
                         SetTexture("shadowMap", light.ShadowInfo.ShadowMap);
 
-                    nonBatched.RenderAll(light.GetType().Name, "light", deltaTime, this, renderStage);
+                    nonBatched.RenderAll(light.GetType().Name, light.GetType().Name, deltaTime, this, renderStage);
 
                     GL.DepthMask(true);
                     GL.DepthFunc(DepthFunction.Less);

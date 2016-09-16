@@ -17,8 +17,6 @@ namespace NewEngine.Engine.Rendering {
         private Dictionary<Mesh, List<GameObject>> _meshGameObjects = new Dictionary<Mesh, List<GameObject>>();
         private Dictionary<string, Shader> _loadedShaders = new Dictionary<string, Shader>();
 
-        private Shader _baseShader;
-
         private Matrix4[] _matrices;
 
 
@@ -26,8 +24,6 @@ namespace NewEngine.Engine.Rendering {
             _material = material;
 
             _meshGameObjects.Add(meshes, new[] { gameObjects }.ToList());
-
-            _baseShader = new Shader("batching/forward-batched-ambient");
 
             Initialize();
         }
@@ -37,6 +33,9 @@ namespace NewEngine.Engine.Rendering {
         }
 
         public void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage) {
+            if(!_material.Shader.GetShaderTypes.Contains(shaderType))
+                return;
+
             // with alot of objects this will put a strain on the garbage collector, maybe find a fix
             for (int j = 0; j < _meshGameObjects.Count; j++) {
                 _matrices = new Matrix4[_meshGameObjects.ElementAt(j).Value.Count];

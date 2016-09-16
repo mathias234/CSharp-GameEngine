@@ -27,8 +27,6 @@ namespace NewEngine.Engine.Rendering.Shading {
                 return;
             }
 
-
-
             if (_loadedShaders.ContainsKey(filename)) {
                 _resource = _loadedShaders[filename];
                 _resource.AddReference();
@@ -43,6 +41,18 @@ namespace NewEngine.Engine.Rendering.Shading {
             LogManager.Debug("removing shader : " + _filename);
             if (_resource.RemoveReference() && _filename != null) {
                 _loadedShaders.Remove(_filename);
+            }
+        }
+
+        // TODO: probably should cache this
+        public List<string> GetShaderTypes {
+            get {
+                var shaderTypes = new List<string>();
+                foreach (var shaderResource in _shaderMap[_filename]) {
+                    shaderTypes.Add(shaderResource.Key);       
+                }
+
+                return shaderTypes;
             }
         }
 
@@ -95,7 +105,6 @@ namespace NewEngine.Engine.Rendering.Shading {
             }
 
             ShaderResource resource = GetResourceFromPass(pass);
-
 
             var modelMatrix = transform.GetTransformation();
 
@@ -216,7 +225,6 @@ namespace NewEngine.Engine.Rendering.Shading {
             else if (_shaderMap[_filename].ContainsKey(pass))
                 resource = _shaderMap[_filename][pass];
             else {
-                LogManager.Debug("could not find the pass " + pass + " in shader" + _filename);
                 return null;
             }
 

@@ -11,9 +11,6 @@ using OpenTK;
 
 namespace NewEngine.Engine.components {
     public class TerrainMesh : GameComponent {
-        private Dictionary<string, Shader> _loadedShaders = new Dictionary<string, Shader>();
-        private Shader _baseShader;
-
         private float _dispOffset;
         private float _dispScale;
         private int _height;
@@ -64,8 +61,6 @@ namespace NewEngine.Engine.components {
             _tex3 = new Texture(tex3);
             _tex3Nrm = new Texture(tex3Nrm);
             _layer2 = new Texture(layer2);
-
-            _baseShader = new Shader("terrain/baseTerrain");
 
             var image = new Bitmap(Path.Combine("./res/textures", heightmapTextureFilename));
 
@@ -127,7 +122,7 @@ namespace NewEngine.Engine.components {
             // using physics slows down the game once the physics interaction starts by a lot because a terrain has alot of vertices this is only temporary, a mesh will be split up into chunks for better prefomance later
             PhysicsEngine.AddToPhysicsEngine(new StaticMesh(vertsVec3, tris.ToArray()));
 
-            _material = new Material(new Shader("terrain/baseTerrain"));
+            _material = new Material(new Shader("terrain/terrain.shader"));
             _material.SetMainTexture(_tex1);
             _material.SetFloat("specularIntensity", _specularIntensity);
             _material.SetFloat("specularPower", _specularPower);
@@ -146,25 +141,11 @@ namespace NewEngine.Engine.components {
         }
 
         public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage) {
-            Shader shaderToUse;
-
-            if (shaderType == "base") {
-                shaderToUse = _baseShader;
-            }
-            else if (shaderType != "light" && shaderType != "shadowMap") {
+            if (!_material.Shader.GetShaderTypes.Contains(shaderType))
                 return;
-            }
-            else if (_loadedShaders.ContainsKey(shader)) {
-                shaderToUse = _loadedShaders[shader];
-            }
-            else {
-                shaderToUse = new Shader("terrain/terrain-" + shader);
-                _loadedShaders.Add(shader, shaderToUse);
-            }
 
-
-            shaderToUse.Bind();
-            shaderToUse.UpdateUniforms(Transform, _material, renderingEngine, renderStage);
+            _material.Shader.Bind(shaderType);
+            _material.Shader.UpdateUniforms(Transform, _material, renderingEngine, shaderType);
             _mesh.Draw();
         }
 
