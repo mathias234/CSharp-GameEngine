@@ -17,39 +17,39 @@ namespace NewEngine.Engine.Rendering.Shading {
         private Dictionary<string, Dictionary<string, ShaderResource>> _shaderMap = new Dictionary<string, Dictionary<string, ShaderResource>>();
         private string _filename;
 
-        private ShaderResource _resource;
-
         public Shader(string filename) {
             _filename = filename;
-            if (filename.EndsWith(".shader")) {
+
+           var shaderPath = Path.Combine("./res/shaders", filename);
+
+
+            if (File.Exists(shaderPath)) {
                 // Load shader pack
+
                 LoadShaderPackage(filename);
-                return;
-            }
-
-            if (_loadedShaders.ContainsKey(filename)) {
-                _resource = _loadedShaders[filename];
-                _resource.AddReference();
-            }
-            else {
-                _resource = new ShaderResource(filename);
-                _loadedShaders.Add(filename, _resource);
             }
         }
 
+        // TODO: fix this
         ~Shader() {
-            LogManager.Debug("removing shader : " + _filename);
-            if (_resource.RemoveReference() && _filename != null) {
-                _loadedShaders.Remove(_filename);
-            }
+            //LogManager.Debug("removing shader : " + _filename);
+            //if (_resource.RemoveReference() && _filename != null) {
+            //    _loadedShaders.Remove(_filename);
+            //}
         }
 
-        // TODO: probably should cache this
-        public List<string> GetShaderTypes {
-            get {
-                var shaderTypes = new List<string>();
-                foreach (var shaderResource in _shaderMap[_filename]) {
-                    shaderTypes.Add(shaderResource.Key);       
+        private List<string> shaderTypes;
+
+
+        public List<string> GetShaderTypes
+        {
+            get
+            {
+                if (shaderTypes == null) {
+                    shaderTypes = new List<string>();
+                    foreach (var shaderResource in _shaderMap[_filename]) {
+                        shaderTypes.Add(shaderResource.Key);
+                    }
                 }
 
                 return shaderTypes;
@@ -57,14 +57,10 @@ namespace NewEngine.Engine.Rendering.Shading {
         }
 
         public void Bind(string pass = "") {
-            // TODO: strip out old shader code
-            if (pass == "") {
-                GL.UseProgram(_resource.Program);
-            }
-            else if (_shaderMap[_filename].ContainsKey(pass))
+            if (_shaderMap[_filename].ContainsKey(pass))
                 GL.UseProgram(_shaderMap[_filename][pass].Program);
             else {
-                LogManager.Debug("could not find the pass " + pass + " in shader" + _filename );
+                LogManager.Debug("could not find the pass " + pass + " in shader" + _filename);
             }
         }
 
@@ -82,13 +78,22 @@ namespace NewEngine.Engine.Rendering.Shading {
                     var shaderType = lineTokens[1];
                     var shaderName = lineTokens[2];
 
+                    ShaderResource resource;
+
+                    if (_loadedShaders.ContainsKey(shaderName)) {
+                        resource = _loadedShaders[shaderName];
+                    }
+                    else {
+                        resource = new ShaderResource(shaderName);
+                        _loadedShaders.Add(shaderName, resource);
+                    }
 
                     if (_shaderMap.ContainsKey(filename)) {
-                        _shaderMap[filename].Add(shaderType, new ShaderResource(shaderName));
+                        _shaderMap[filename].Add(shaderType, resource);
                     }
                     else {
                         var tempMap = new Dictionary<string, ShaderResource>();
-                        tempMap.Add(shaderType, new ShaderResource(shaderName));
+                        tempMap.Add(shaderType, resource);
                         _shaderMap.Add(filename, tempMap);
                     }
                 }
@@ -218,11 +223,7 @@ namespace NewEngine.Engine.Rendering.Shading {
         private ShaderResource GetResourceFromPass(string pass) {
             ShaderResource resource;
 
-            // TODO: strip out old shader code
-            if (_resource != null) {
-                resource = _resource;
-            }
-            else if (_shaderMap[_filename].ContainsKey(pass))
+            if (_shaderMap[_filename].ContainsKey(pass))
                 resource = _shaderMap[_filename][pass];
             else {
                 return null;

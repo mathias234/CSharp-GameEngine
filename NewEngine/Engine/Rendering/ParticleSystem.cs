@@ -68,7 +68,7 @@ namespace NewEngine.Engine.Rendering {
             GL.GenBuffers(1, out _particlesPositionBuffer);
             GL.GenBuffers(1, out _particlesColorBuffer);
 
-            _material = new Material(new Shader("particles"));
+            _material = new Material(new Shader("particles.shader"));
             _material.SetMainTexture(new Texture("test2.png"));
             _material.SetTexture("cutoutMask", new Texture("test2_cutout.png"));
 
@@ -103,9 +103,9 @@ namespace NewEngine.Engine.Rendering {
         }
 
         public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage) {
-            if (shaderType.ToLower() != "base") {
+            if (!_material.Shader.GetShaderTypes.Contains(shaderType))
                 return;
-            }
+
             if (renderStage.ToLower() == "refract" || renderStage.ToLower() == "reflect") {
                 return;
             }
@@ -218,7 +218,7 @@ namespace NewEngine.Engine.Rendering {
                 GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             }
 
-            _material.Shader.Bind();
+            _material.Shader.Bind(renderStage);
 
 
             _material.SetVector3("CameraRight_worldspace", -renderingEngine.MainCamera.Transform.Right);

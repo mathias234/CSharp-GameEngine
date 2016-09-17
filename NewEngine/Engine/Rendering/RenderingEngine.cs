@@ -24,11 +24,7 @@ namespace NewEngine.Engine.Rendering {
         private Mesh _skybox;
         private Material _skyboxMaterial;
         private Shader _skyboxShader;
-        private Shader _nullFilter;
-        private Shader _gausFilter;
-        private Shader _fxaaFilter;
-        private Shader _brightFilter;
-        private Shader _combineFilter;
+        private Shader _filterShader;
 
         private Mesh _plane;
         private Transform _planeTransform;
@@ -74,12 +70,8 @@ namespace NewEngine.Engine.Rendering {
             SetTexture("tempFilter2", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
 
 
-            _skyboxShader = new Shader("skybox");
-            _nullFilter = new Shader("filters/filter-null");
-            _gausFilter = new Shader("filters/filter-gausBlur7x1");
-            _fxaaFilter = new Shader("filters/filter-fxaa");
-            _brightFilter = new Shader("filters/filter-bright");
-            _combineFilter = new Shader("filters/filter-combine");
+            _skyboxShader = new Shader("skybox.shader");
+            _filterShader = new Shader("filters/filters.shader");
 
             GL.ClearColor(0, 0, 0, 0);
 
@@ -102,7 +94,7 @@ namespace NewEngine.Engine.Rendering {
             _tempTarget = new Texture(null, width, height, TextureMinFilter.Nearest);
 
             _plane = PrimitiveObjects.CreatePlane;
-            _planeMaterial = new Material(new Shader("forward-ambient"));
+            _planeMaterial = new Material(new Shader("forwardShader.shader"));
             _planeMaterial.SetMainTexture(_tempTarget);
             _planeMaterial.SetFloat("specularIntensity", 1);
             _planeMaterial.SetFloat("specularPower", 8);
@@ -146,7 +138,7 @@ namespace NewEngine.Engine.Rendering {
         private void DoPostProccess() {
             SetVector3("inverseFilterTextureSize", new Vector3(1.0f / GetTexture("displayTexture").Width, 1.0f / GetTexture("displayTexture").Height, 0.0f));
 
-            ApplyFilter(_brightFilter, GetTexture("displayTexture"), GetTexture("tempFilter2"));
+            ApplyFilter("bright", GetTexture("displayTexture"), GetTexture("tempFilter2"));
 
             BlurTexture(GetTexture("tempFilter2"), 10, Vector2.UnitY);
             BlurTexture(GetTexture("tempFilter2"), 10, Vector2.UnitX);
@@ -154,9 +146,9 @@ namespace NewEngine.Engine.Rendering {
             BlurTexture(GetTexture("tempFilter2"), 10, Vector2.UnitY);
             BlurTexture(GetTexture("tempFilter2"), 10, Vector2.UnitX);
 
-            ApplyFilter(_combineFilter, GetTexture("tempFilter2"), GetTexture("tempFilter"));
+            ApplyFilter("combine", GetTexture("tempFilter2"), GetTexture("tempFilter"));
 
-            ApplyFilter(_fxaaFilter, GetTexture("tempFilter"), null);
+            ApplyFilter("fxaa", GetTexture("tempFilter"), null);
             //ApplyFilter(_nullFilter, GetTexture("displayTexture"), GetTexture("ui"));
             // ApplyFilter(_fxaaFilter, _lights[1].ShadowInfo.ShadowMap, null);
         }
@@ -274,8 +266,8 @@ namespace NewEngine.Engine.Rendering {
 
         private void RenderSkybox() {
             GL.DepthMask(false);
-            _skyboxShader.Bind();
-            _skyboxShader.UpdateUniforms(MainCamera.Transform, _skyboxMaterial, this, "");
+            _skyboxShader.Bind("skybox");
+            _skyboxShader.UpdateUniforms(MainCamera.Transform, _skyboxMaterial, this, "skybox");
             _skybox.Draw();
             GL.DepthMask(true);
         }
@@ -292,10 +284,10 @@ namespace NewEngine.Engine.Rendering {
             var tempTarget = light.ShadowInfo.TempShadowMap;
 
             SetVector3("blurScale", new Vector3(blurAmount / shadowMap.Width, 0.0f, 0.0f));
-            ApplyFilter(_gausFilter, shadowMap, tempTarget);
+            ApplyFilter("gausBlur7x1", shadowMap, tempTarget);
 
             SetVector3("blurScale", new Vector3(0.0f, blurAmount / shadowMap.Height, 0.0f));
-            ApplyFilter(_gausFilter, tempTarget, shadowMap);
+            ApplyFilter("gausBlur7x1", tempTarget, shadowMap);
         }
 
         public void BlurTexture(Texture texture, float blurAmount, Vector2 axis) {
@@ -310,15 +302,15 @@ namespace NewEngine.Engine.Rendering {
                 SetVector3("blurScale", new Vector3(0.0f, blurAmount / texture.Height, 0.0f));
             }
 
-            ApplyFilter(_gausFilter, texture, GetTexture("tempFilter"));
+            ApplyFilter("gausBlur7x1", texture, GetTexture("tempFilter"));
 
             // put the blured texture back into the original texture
-            ApplyFilter(_nullFilter, GetTexture("tempFilter"), texture);
+            ApplyFilter("nullFilter", GetTexture("tempFilter"), texture);
 
             SetTexture("tempFilter", temp);
         }
 
-        public void ApplyFilter(Shader filter, Texture source, Texture dest) {
+        public void ApplyFilter(string filter, Texture source, Texture dest) {
             if (source == dest) LogManager.Error("ApplyFilter: source texture cannot be the same as dest texture!");
             if (dest == null)
                 CoreEngine.BindAsRenderTarget();
@@ -337,8 +329,8 @@ namespace NewEngine.Engine.Rendering {
             GL.ClearColor(0, 0, 0.5f, 1.0f);
             GL.Clear(ClearBufferMask.DepthBufferBit);
 
-            filter.Bind();
-            filter.UpdateUniforms(_planeTransform, _planeMaterial, this, "");
+            _filterShader.Bind(filter);
+            _filterShader.UpdateUniforms(_planeTransform, _planeMaterial, this, filter);
             _plane.Draw();
 
             MainCamera = temp;

@@ -17,6 +17,12 @@ namespace Game {
 
         private List<GameObject> _spawnedObjects = new List<GameObject>();
 
+        private Material _mainMaterial;
+        private Mesh _mesh;
+        private GameObject _cube;
+        private Mesh _treeBranch;
+        private Mesh _treeLeaf;
+
         public override void Start() {
             CreateCamera();
 
@@ -52,43 +58,43 @@ namespace Game {
             AddObject(particleObj);
 
             var plane = new GameObject("plane");
-            cube = new GameObject("cubebase");
+            _cube = new GameObject("cubebase");
 
             var cubeMesh = new Mesh("plane.obj");
             var planeMesh = new Mesh("plane.obj");
 
-            mainMaterial = new Material(new Shader("batching/forwardBatchingShader.shader"));
+            _mainMaterial = new Material(new Shader("batchedShader.shader"));
 
-            mainMaterial.SetTexture("diffuse", new Texture("bricks.png"));
+            _mainMaterial.SetTexture("diffuse", new Texture("bricks.png"));
 
-            mainMaterial.SetTexture("normalMap", new Texture("bricks_nrm.png"));
+            _mainMaterial.SetTexture("normalMap", new Texture("bricks_nrm.png"));
 
-            mainMaterial.SetTexture("dispMap", new Texture("bricks_disp.jpg"));
+            _mainMaterial.SetTexture("dispMap", new Texture("bricks_disp.jpg"));
 
-            mainMaterial.SetFloat("dispMapScale", 0.01f);
+            _mainMaterial.SetFloat("dispMapScale", 0.01f);
 
-            var baseBias = mainMaterial.GetFloat("dispMapScale") / 2.0f;
+            var baseBias = _mainMaterial.GetFloat("dispMapScale") / 2.0f;
 
-            mainMaterial.SetFloat("dispMapBias", -baseBias + baseBias * 0);
+            _mainMaterial.SetFloat("dispMapBias", -baseBias + baseBias * 0);
 
-            mainMaterial.SetFloat("specularIntensity", 0.5f);
-            mainMaterial.SetFloat("specularPower", 32);
+            _mainMaterial.SetFloat("specularIntensity", 0.5f);
+            _mainMaterial.SetFloat("specularPower", 32);
 
 
             plane.AddComponent(new BoxCollider(300, 0.1f, 300, 0));
-            cube.AddComponent(new MeshRenderer(cubeMesh, mainMaterial));
-            cube.AddComponent(new BoxCollider(1, 1, 1, 0));
+            _cube.AddComponent(new MeshRenderer(cubeMesh, _mainMaterial));
+            _cube.AddComponent(new BoxCollider(1, 1, 1, 0));
 
 
-            cube.Transform.Position = new Vector3(-100, 10, 0);
+            _cube.Transform.Position = new Vector3(-100, 10, 0);
             plane.Transform.Position = new Vector3(-100, 0, 0);
-            cube.Transform.Scale = new Vector3(0.2f);
+            _cube.Transform.Scale = new Vector3(0.2f);
 
-            cube.Transform.Rotate(new Vector3(1, 1, 0), MathHelper.DegreesToRadians(132));
+            _cube.Transform.Rotate(new Vector3(1, 1, 0), MathHelper.DegreesToRadians(132));
 
 
             AddObject(plane);
-            AddObject(cube);
+            AddObject(_cube);
 
 
             var terrain = new GameObject("terrain");
@@ -109,13 +115,13 @@ namespace Game {
             CoreEngine.GetCoreEngine.RenderingEngine.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg",
                 "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
 
-            mesh = new Mesh("sphere.obj");
-            treeBranch = new Mesh("tree/branch.obj");
-            treeLeaf = new Mesh("tree/leaf.obj");
+            _mesh = new Mesh("sphere.obj");
+            _treeBranch = new Mesh("tree/branch.obj");
+            _treeLeaf = new Mesh("tree/leaf.obj");
         }
 
         public override void Update(float deltaTime) {
-            cube.Transform.Position += new Vector3(42, 10, 0);
+            _cube.Transform.Position += new Vector3(42, 10, 0);
 
             //LogManager.Debug(GetRootObject.GetChildren().Count.ToString());
 
@@ -136,13 +142,13 @@ namespace Game {
                 var branch = new GameObject("branch") {
                     Transform = { Position = new Vector3(_camera.Transform.Position.X, result.HitData.Location.Y, _camera.Transform.Position.Z)  }
                 };
-                branch.AddComponent(new MeshRenderer(treeBranch, mainMaterial));
+                branch.AddComponent(new MeshRenderer(_treeBranch, _mainMaterial));
                 AddObject(branch);
 
                 var leaf = new GameObject("leaf") {
                     Transform = { Position = new Vector3(_camera.Transform.Position.X, result.HitData.Location.Y, _camera.Transform.Position.Z) }
                 };
-                leaf.AddComponent(new MeshRenderer(treeLeaf, mainMaterial));
+                leaf.AddComponent(new MeshRenderer(_treeLeaf, _mainMaterial));
                 AddObject(leaf);
 
                 _spawnedObjects.Add(branch);
@@ -165,19 +171,13 @@ namespace Game {
             }
         }
 
-        private Material mainMaterial;
-        private Mesh mesh;
-        private GameObject cube;
-        private Mesh treeBranch;
-        private Mesh treeLeaf;
-
         public void StartMassiveSpawn() {
             for (var x = -5; x < 5; x++) {
                 for (var z = -5; z < 5; z++) {
                     var gObj = new GameObject("sphere: " + x + ":" + z) {
                         Transform = { Position = _camera.Transform.Position + new Vector3(5 * x, 0, 5 * z) }
                     };
-                    gObj.AddComponent(new MeshRenderer(mesh, mainMaterial));
+                    gObj.AddComponent(new MeshRenderer(_mesh, _mainMaterial));
                     //gObj.AddComponent(new SphereCollider(2, 1));
                     AddObject(gObj);
                     _spawnedObjects.Add(gObj);
