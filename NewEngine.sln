@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestGame", "Game\TestGame.c
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SponzaTest", "SponzaTest\SponzaTest.csproj", "{C3DC0A8F-D9F5-4ED8-A762-630CC0D4D81F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LD36 - Ancient Technology", "LD36 - Ancient Technology\LD36 - Ancient Technology.csproj", "{33BF983A-1831-4C13-AD8D-F10242097430}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -85,26 +83,6 @@ Global
 		{C3DC0A8F-D9F5-4ED8-A762-630CC0D4D81F}.Release|x64.Build.0 = Release|Any CPU
 		{C3DC0A8F-D9F5-4ED8-A762-630CC0D4D81F}.Release|x86.ActiveCfg = Release|Any CPU
 		{C3DC0A8F-D9F5-4ED8-A762-630CC0D4D81F}.Release|x86.Build.0 = Release|Any CPU
-		{33BF983A-1831-4C13-AD8D-F10242097430}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{33BF983A-1831-4C13-AD8D-F10242097430}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{33BF983A-1831-4C13-AD8D-F10242097430}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{33BF983A-1831-4C13-AD8D-F10242097430}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{33BF983A-1831-4C13-AD8D-F10242097430}.Debug|Win32.ActiveCfg = Debug|Any CPU
-		{33BF983A-1831-4C13-AD8D-F10242097430}.Debug|Win32.Build.0 = Debug|Any CPU
-		{33BF983A-1831-4C13-AD8D-F10242097430}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{33BF983A-1831-4C13-AD8D-F10242097430}.Debug|x64.Build.0 = Debug|Any CPU
-		{33BF983A-1831-4C13-AD8D-F10242097430}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{33BF983A-1831-4C13-AD8D-F10242097430}.Debug|x86.Build.0 = Debug|Any CPU
-		{33BF983A-1831-4C13-AD8D-F10242097430}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{33BF983A-1831-4C13-AD8D-F10242097430}.Release|Any CPU.Build.0 = Release|Any CPU
-		{33BF983A-1831-4C13-AD8D-F10242097430}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{33BF983A-1831-4C13-AD8D-F10242097430}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{33BF983A-1831-4C13-AD8D-F10242097430}.Release|Win32.ActiveCfg = Release|Any CPU
-		{33BF983A-1831-4C13-AD8D-F10242097430}.Release|Win32.Build.0 = Release|Any CPU
-		{33BF983A-1831-4C13-AD8D-F10242097430}.Release|x64.ActiveCfg = Release|Any CPU
-		{33BF983A-1831-4C13-AD8D-F10242097430}.Release|x64.Build.0 = Release|Any CPU
-		{33BF983A-1831-4C13-AD8D-F10242097430}.Release|x86.ActiveCfg = Release|Any CPU
-		{33BF983A-1831-4C13-AD8D-F10242097430}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
