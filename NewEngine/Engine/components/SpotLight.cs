@@ -12,12 +12,13 @@ namespace NewEngine.Engine.components {
             : base(color, intensity, attenuation) {
 
             Cutoff = (float)Math.Cos(viewAngle / 2);
-            Shader = new Shader("forward-SpotLight");
 
-            //if (shadowMapSizeAsPowerOf2 != 0) {
-            //    ShadowInfo = new ShadowInfo(Matrix4.CreatePerspectiveFieldOfView(viewAngle, 1.0f, 0.1f, Range), false, shadowMapSizeAsPowerOf2, shadowSoftness, lightBleedReductionAmount, minVariance);
-            //    ShadowInfo.ShadowMap = new Texture((IntPtr)0, 1024/2, 1024/2, TextureMinFilter.Linear, PixelInternalFormat.Rg32f, PixelFormat.Rgba, true);
-            //}
+            if (shadowMapSizeAsPowerOf2 != 0) {
+                ShadowInfo = new ShadowInfo(Matrix4.CreatePerspectiveFieldOfView(viewAngle, 1.0f, 0.1f, Range), false, shadowMapSizeAsPowerOf2, shadowSoftness, lightBleedReductionAmount, minVariance);
+                int shadowMapSize = 1 << (shadowMapSizeAsPowerOf2 + 1);
+                ShadowInfo.ShadowMap = new Texture(IntPtr.Zero, shadowMapSize, shadowMapSize, TextureMinFilter.Linear, PixelInternalFormat.Rg32f, PixelFormat.Rgba, true);
+                ShadowInfo.TempShadowMap = new Texture(IntPtr.Zero, shadowMapSize, shadowMapSize, TextureMinFilter.Linear, PixelInternalFormat.Rg32f, PixelFormat.Rgba, true);
+            }
         }
 
         public float Cutoff { get; set; }

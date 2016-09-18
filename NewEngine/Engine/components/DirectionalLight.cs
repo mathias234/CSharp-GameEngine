@@ -13,8 +13,6 @@ namespace NewEngine.Engine.components {
             float shadowSoftness = 1.0f, float lightBleedReductionAmount = 0.2f, float minVariance = 0.00002f)
             : base(color, intensity) {
 
-            Shader = new Shader("forward-DirectionalLight");
-
             _halfShadowArea = shadowArea/2.0f;
 
             if (shadowMapSizeAsPowerOf2 != 0) {

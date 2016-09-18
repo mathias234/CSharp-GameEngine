@@ -70,8 +70,8 @@ namespace NewEngine.Engine.Rendering {
             SetTexture("tempFilter2", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
 
 
-            _skyboxShader = new Shader("skybox.shader");
-            _filterShader = new Shader("filters/filters.shader");
+            _skyboxShader = new Shader("skybox");
+            _filterShader = new Shader("filters/filters");
 
             GL.ClearColor(0, 0, 0, 0);
 
@@ -94,7 +94,7 @@ namespace NewEngine.Engine.Rendering {
             _tempTarget = new Texture(null, width, height, TextureMinFilter.Nearest);
 
             _plane = PrimitiveObjects.CreatePlane;
-            _planeMaterial = new Material(new Shader("forwardShader.shader"));
+            _planeMaterial = new Material(new Shader("forwardShader"));
             _planeMaterial.SetMainTexture(_tempTarget);
             _planeMaterial.SetFloat("specularIntensity", 1);
             _planeMaterial.SetFloat("specularPower", 8);

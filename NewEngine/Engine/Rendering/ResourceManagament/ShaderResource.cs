@@ -266,6 +266,7 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
 
         public bool RemoveReference() {
             _refCount--;
+
             return _refCount == 0;
         }
 

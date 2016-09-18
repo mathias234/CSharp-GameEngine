@@ -68,7 +68,7 @@ namespace NewEngine.Engine.Rendering {
             GL.GenBuffers(1, out _particlesPositionBuffer);
             GL.GenBuffers(1, out _particlesColorBuffer);
 
-            _material = new Material(new Shader("particles.shader"));
+            _material = new Material(new Shader("particles"));
             _material.SetMainTexture(new Texture("test2.png"));
             _material.SetTexture("cutoutMask", new Texture("test2_cutout.png"));
 

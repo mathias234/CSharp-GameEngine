@@ -30,7 +30,7 @@ namespace NewEngine.Engine.components {
 
             _waterMesh = new Mesh(vertices, indices, true);
 
-            _material = new Material(new Shader("water/water.shader"));
+            _material = new Material(new Shader("water/water"));
             _material.SetMainTexture(new Texture("dudvMap.png"));
             _material.SetFloat("specularIntensity", 3);
             _material.SetFloat("specularPower", 32);
@@ -73,9 +73,15 @@ namespace NewEngine.Engine.components {
 
             _material.SetFloat("moveFactor", _material.GetFloat("moveFactor") + _waveSpeed * deltaTime);
 
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+
             _material.Shader.Bind(shaderType);
             _material.Shader.UpdateUniforms(gameObject.Transform, _material, renderingEngine, shaderType);
             _waterMesh.Draw();
+
+            GL.Disable(EnableCap.Blend);
+
         }
 
         public override void AddToEngine(CoreEngine engine) {

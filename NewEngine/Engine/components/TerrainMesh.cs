@@ -122,7 +122,7 @@ namespace NewEngine.Engine.components {
             // using physics slows down the game once the physics interaction starts by a lot because a terrain has alot of vertices this is only temporary, a mesh will be split up into chunks for better prefomance later
             PhysicsEngine.AddToPhysicsEngine(new StaticMesh(vertsVec3, tris.ToArray()));
 
-            _material = new Material(new Shader("terrain/terrain.shader"));
+            _material = new Material(new Shader("terrain/terrain"));
             _material.SetMainTexture(_tex1);
             _material.SetFloat("specularIntensity", _specularIntensity);
             _material.SetFloat("specularPower", _specularPower);

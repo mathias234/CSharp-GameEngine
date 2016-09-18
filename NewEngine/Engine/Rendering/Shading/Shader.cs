@@ -12,30 +12,27 @@ using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering.Shading {
     public class Shader {
-        private static Dictionary<string, ShaderResource> _loadedShaders = new Dictionary<string, ShaderResource>();
-
         private Dictionary<string, Dictionary<string, ShaderResource>> _shaderMap = new Dictionary<string, Dictionary<string, ShaderResource>>();
         private string _filename;
 
         public Shader(string filename) {
-            _filename = filename;
+            _filename = filename + ".shader";
 
-           var shaderPath = Path.Combine("./res/shaders", filename);
+            var shaderPath = Path.Combine("./res/shaders", _filename);
 
 
             if (File.Exists(shaderPath)) {
                 // Load shader pack
 
-                LoadShaderPackage(filename);
+                LoadShaderPackage(_filename);
+            }
+            else {
+                LogManager.Error("Shader Package does not exist: " + _filename);
             }
         }
 
-        // TODO: fix this
         ~Shader() {
-            //LogManager.Debug("removing shader : " + _filename);
-            //if (_resource.RemoveReference() && _filename != null) {
-            //    _loadedShaders.Remove(_filename);
-            //}
+            _shaderMap.Remove(_filename);
         }
 
         private List<string> shaderTypes;
@@ -78,15 +75,7 @@ namespace NewEngine.Engine.Rendering.Shading {
                     var shaderType = lineTokens[1];
                     var shaderName = lineTokens[2];
 
-                    ShaderResource resource;
-
-                    if (_loadedShaders.ContainsKey(shaderName)) {
-                        resource = _loadedShaders[shaderName];
-                    }
-                    else {
-                        resource = new ShaderResource(shaderName);
-                        _loadedShaders.Add(shaderName, resource);
-                    }
+                    var resource = new ShaderResource(shaderName);
 
                     if (_shaderMap.ContainsKey(filename)) {
                         _shaderMap[filename].Add(shaderType, resource);
