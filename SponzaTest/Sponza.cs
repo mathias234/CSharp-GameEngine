@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using NewEngine.Engine.components;
 using NewEngine.Engine.Core;
 using NewEngine.Engine.Rendering;
@@ -9,6 +10,8 @@ using OpenTK.Input;
 
 namespace SponzaTest {
     public class Sponza : Game {
+        private List<GameObject> _spawnedObjects = new List<GameObject>();
+
         private GameObject _directionalLightObj;
 
         public override void Start() {
@@ -71,6 +74,7 @@ namespace SponzaTest {
 
 
                 AddObject(sponza);
+                _spawnedObjects.Add(sponza);
             }
 
             var flameColor = new Vector3(226/255.0f, 88/255.0f, 34/255.0f);
@@ -99,12 +103,20 @@ namespace SponzaTest {
             //directionalLightObj.Transform.Rotation *= Quaternion.FromAxisAngle(new Vector3(1, 0, 0), -0.004f);
             var flameColor = new Vector3(226/255.0f, 88/255.0f, 34/255.0f);
 
+
+            if (Input.GetKeyDown(Key.Q)) {
+                foreach (var spawnedObject in _spawnedObjects) {
+                    spawnedObject.Destroy();
+                }
+            }
+
             if (!Input.GetKeyDown(Key.P)) return;
             var newPointLight =
                 new GameObject("point light").AddComponent(new PointLight(flameColor, 10f, new Attenuation(0, 0, 1f)));
             newPointLight.Transform.Position =
                 new Vector3(CoreEngine.GetCoreEngine.RenderingEngine.MainCamera.Transform.GetTransformedPosition());
             AddObject(newPointLight);
+
         }
     }
 }
