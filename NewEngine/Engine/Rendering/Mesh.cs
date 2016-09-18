@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using NewEngine.Engine.Core;
-using NewEngine.Engine.Rendering.MeshLoading;
-using NewEngine.Engine.Rendering.MeshLoading.FBX;
 using NewEngine.Engine.Rendering.MeshLoading.Obj;
 using NewEngine.Engine.Rendering.ResourceManagament;
 using OpenTK;
@@ -16,7 +13,6 @@ namespace NewEngine.Engine.Rendering {
         private static Dictionary<string, MeshResource> _loadedModels = new Dictionary<string, MeshResource>();
         private MeshResource _resource;
         private string _filename;
-        private Matrix4[] _matrices;
 
         public Mesh(string filename) {
             _filename = filename;
@@ -90,7 +86,6 @@ namespace NewEngine.Engine.Rendering {
             GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(_resource.Size * 4 /* size of int */),
                 reversedIndices, BufferUsageHint.StaticDraw);
         }
-
 
         public void Draw() {
             GL.EnableVertexAttribArray(0);
@@ -250,7 +245,7 @@ namespace NewEngine.Engine.Rendering {
 
         public void BindBatch(Matrix4[] matrices, int amount) {
             GL.BindBuffer(BufferTarget.ArrayBuffer, _resource.MatrixBuffer);
-            GL.BufferData(BufferTarget.ArrayBuffer,(IntPtr)(64 * amount), matrices, BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(64 * amount), matrices, BufferUsageHint.StaticDraw);
         }
     }
 }

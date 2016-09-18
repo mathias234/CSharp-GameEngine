@@ -17,8 +17,6 @@ namespace NewEngine.Engine.Rendering {
         private Dictionary<Mesh, List<GameObject>> _meshGameObjects = new Dictionary<Mesh, List<GameObject>>();
         private Dictionary<string, Shader> _loadedShaders = new Dictionary<string, Shader>();
 
-        private Shader _baseShader;
-
         private Matrix4[] _matrices;
 
 
@@ -26,8 +24,6 @@ namespace NewEngine.Engine.Rendering {
             _material = material;
 
             _meshGameObjects.Add(meshes, new[] { gameObjects }.ToList());
-
-            _baseShader = new Shader("batching/forward-batched-ambient");
 
             Initialize();
         }
@@ -37,21 +33,8 @@ namespace NewEngine.Engine.Rendering {
         }
 
         public void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage) {
-            Shader shaderToUse;
-
-            if (shaderType == "base") {
-                shaderToUse = _baseShader;
-            }
-            else if (shaderType != "light" && shaderType != "shadowMap") {
+            if(!_material.Shader.GetShaderTypes.Contains(shaderType))
                 return;
-            }
-            else if (_loadedShaders.ContainsKey(shader)) {
-                shaderToUse = _loadedShaders[shader];
-            }
-            else {
-                shaderToUse = new Shader("batching/forward-batched-" + shader);
-                _loadedShaders.Add(shader, shaderToUse);
-            }
 
             // with alot of objects this will put a strain on the garbage collector, maybe find a fix
             for (int j = 0; j < _meshGameObjects.Count; j++) {
@@ -64,8 +47,8 @@ namespace NewEngine.Engine.Rendering {
                 _meshGameObjects.ElementAt(j).Key.BindBatch(_matrices, _meshGameObjects.ElementAt(j).Value.Count);
             }
 
-            shaderToUse.Bind();
-            shaderToUse.UpdateUniforms(_meshGameObjects.ElementAt(0).Value[0].Transform, _material, renderingEngine);
+            _material.Shader.Bind(shaderType);
+            _material.Shader.UpdateUniforms(_meshGameObjects.ElementAt(0).Value[0].Transform, _material, renderingEngine, shaderType);
 
             foreach (var mesh in _meshGameObjects) {
                 mesh.Key.DrawInstanced(mesh.Value.Count);

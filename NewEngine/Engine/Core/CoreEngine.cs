@@ -66,7 +66,10 @@ namespace NewEngine.Engine.Core {
         }
 
         private void ResizeWindow(object sender, EventArgs e) {
-            GL.Viewport(0, 0, _width, _height);
+            GL.Viewport(ClientRectangle);
+            RenderingEngine.ResizeWindow();
+            _width = Width;
+            _height = Height;
         }
 
         public static void BindAsRenderTarget() {

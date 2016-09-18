@@ -24,11 +24,7 @@ namespace NewEngine.Engine.Rendering {
         private Mesh _skybox;
         private Material _skyboxMaterial;
         private Shader _skyboxShader;
-        private Shader _nullFilter;
-        private Shader _gausFilter;
-        private Shader _fxaaFilter;
-        private Shader _brightFilter;
-        private Shader _combineFilter;
+        private Shader _filterShader;
 
         private Mesh _plane;
         private Transform _planeTransform;
@@ -61,25 +57,21 @@ namespace NewEngine.Engine.Rendering {
                 { "tempShadowMap", 19}
             };
 
-            SetVector3("ambient", new Vector3(0.3f));
+            SetVector3("ambient", new Vector3(0.6f));
             SetFloat("fxaaSpanMax", 8);
             SetFloat("fxaaReduceMin", 1 / 128.0f);
             SetFloat("fxaaReduceMul", 1 / 8.0f);
-            SetFloat("bloomAmount", 0.12f);
+            SetFloat("bloomAmount", 0.0f);
 
             SetVector4("clipPlane", new Vector4(0, 0, 0, 15));
 
-            SetTexture("displayTexture", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
+            SetTexture("displayTexture", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth() / 7, (int)CoreEngine.GetHeight() / 7, TextureMinFilter.Nearest));
             SetTexture("tempFilter", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
             SetTexture("tempFilter2", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
 
 
             _skyboxShader = new Shader("skybox");
-            _nullFilter = new Shader("filters/filter-null");
-            _gausFilter = new Shader("filters/filter-gausBlur7x1");
-            _fxaaFilter = new Shader("filters/filter-fxaa");
-            _brightFilter = new Shader("filters/filter-bright");
-            _combineFilter = new Shader("filters/filter-combine");
+            _filterShader = new Shader("filters/filters");
 
             GL.ClearColor(0, 0, 0, 0);
 
@@ -102,7 +94,10 @@ namespace NewEngine.Engine.Rendering {
             _tempTarget = new Texture(null, width, height, TextureMinFilter.Nearest);
 
             _plane = PrimitiveObjects.CreatePlane;
-            _planeMaterial = new Material(_tempTarget, 1, 8);
+            _planeMaterial = new Material(new Shader("forwardShader"));
+            _planeMaterial.SetMainTexture(_tempTarget);
+            _planeMaterial.SetFloat("specularIntensity", 1);
+            _planeMaterial.SetFloat("specularPower", 8);
             _planeTransform = new Transform();
             _planeTransform.Rotate(new Vector3(0, 1, 0), MathHelper.DegreesToRadians(180.0f));
 
@@ -115,6 +110,15 @@ namespace NewEngine.Engine.Rendering {
 
         public Matrix4 LightMatrix { get; private set; }
 
+
+        public void ResizeWindow() {
+            SetTexture("displayTexture", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Nearest));
+            SetTexture("tempFilter", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
+            SetTexture("tempFilter2", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
+            MainCamera.SetProjection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f),
+                CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000);
+        }
+
         // TODO: change this as i dont want people to override the RenderingEngine i rather want them to add their function using either an Action or Func <- not decided
         public virtual void UpdateUniformStruct(Transform transform, Material material, Shader shader,
             string uniformName, string uniformType) {
@@ -124,7 +128,7 @@ namespace NewEngine.Engine.Rendering {
         public void RenderBatches(float deltaTime) {
             RenderShadowMap(deltaTime);
 
-            RenderObject(GetTexture("displayTexture"), deltaTime, "base", true);
+            RenderObject(GetTexture("displayTexture"), deltaTime, "ambient", true);
 
             DoPostProccess();
 
@@ -134,7 +138,7 @@ namespace NewEngine.Engine.Rendering {
         private void DoPostProccess() {
             SetVector3("inverseFilterTextureSize", new Vector3(1.0f / GetTexture("displayTexture").Width, 1.0f / GetTexture("displayTexture").Height, 0.0f));
 
-            ApplyFilter(_brightFilter, GetTexture("tempFilter"), GetTexture("tempFilter2"));
+            ApplyFilter("bright", GetTexture("displayTexture"), GetTexture("tempFilter2"));
 
             BlurTexture(GetTexture("tempFilter2"), 10, Vector2.UnitY);
             BlurTexture(GetTexture("tempFilter2"), 10, Vector2.UnitX);
@@ -142,19 +146,14 @@ namespace NewEngine.Engine.Rendering {
             BlurTexture(GetTexture("tempFilter2"), 10, Vector2.UnitY);
             BlurTexture(GetTexture("tempFilter2"), 10, Vector2.UnitX);
 
-            ApplyFilter(_combineFilter, GetTexture("tempFilter2"), GetTexture("tempFilter"));
+            ApplyFilter("combine", GetTexture("tempFilter2"), GetTexture("tempFilter"));
 
-
-            ApplyFilter(_fxaaFilter, GetTexture("tempFilter"), null);
+            ApplyFilter("fxaa", GetTexture("tempFilter"), null);
+            //ApplyFilter(_nullFilter, GetTexture("displayTexture"), GetTexture("ui"));
             // ApplyFilter(_fxaaFilter, _lights[1].ShadowInfo.ShadowMap, null);
         }
 
-        // fill the Reflect and Refract textures
-        private void RenderReflectRefractBuffers(float deltaTime) {
-
-        }
-
-        public void RenderObject(Texture mainRenderTarget, float deltaTime, string renderStage, bool drawUI) {
+        public void RenderObject(Texture mainRenderTarget, float deltaTime, string renderStage, bool drawUi) {
             mainRenderTarget.BindAsRenderTarget();
 
             GL.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -163,7 +162,7 @@ namespace NewEngine.Engine.Rendering {
             RenderSkybox();
 
             foreach (var batch in _batches) {
-                batch.Value.Render(null, "base", deltaTime, this, renderStage);
+                batch.Value.Render(null, "ambient", deltaTime, this, renderStage);
                 foreach (var light in _lights) {
                     ActiveLight = light;
                     GL.Enable(EnableCap.Blend);
@@ -174,17 +173,16 @@ namespace NewEngine.Engine.Rendering {
                     if (light.ShadowInfo != null)
                         SetTexture("shadowMap", light.ShadowInfo.ShadowMap);
 
-                    batch.Value.Render(light.GetType().Name, "light", deltaTime, this, renderStage);
+                    batch.Value.Render(light.GetType().Name, light.GetType().Name, deltaTime, this, renderStage);
 
                     GL.DepthMask(true);
                     GL.DepthFunc(DepthFunction.Less);
                     GL.Disable(EnableCap.Blend);
                 }
             }
-
 
             foreach (var nonBatched in _nonBatched) {
-                nonBatched.RenderAll(null, "base", deltaTime, this, renderStage);
+                nonBatched.RenderAll(null, "ambient", deltaTime, this, renderStage);
 
                 foreach (var light in _lights) {
                     ActiveLight = light;
@@ -196,7 +194,7 @@ namespace NewEngine.Engine.Rendering {
                     if (light.ShadowInfo != null)
                         SetTexture("shadowMap", light.ShadowInfo.ShadowMap);
 
-                    nonBatched.RenderAll(light.GetType().Name, "light", deltaTime, this, renderStage);
+                    nonBatched.RenderAll(light.GetType().Name, light.GetType().Name, deltaTime, this, renderStage);
 
                     GL.DepthMask(true);
                     GL.DepthFunc(DepthFunction.Less);
@@ -204,7 +202,7 @@ namespace NewEngine.Engine.Rendering {
                 }
             }
 
-            if (drawUI) {
+            if (drawUi) {
                 foreach (var uiComponent in _ui) {
                     uiComponent.Render(null, "ui", deltaTime, this, "ui");
                 }
@@ -241,13 +239,12 @@ namespace NewEngine.Engine.Rendering {
                     if (flipFaces) GL.CullFace(CullFaceMode.Front);
 
                     foreach (var batch in _batches) {
-                        batch.Value.Render("shadowMapGenerator", "shadowMap", deltaTime, this, "shadows");
+                        batch.Value.Render("shadowMapGenerator", "shadowMapGen", deltaTime, this, "shadowMapGen");
                     }
 
                     foreach (var gameObject in _nonBatched) {
-                        gameObject.RenderAll("shadowMapGenerator", "shadowMap", deltaTime, this, "shadows");
+                        gameObject.RenderAll("shadowMapGenerator", "shadowMapGen", deltaTime, this, "shadowMapGen");
                     }
-
 
                     if (flipFaces) GL.CullFace(CullFaceMode.Back);
 
@@ -269,8 +266,8 @@ namespace NewEngine.Engine.Rendering {
 
         private void RenderSkybox() {
             GL.DepthMask(false);
-            _skyboxShader.Bind();
-            _skyboxShader.UpdateUniforms(MainCamera.Transform, _skyboxMaterial, this);
+            _skyboxShader.Bind("skybox");
+            _skyboxShader.UpdateUniforms(MainCamera.Transform, _skyboxMaterial, this, "skybox");
             _skybox.Draw();
             GL.DepthMask(true);
         }
@@ -287,10 +284,10 @@ namespace NewEngine.Engine.Rendering {
             var tempTarget = light.ShadowInfo.TempShadowMap;
 
             SetVector3("blurScale", new Vector3(blurAmount / shadowMap.Width, 0.0f, 0.0f));
-            ApplyFilter(_gausFilter, shadowMap, tempTarget);
+            ApplyFilter("gausBlur7x1", shadowMap, tempTarget);
 
             SetVector3("blurScale", new Vector3(0.0f, blurAmount / shadowMap.Height, 0.0f));
-            ApplyFilter(_gausFilter, tempTarget, shadowMap);
+            ApplyFilter("gausBlur7x1", tempTarget, shadowMap);
         }
 
         public void BlurTexture(Texture texture, float blurAmount, Vector2 axis) {
@@ -305,15 +302,15 @@ namespace NewEngine.Engine.Rendering {
                 SetVector3("blurScale", new Vector3(0.0f, blurAmount / texture.Height, 0.0f));
             }
 
-            ApplyFilter(_gausFilter, texture, GetTexture("tempFilter"));
+            ApplyFilter("gausBlur7x1", texture, GetTexture("tempFilter"));
 
             // put the blured texture back into the original texture
-            ApplyFilter(_nullFilter, GetTexture("tempFilter"), texture);
+            ApplyFilter("nullFilter", GetTexture("tempFilter"), texture);
 
             SetTexture("tempFilter", temp);
         }
 
-        public void ApplyFilter(Shader filter, Texture source, Texture dest) {
+        public void ApplyFilter(string filter, Texture source, Texture dest) {
             if (source == dest) LogManager.Error("ApplyFilter: source texture cannot be the same as dest texture!");
             if (dest == null)
                 CoreEngine.BindAsRenderTarget();
@@ -332,8 +329,8 @@ namespace NewEngine.Engine.Rendering {
             GL.ClearColor(0, 0, 0.5f, 1.0f);
             GL.Clear(ClearBufferMask.DepthBufferBit);
 
-            filter.Bind();
-            filter.UpdateUniforms(_planeTransform, _planeMaterial, this);
+            _filterShader.Bind(filter);
+            _filterShader.UpdateUniforms(_planeTransform, _planeMaterial, this, filter);
             _plane.Draw();
 
             MainCamera = temp;
@@ -342,6 +339,18 @@ namespace NewEngine.Engine.Rendering {
 
         public static string GetOpenGlVersion() {
             return GL.GetString(StringName.Version);
+        }
+
+        public static Vector3 AmbientLight
+        {
+            set
+            {
+                CoreEngine.GetCoreEngine.RenderingEngine.SetVector3("ambient", value);
+            }
+            get
+            {
+                return CoreEngine.GetCoreEngine.RenderingEngine.GetVector3("ambient");
+            }
         }
 
         public void AddLight(BaseLight light) {
@@ -353,7 +362,7 @@ namespace NewEngine.Engine.Rendering {
                 _batches[material].AddGameObject(mesh, gameObject);
             }
             else {
-                _batches.Add(material, new BatchMeshRenderer(material,  mesh, gameObject));
+                _batches.Add(material, new BatchMeshRenderer(material, mesh, gameObject));
             }
         }
 
@@ -382,7 +391,7 @@ namespace NewEngine.Engine.Rendering {
         }
 
         public void AddUI(UiComponent uiComponent) {
-           _ui.Add(uiComponent);
+            _ui.Add(uiComponent);
         }
 
         public void RemoveUI(UiComponent uiComponent) {

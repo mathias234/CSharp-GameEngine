@@ -9,6 +9,7 @@ namespace NewEngine.Engine.Core {
         }
 
         public static void Debug(string message) {
+            System.Diagnostics.Debug.WriteLine(message);
             Console.WriteLine(message);
         }
     }

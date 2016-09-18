@@ -11,9 +11,6 @@ using OpenTK;
 
 namespace NewEngine.Engine.components {
     public class TerrainMesh : GameComponent {
-        private Dictionary<string, Shader> _loadedShaders = new Dictionary<string, Shader>();
-        private Shader _baseShader;
-
         private float _dispOffset;
         private float _dispScale;
         private int _height;
@@ -65,18 +62,16 @@ namespace NewEngine.Engine.components {
             _tex3Nrm = new Texture(tex3Nrm);
             _layer2 = new Texture(layer2);
 
-            _baseShader = new Shader("terrain/baseTerrain");
-
             var image = new Bitmap(Path.Combine("./res/textures", heightmapTextureFilename));
 
             var lbmap = new LockBitmap(image);
             lbmap.LockBits();
 
-            _heights = new float[image.Height*image.Width];
+            _heights = new float[image.Height * image.Width];
 
             for (var j = 0; j < image.Height; j++) {
                 for (var i = 0; i < image.Width; i++) {
-                    _heights[i + j*image.Width] = lbmap.GetPixel(i, j).R;
+                    _heights[i + j * image.Width] = lbmap.GetPixel(i, j).R;
                 }
             }
 
@@ -100,19 +95,19 @@ namespace NewEngine.Engine.components {
                     //Add each new vertex in the plane
                     verts.Add(
                         new Vertex(
-                            new Vector3((float) i/_imageWidth*_width, _heights[i + j*_imageWidth]*_heigtmapStrength,
-                                (float) j/_imageHeight*_height),
-                            new Vector2((float) i/_imageWidth, (float) j/_imageHeight)));
+                            new Vector3((float)i / _imageWidth * _width, _heights[i + j * _imageWidth] * _heigtmapStrength,
+                                (float)j / _imageHeight * _height),
+                            new Vector2((float)i / _imageWidth, (float)j / _imageHeight)));
 
                     //Skip if a new square on the plane hasn't been formed
                     if (i == 0 || j == 0) continue;
                     //Adds the index of the three vertices in order to make up each of the two tris
-                    tris.Add(_imageWidth*i + j); //Top right
-                    tris.Add(_imageWidth*i + j - 1); //Bottom right
-                    tris.Add(_imageWidth*(i - 1) + j - 1); //Bottom left - First triangle
-                    tris.Add(_imageWidth*(i - 1) + j - 1); //Bottom left 
-                    tris.Add(_imageWidth*(i - 1) + j); //Top left
-                    tris.Add(_imageWidth*i + j); //Top right - Second triangle
+                    tris.Add(_imageWidth * i + j); //Top right
+                    tris.Add(_imageWidth * i + j - 1); //Bottom right
+                    tris.Add(_imageWidth * (i - 1) + j - 1); //Bottom left - First triangle
+                    tris.Add(_imageWidth * (i - 1) + j - 1); //Bottom left 
+                    tris.Add(_imageWidth * (i - 1) + j); //Top left
+                    tris.Add(_imageWidth * i + j); //Top right - Second triangle
                 }
             }
 
@@ -120,14 +115,18 @@ namespace NewEngine.Engine.components {
 
             int g = 0;
             foreach (var vertex in verts) {
-                vertsVec3[g] = new BEPUutilities.Vector3( vertex.Position.X, vertex.Position.Y, vertex.Position.Z);
+                vertsVec3[g] = new BEPUutilities.Vector3(vertex.Position.X, vertex.Position.Y, vertex.Position.Z);
                 g++;
             }
 
             // using physics slows down the game once the physics interaction starts by a lot because a terrain has alot of vertices this is only temporary, a mesh will be split up into chunks for better prefomance later
             PhysicsEngine.AddToPhysicsEngine(new StaticMesh(vertsVec3, tris.ToArray()));
 
-            _material = new Material(_tex1, _specularIntensity, _specularPower, _tex1Nrm);
+            _material = new Material(new Shader("terrain/terrain"));
+            _material.SetMainTexture(_tex1);
+            _material.SetFloat("specularIntensity", _specularIntensity);
+            _material.SetFloat("specularPower", _specularPower);
+            _material.SetTexture("normalMap", _tex1Nrm);
             _material.SetTexture("tex2", _tex2);
             _material.SetTexture("tex2Nrm", _tex2Nrm);
             _material.SetTexture("layer1", _layer1);
@@ -142,25 +141,11 @@ namespace NewEngine.Engine.components {
         }
 
         public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage) {
-            Shader shaderToUse;
-
-            if (shaderType == "base") {
-                shaderToUse = _baseShader;
-            }
-            else if (shaderType != "light" && shaderType != "shadowMap") {
+            if (!_material.Shader.GetShaderTypes.Contains(shaderType))
                 return;
-            }
-            else if (_loadedShaders.ContainsKey(shader)) {
-                shaderToUse = _loadedShaders[shader];
-            }
-            else {
-                shaderToUse = new Shader("terrain/terrain-" + shader);
-                _loadedShaders.Add(shader, shaderToUse);
-            }
 
-
-            shaderToUse.Bind();
-            shaderToUse.UpdateUniforms(Transform, _material, renderingEngine);
+            _material.Shader.Bind(shaderType);
+            _material.Shader.UpdateUniforms(Transform, _material, renderingEngine, shaderType);
             _mesh.Draw();
         }
 

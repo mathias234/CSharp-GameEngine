@@ -10,7 +10,6 @@ namespace NewEngine.Engine.components {
 
         public PointLight(Vector3 color, float intensity, Attenuation attenuation) : base(color, intensity) {
             Attenuation = attenuation;
-            Shader = new Shader("forward-PointLight");
 
             var a = attenuation.Exponent;
             var b = attenuation.Linear;
