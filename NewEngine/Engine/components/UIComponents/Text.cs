@@ -52,9 +52,6 @@ namespace NewEngine.Engine.components.UIComponents {
         }
 
         public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage) {
-            if (renderStage == "Refract" || renderStage == "Reflect")
-                return;
-
             if (renderStage == "ui") {
                 gameObject.Transform = _rectTransform;
                 // we only need the ImageShader here so replace the shader being passed
@@ -64,7 +61,7 @@ namespace NewEngine.Engine.components.UIComponents {
                 t.Position = new Vector3(t.Position);
 
                 _imageShader.Bind();
-                _imageShader.UpdateUniforms(t, _material, renderingEngine);
+                _imageShader.UpdateUniforms(t, _material, renderingEngine, renderStage);
 
                 Begin2D();
 
@@ -77,27 +74,27 @@ namespace NewEngine.Engine.components.UIComponents {
 
         private void UpdateMesh() {
             UpdateText();
-            var texCoordY = 1.0f -
-                            1 / Biggest(_rectTransform.Size.X, _rectTransform.Size.Y) *
-                            (Biggest(_rectTransform.Size.X, _rectTransform.Size.Y) - _rectTransform.Size.Y);
-            var texCoordX = 1.0f -
-                            1 / Biggest(_rectTransform.Size.X, _rectTransform.Size.Y) *
-                            (Biggest(_rectTransform.Size.X, _rectTransform.Size.Y) - _rectTransform.Size.X);
+            //var texCoordY = 1.0f -
+            //                1 / Biggest(_rectTransform.Scale.X, _rectTransform.Size.Y) *
+            //                (Biggest(_rectTransform.Scale.X, _rectTransform.Size.Y) - _rectTransform.Size.Y);
+            //var texCoordX = 1.0f -
+            //                1 / Biggest(_rectTransform.Size.X, _rectTransform.Size.Y) *
+            //                (Biggest(_rectTransform.Size.X, _rectTransform.Size.Y) - _rectTransform.Size.X);
 
-            // the Texture coords work, but they might be changed to look better? idk all this flipping and stuff seems wrong TODO: Fixme
-            _mesh = new Mesh(new[] {
-                new Vertex(new Vector3(-_rectTransform.Size.X, -_rectTransform.Size.Y, 0) + _rectTransform.Position,
-                    new Vector2(-texCoordX, texCoordY)),
-                new Vertex(new Vector3(-_rectTransform.Size.X, _rectTransform.Size.Y, 0) + _rectTransform.Position,
-                    new Vector2(-texCoordX, 0)),
-                new Vertex(new Vector3(_rectTransform.Size.X, _rectTransform.Size.Y, 0) + _rectTransform.Position,
-                    new Vector2(0, 0)),
-                new Vertex(new Vector3(_rectTransform.Size.X, -_rectTransform.Size.Y, 0) + _rectTransform.Position,
-                    new Vector2(0, texCoordY))
-            }, new[] {
-                2, 3, 0,
-                0, 1, 2
-            }, false);
+            //// the Texture coords work, but they might be changed to look better? idk all this flipping and stuff seems wrong TODO: Fixme
+            //_mesh = new Mesh(new[] {
+            //    new Vertex(new Vector3(-_rectTransform.Size.X, -_rectTransform.Size.Y, 0) + _rectTransform.Position,
+            //        new Vector2(-texCoordX, texCoordY)),
+            //    new Vertex(new Vector3(-_rectTransform.Size.X, _rectTransform.Size.Y, 0) + _rectTransform.Position,
+            //        new Vector2(-texCoordX, 0)),
+            //    new Vertex(new Vector3(_rectTransform.Size.X, _rectTransform.Size.Y, 0) + _rectTransform.Position,
+            //        new Vector2(0, 0)),
+            //    new Vertex(new Vector3(_rectTransform.Size.X, -_rectTransform.Size.Y, 0) + _rectTransform.Position,
+            //        new Vector2(0, texCoordY))
+            //}, new[] {
+            //    2, 3, 0,
+            //    0, 1, 2
+            //}, false);
         }
 
         private void UpdateText() {
@@ -105,10 +102,11 @@ namespace NewEngine.Engine.components.UIComponents {
             using (var gfx = Graphics.FromImage(_textBmp)) {
                 gfx.Clear(Color.Transparent);
                 gfx.DrawString(_text, new Font(FontFamily.GenericSerif, 30, FontStyle.Regular),
-                    new SolidBrush(Color.Red), 0, 0);
+                    new SolidBrush(Color.White), 0, 0);
             }
             _textBmp.Save("image.png", ImageFormat.Png);
-            _material = new Material(new Texture(_textBmp));
+            _material = new Material(_imageShader);
+            _material.SetMainTexture(new Texture(_textBmp));
         }
 
 
@@ -133,6 +131,16 @@ namespace NewEngine.Engine.components.UIComponents {
         protected virtual void Dispose(bool disposing) {
             if (disposing)
                 _textBmp.Dispose();
+        }
+
+        public override void AddToEngine(CoreEngine engine) {
+            base.AddToEngine(engine);
+            engine.RenderingEngine.AddUI(this);
+        }
+
+        public override void OnDestroyed(CoreEngine engine) {
+            base.OnDestroyed(engine);
+            engine.RenderingEngine.RemoveUI(this);
         }
     }
 }

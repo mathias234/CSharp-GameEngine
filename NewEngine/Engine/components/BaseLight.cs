@@ -20,8 +20,6 @@ namespace NewEngine.Engine.components {
 
         public Vector3 Color { get; set; }
 
-        public Shader Shader { get; set; }
-
         public ShadowInfo ShadowInfo { get; set; }
 
         public virtual ShadowCameraTransform CalcShadowCameraTransform(Transform transform) {

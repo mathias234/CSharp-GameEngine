@@ -207,9 +207,6 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
             return result;
         }
 
-
-
-
         private void CompileShader() {
             GL.LinkProgram(Program);
 
@@ -230,9 +227,6 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
             }
         }
 
-
-
-
         private void AddVertexShader(string text) {
             AddProgram(text, ShaderType.VertexShader);
         }
@@ -244,8 +238,6 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
         private void AddGeometryShader(string text) {
             AddProgram(text, ShaderType.GeometryShader);
         }
-
-
 
         private void AddProgram(string text, ShaderType type) {
             var shader = GL.CreateShader(type);
@@ -274,6 +266,7 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
 
         public bool RemoveReference() {
             _refCount--;
+
             return _refCount == 0;
         }
 

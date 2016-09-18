@@ -15,7 +15,7 @@
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -24,6 +24,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -78,6 +79,7 @@
     <Compile Include="Engine\components\LookAtComponent.cs" />
     <Compile Include="Engine\components\ShadowInfo.cs" />
     <Compile Include="Engine\components\TerrainMesh.cs" />
+    <Compile Include="Engine\Rendering\Fonts\TextMaster.cs" />
     <Compile Include="Engine\components\UIComponents\Text.cs" />
     <Compile Include="Engine\components\UIComponents\Image.cs" />
     <Compile Include="Engine\components\UIComponents\UiComponent.cs" />
@@ -98,11 +100,18 @@
     <Compile Include="Engine\Physics\RayHit.cs" />
     <Compile Include="Engine\Rendering\Attenuation.cs" />
     <Compile Include="Engine\Rendering\CubemapTexture.cs" />
+    <Compile Include="Engine\Rendering\Fonts\FontCharacter.cs" />
+    <Compile Include="Engine\Rendering\Fonts\FontLine.cs" />
+    <Compile Include="Engine\Rendering\Fonts\FontMetaFile.cs" />
+    <Compile Include="Engine\Rendering\Fonts\FontType.cs" />
+    <Compile Include="Engine\Rendering\Fonts\FontWord.cs" />
+    <Compile Include="Engine\Rendering\Fonts\GUIText.cs" />
+    <Compile Include="Engine\Rendering\Fonts\TextMeshCreator.cs" />
+    <Compile Include="Engine\Rendering\Fonts\TextMeshData.cs" />
     <Compile Include="Engine\Rendering\MeshLoading\FBX\FbxModel.cs" />
     <Compile Include="Engine\Rendering\MeshLoading\IndexedModel.cs" />
     <Compile Include="Engine\Rendering\MeshLoading\Obj\ObjIndex.cs" />
     <Compile Include="Engine\Rendering\MeshLoading\Obj\ObjModel.cs" />
-    <Compile Include="Engine\Rendering\Batch.cs" />
     <Compile Include="Engine\Rendering\Particle.cs" />
     <Compile Include="Engine\Rendering\BatchMeshRenderer.cs" />
     <Compile Include="Engine\Rendering\ParticleSystem.cs" />

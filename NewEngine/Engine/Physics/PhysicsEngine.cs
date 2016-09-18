@@ -38,6 +38,10 @@ namespace NewEngine.Engine.Physics {
         }
 
         public static void Raycast(Ray ray, float maximumLength, out RayCastResult result) {
+            if(_physicsSpace == null) {
+                result = null;
+                return;
+            }
             var tempRay = new BEPUutilities.Ray(ToBepuVector3(ray.Position), ToBepuVector3(ray.Direction));
 
             BEPUphysics.RayCastResult tempResult;

@@ -1,4 +1,5 @@
-﻿using NewEngine.Engine.Core;
+﻿using System;
+using NewEngine.Engine.Core;
 using OpenTK;
 
 namespace Game {

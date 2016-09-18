@@ -2,19 +2,18 @@
 
 namespace NewEngine.Engine.Core {
     public class RectTransform : Transform {
-        public Vector2 Size;
 
         public RectTransform(float width, float height, float posX, float posY) {
-            Size = new Vector2(width, height);
+            Scale = new Vector3(width, height, 1);
             Position = new Vector3(posX, posY, 0);
         }
 
         public bool Interesects(RectTransform other) {
-            var xOverlap = ValueInRange(Position.X, other.Position.X, other.Position.X + other.Size.X) ||
-                           ValueInRange(other.Position.X, Position.X, Position.X + Size.X);
+            var xOverlap = ValueInRange(Position.X, other.Position.X, other.Position.X + other.Scale.X) ||
+                           ValueInRange(other.Position.X, Position.X, Position.X + Scale.X);
 
-            var yOverlap = ValueInRange(Position.Y, other.Position.Y, other.Position.Y + other.Size.Y) ||
-                           ValueInRange(other.Position.Y, Position.Y, Position.Y + Size.Y);
+            var yOverlap = ValueInRange(Position.Y, other.Position.Y, other.Position.Y + other.Scale.Y) ||
+                           ValueInRange(other.Position.Y, Position.Y, Position.Y + Scale.Y);
 
             return xOverlap && yOverlap;
         }
