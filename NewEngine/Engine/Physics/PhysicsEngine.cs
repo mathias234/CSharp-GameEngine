@@ -19,10 +19,6 @@ namespace NewEngine.Engine.Physics {
             if (_physicsSpace == null) {
                 var parallelLooper = new ParallelLooper();
 
-                for (var i = 0; i < System.Environment.ProcessorCount; i++) {
-                    parallelLooper.AddThread();
-                }
-
                 _physicsSpace = new Space(parallelLooper) { ForceUpdater = { Gravity = new Vector3(0, -9.81f, 0) } };
             }
 
