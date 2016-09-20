@@ -9,6 +9,7 @@ using NewEngine.Engine.Rendering.Shading;
 using OpenTK;
 using OpenTK.Input;
 using Image = NewEngine.Engine.components.UIComponents.Image;
+using NewEngine.Engine.Audio;
 
 namespace Game {
     public class TestGame : NewEngine.Engine.Core.Game {
@@ -26,7 +27,9 @@ namespace Game {
         public override void Start() {
             CreateCamera();
 
-            RenderingEngine.AmbientLight = new Vector3(0.1f);
+            AudioMaster.Initialize();
+
+            RenderingEngine.AmbientLight = new Vector3(0.3f);
 
             _directionalLightObj = new GameObject("Directinal Light");
             var directionalLight = new DirectionalLight(new Vector3(1), 0.5f, 10, 140, 0.9f);
@@ -114,6 +117,7 @@ namespace Game {
             _mesh = new Mesh("cube.obj");
             _treeBranch = new Mesh("tree/branch.obj");
             _treeLeaf = new Mesh("tree/leaf.obj");
+
         }
 
         public override void Update(float deltaTime) {
@@ -128,6 +132,21 @@ namespace Game {
                 StartMassiveSpawn();
             }
 
+            if (Input.GetKeyDown(Key.F)) {
+                var audioSourceObject = new GameObject("audio source");
+                var audioSource = new AudioSource();
+                audioSourceObject.Transform.Position = new Vector3(CoreEngine.GetCoreEngine.RenderingEngine.MainCamera.Transform.GetTransformedPosition());
+                audioSourceObject.Transform.Rotate(new Vector3(0, 1, 0), MathHelper.DegreesToRadians(0));
+
+                audioSourceObject.AddComponent(audioSource);
+
+                AddObject(audioSourceObject);
+
+                audioSource.Play("./res/bounce.wav");
+                audioSource.SetLooping(true);
+                audioSource.Is3D(true);
+                audioSource.SetVolume(20);
+            }
 
             if (Input.GetKeyDown(Key.R)) {
 
@@ -158,7 +177,7 @@ namespace Game {
             }
 
             if (Input.GetKeyDown(Key.P)) {
-                    
+
                 var spotLightObj = new GameObject("Spot Light");
                 var spotLight = new SpotLight(new Vector3(1, 1, 0), 5f, new Attenuation(0, 0, 0.01f), MathHelper.DegreesToRadians(70), 0, 0.5f, 0.6f);
                 spotLightObj.Transform.Position = new Vector3(CoreEngine.GetCoreEngine.RenderingEngine.MainCamera.Transform.GetTransformedPosition());
@@ -184,7 +203,8 @@ namespace Game {
             _camera = new GameObject("main camera")
                 .AddComponent(new FreeLook(true, true))
                 .AddComponent(new FreeMove())
-                .AddComponent(new Camera(Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f), CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000)));
+                .AddComponent(new Camera(Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f), CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000)))
+                .AddComponent(new AudioListener());
 
             _camera.Transform.Position = new Vector3(50, 50, 190);
             _camera.Transform.Rotate(new Vector3(1, 0, 0), -0.4f);
