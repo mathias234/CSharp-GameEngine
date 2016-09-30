@@ -30,7 +30,7 @@ namespace NewEngine.Engine.components {
 
             _waterMesh = new Mesh(vertices, indices, true);
 
-            _material = new Material(new Shader("water/water"));
+            _material = new Material(Shader.GetShader("water/water"));
             _material.SetMainTexture(new Texture("dudvMap.png"));
             _material.SetFloat("specularIntensity", 3);
             _material.SetFloat("specularPower", 32);

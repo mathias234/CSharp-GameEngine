@@ -20,7 +20,7 @@ namespace NewEngine.Engine.components.UIComponents {
             _rectTransform = rect;
             _text = text;
             _material = new Material(null);
-            _imageShader = new Shader("UI/UIText");
+            _imageShader = Shader.GetShader("UI/UIText");
             UpdateMesh();
         }
 

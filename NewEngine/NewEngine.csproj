@@ -120,6 +120,7 @@
     <Compile Include="Engine\Rendering\ParticleSystem.cs" />
     <Compile Include="Engine\Rendering\PrimitiveObjects.cs" />
     <Compile Include="Engine\Rendering\ResourceManagament\CubemapResource.cs" />
+    <Compile Include="Engine\Rendering\ResourceManagament\ResourceManager.cs" />
     <Compile Include="Engine\Rendering\ResourceManagament\ShaderResource.cs" />
     <Compile Include="Engine\Rendering\RenderingEngine.cs" />
     <Compile Include="Engine\components\MeshRenderer.cs" />
@@ -131,6 +132,7 @@
     <Compile Include="Engine\Rendering\ResourceManagament\TextureResource.cs" />
     <Compile Include="Engine\Rendering\Material.cs" />
     <Compile Include="Engine\Rendering\Mesh.cs" />
+    <Compile Include="Engine\Rendering\ResourceManagament\IResourceManaged.cs" />
     <Compile Include="Engine\Rendering\Shading\Shader.cs" />
     <Compile Include="Engine\components\BaseLight.cs" />
     <Compile Include="Engine\components\DirectionalLight.cs" />

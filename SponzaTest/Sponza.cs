@@ -47,7 +47,7 @@ namespace SponzaTest {
                     displacementOffset = -0.2f;
                 }
 
-                var material = new Material(new Shader("forwardShader"));
+                var material = new Material(Shader.GetShader("forwardShader"));
                     
                 material.SetTexture("cutoutMask",
                     new Texture("sponza/" + sponzaModel + "_mask.png"));

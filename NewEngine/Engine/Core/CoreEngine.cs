@@ -2,6 +2,7 @@
 using System.Drawing;
 using NewEngine.Engine.Physics;
 using NewEngine.Engine.Rendering;
+using NewEngine.Engine.Rendering.ResourceManagament;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -70,6 +71,10 @@ namespace NewEngine.Engine.Core {
             RenderingEngine.ResizeWindow();
             _width = Width;
             _height = Height;
+        }
+
+        public void ShutdownEngine() {
+            ResourceManager.CleanupResources();
         }
 
         public static void BindAsRenderTarget() {

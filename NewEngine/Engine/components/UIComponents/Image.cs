@@ -17,7 +17,7 @@ namespace NewEngine.Engine.components.UIComponents {
             _defaultTexture = new Texture("default_mask.png");
             _rectTransform = rect;
 
-            _imageShader = new Shader("UI/UIImage");
+            _imageShader = Shader.GetShader("UI/UIImage");
 
             _material = new Material(_imageShader);
 
