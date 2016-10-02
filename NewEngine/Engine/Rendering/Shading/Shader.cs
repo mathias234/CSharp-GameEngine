@@ -275,7 +275,13 @@ namespace NewEngine.Engine.Rendering.Shading {
         }
 
         public void Cleanup() {
-            //TODO: implement me
+            foreach (var shaderMap in _shaderMap) {
+                foreach (var shaderResource in shaderMap.Value) {
+                    shaderResource.Value.Cleanup();
+                }
+            }
+
+            _shaderMap.Clear();
         }
     }
 }

@@ -8,7 +8,7 @@ using NewEngine.Engine.Rendering.Shading;
 using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering.ResourceManagament {
-    public class ShaderResource {
+    public class ShaderResource : IResourceManaged {
         private int _refCount;
         private List<int> _shaders;
 
@@ -298,13 +298,13 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
             return _refCount == 0;
         }
 
-        //public void Cleanup() {
-        //    foreach (var shader in _shaders) {
-        //        GL.DetachShader(Program, shader);
-        //        GL.DeleteShader(shader);
-        //    }
-        //    GL.DeleteProgram(Program);
-        //}
+        public void Cleanup() {
+            foreach (var shader in _shaders) {
+                GL.DetachShader(Program, shader);
+                GL.DeleteShader(shader);
+            }
+            GL.DeleteProgram(Program);
+        }
 
         private class GlslStruct {
             public string Name;

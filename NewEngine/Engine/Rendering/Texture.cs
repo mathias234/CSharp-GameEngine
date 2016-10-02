@@ -11,7 +11,6 @@ using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
 namespace NewEngine.Engine.Rendering {
     // TODO: maybe clean up the parameters soo much its choking me
     public class Texture : IResourceManaged {
-        private static Dictionary<string, TextureResource> _loadedTextures = new Dictionary<string, TextureResource>();
         private TextureResource _resource;
         private TextureTarget _target;
         private string _filename;
@@ -29,24 +28,17 @@ namespace NewEngine.Engine.Rendering {
 
             _filename = filename;
 
-            if (_loadedTextures.ContainsKey(filename)) {
-                _resource = _loadedTextures[filename];
-                _resource.AddReference();
-            }
+            Bitmap image;
+            if (File.Exists(Path.Combine("./res/textures", filename)))
+                image = new Bitmap(Path.Combine("./res/textures", filename));
             else {
-                Bitmap image;
-                if (File.Exists(Path.Combine("./res/textures", filename)))
-                    image = new Bitmap(Path.Combine("./res/textures", filename));
-                else {
-                    LogManager.Error("Image does not exists");
-                    image = new Bitmap(Path.Combine("./res/textures", "default_mask.png"));
-                }
-                _width = image.Width;
-                _height = image.Height;
-
-                _resource = LoadTexture(image, filter, internalFormat, format, clamp, attachment, target);
-                _loadedTextures.Add(filename, _resource);
+                LogManager.Error("Image does not exists");
+                image = new Bitmap(Path.Combine("./res/textures", "default_mask.png"));
             }
+            _width = image.Width;
+            _height = image.Height;
+
+            _resource = LoadTexture(image, filter, internalFormat, format, clamp, attachment, target);
             _target = target;
         }
         /// <summary>
@@ -69,18 +61,10 @@ namespace NewEngine.Engine.Rendering {
             FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0) {
 
             _filename = image.GetPixel(2, 3).ToString() + image.GetPixel(1, 1);
+            _width = image.Width;
+            _height = image.Height;
 
-            if (_loadedTextures.ContainsKey(_filename)) {
-                _resource = _loadedTextures[_filename];
-                _resource.AddReference();
-            }
-            else {
-                _width = image.Width;
-                _height = image.Height;
-
-                _resource = LoadTexture(image, filter, internalFormat, format, clamp, attachment, target);
-                _loadedTextures.Add(_filename, _resource);
-            }
+            _resource = LoadTexture(image, filter, internalFormat, format, clamp, attachment, target);
             _target = target;
         }
 
@@ -148,12 +132,7 @@ namespace NewEngine.Engine.Rendering {
 
         public void Cleanup() {
             LogManager.Debug("removing texture : " + _filename);
-
-            if (_resource != null && _resource.RemoveReference()) {
-                if (_filename != null) {
-                    _loadedTextures.Remove(_filename);
-                }
-            }
+            _resource.Cleanup();
         }
 
         public int Width

@@ -10,7 +10,6 @@ using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering {
     public class Mesh : IResourceManaged {
-        private static Dictionary<string, MeshResource> _loadedModels = new Dictionary<string, MeshResource>();
         private MeshResource _resource;
         private string _filename;
 
@@ -20,15 +19,8 @@ namespace NewEngine.Engine.Rendering {
         /// <param name="filename"></param>
         public Mesh(string filename) {
             _filename = filename;
-            if (_loadedModels.ContainsKey(filename)) {
-                _resource = _loadedModels[filename];
-                _resource.AddReference();
-            }
-            else {
-                _resource = new MeshResource();
-                LoadMesh(filename);
-                _loadedModels.Add(filename, _resource);
-            }
+            _resource = new MeshResource();
+            LoadMesh(filename);
         }
 
         public static Mesh GetMesh(string filename) {
@@ -73,12 +65,7 @@ namespace NewEngine.Engine.Rendering {
         }
 
         public void Cleanup() {
-            LogManager.Debug("removing mesh : " + _filename);
-            if (_resource != null && _resource.RemoveReference()) {
-                if (_filename != null) {
-                    _loadedModels.Remove(_filename);
-                }
-            }
+            _resource.Cleanup();
         }
 
         public Vertex[] Vertices { get; private set; }
