@@ -8,7 +8,6 @@ using NewEngine.Engine.Rendering;
 using NewEngine.Engine.Rendering.Shading;
 using OpenTK;
 using OpenTK.Input;
-using Image = NewEngine.Engine.components.UIComponents.Image;
 using NewEngine.Engine.Audio;
 
 namespace Game {
@@ -19,7 +18,6 @@ namespace Game {
         private List<GameObject> _spawnedObjects = new List<GameObject>();
 
         private Material _mainMaterial;
-        private Mesh _mesh;
         private GameObject _cube;
         private Mesh _treeBranch;
         private Mesh _treeLeaf;
@@ -62,16 +60,16 @@ namespace Game {
             var plane = new GameObject("plane");
             _cube = new GameObject("cubebase");
 
-            var cubeMesh = new Mesh("plane.obj");
-            var planeMesh = new Mesh("plane.obj");
+            var cubeMesh = Mesh.GetMesh("plane.obj");
+            var planeMesh = Mesh.GetMesh("plane.obj");
 
             _mainMaterial = new Material(Shader.GetShader("batchedShader"));
 
-            _mainMaterial.SetTexture("diffuse", new Texture("bricks.png"));
+            _mainMaterial.SetTexture("diffuse", Texture.GetTexture("bricks.png"));
 
-            _mainMaterial.SetTexture("normalMap", new Texture("bricks_nrm.png"));
+            _mainMaterial.SetTexture("normalMap", Texture.GetTexture("bricks_nrm.png"));
 
-            _mainMaterial.SetTexture("dispMap", new Texture("bricks_disp.jpg"));
+            _mainMaterial.SetTexture("dispMap", Texture.GetTexture("bricks_disp.jpg"));
 
             _mainMaterial.SetFloat("dispMapScale", 0.01f);
 
@@ -109,14 +107,13 @@ namespace Game {
             water.Transform.Position = new Vector3(0, 15, 0);
 
             AddObject(terrain);
-            //AddObject(water);
+            AddObject(water);
 
             CoreEngine.GetCoreEngine.RenderingEngine.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg",
                 "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
 
-            _mesh = new Mesh("cube.obj");
-            _treeBranch = new Mesh("tree/branch.obj");
-            _treeLeaf = new Mesh("tree/leaf.obj");
+            _treeBranch = Mesh.GetMesh("tree/branch.obj");
+            _treeLeaf = Mesh.GetMesh("tree/leaf.obj");
 
         }
 
@@ -190,13 +187,23 @@ namespace Game {
         }
 
         public void StartMassiveSpawn() {
-            var gObj = new GameObject("sphere:") {
-                Transform = { Position = _camera.Transform.Position }
-            };
-            gObj.AddComponent(new MeshRenderer(_mesh, _mainMaterial));
-            //gObj.AddComponent(new SphereCollider(2, 1));
-            AddObject(gObj);
-            _spawnedObjects.Add(gObj);
+
+            for (int i = 0; i < 5; i++) {
+                for (int j = 0; j < 5; j++) {
+                    for (int k = 0; k < 5; k++) {
+                        var gObj = new GameObject("sphere:") {
+                            Transform = { Position = _camera.Transform.Position + (new Vector3(i, j, k) * 2.5f) }
+                        };
+
+                        var _mesh = Mesh.GetMesh("cube.obj");
+
+                        gObj.AddComponent(new MeshRenderer(_mesh, _mainMaterial));
+                        //gObj.AddComponent(new SphereCollider(2, 1));
+                        AddObject(gObj);
+                        _spawnedObjects.Add(gObj);
+                    }
+                }
+            }
         }
 
         public void CreateCamera() {

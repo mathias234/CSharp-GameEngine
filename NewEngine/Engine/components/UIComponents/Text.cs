@@ -82,7 +82,7 @@ namespace NewEngine.Engine.components.UIComponents {
             //                (Biggest(_rectTransform.Size.X, _rectTransform.Size.Y) - _rectTransform.Size.X);
 
             //// the Texture coords work, but they might be changed to look better? idk all this flipping and stuff seems wrong TODO: Fixme
-            //_mesh = new Mesh(new[] {
+            //_mesh = Mesh.GetMeshnew[] {
             //    new Vertex(new Vector3(-_rectTransform.Size.X, -_rectTransform.Size.Y, 0) + _rectTransform.Position,
             //        new Vector2(-texCoordX, texCoordY)),
             //    new Vertex(new Vector3(-_rectTransform.Size.X, _rectTransform.Size.Y, 0) + _rectTransform.Position,
@@ -106,7 +106,7 @@ namespace NewEngine.Engine.components.UIComponents {
             }
             _textBmp.Save("image.png", ImageFormat.Png);
             _material = new Material(_imageShader);
-            _material.SetMainTexture(new Texture(_textBmp));
+            _material.SetMainTexture(Texture.GetTexture(_textBmp));
         }
 
 

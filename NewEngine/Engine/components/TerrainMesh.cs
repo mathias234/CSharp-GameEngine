@@ -53,14 +53,14 @@ namespace NewEngine.Engine.components {
             _heigtmapStrength = heigtmapStrength;
 
 
-            _tex1 = new Texture(tex1);
-            _tex1Nrm = new Texture(tex1Nrm);
-            _tex2 = new Texture(tex2);
-            _tex2Nrm = new Texture(tex2Nrm);
-            _layer1 = new Texture(layer1);
-            _tex3 = new Texture(tex3);
-            _tex3Nrm = new Texture(tex3Nrm);
-            _layer2 = new Texture(layer2);
+            _tex1 = Texture.GetTexture(tex1);
+            _tex1Nrm = Texture.GetTexture(tex1Nrm);
+            _tex2 = Texture.GetTexture(tex2);
+            _tex2Nrm = Texture.GetTexture(tex2Nrm);
+            _layer1 = Texture.GetTexture(layer1);
+            _tex3 = Texture.GetTexture(tex3);
+            _tex3Nrm = Texture.GetTexture(tex3Nrm);
+            _layer2 = Texture.GetTexture(layer2);
 
             var image = new Bitmap(Path.Combine("./res/textures", heightmapTextureFilename));
 
@@ -137,7 +137,7 @@ namespace NewEngine.Engine.components {
             _material.SetFloat("dispMapBias", _dispOffset);
 
 
-            _mesh = new Mesh(verts.ToArray(), tris.ToArray(), true);
+            _mesh = Mesh.GetMesh(verts.ToArray(), tris.ToArray(), true);
         }
 
         public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage) {

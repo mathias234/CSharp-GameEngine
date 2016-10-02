@@ -65,9 +65,9 @@ namespace NewEngine.Engine.Rendering {
 
             SetVector4("clipPlane", new Vector4(0, 0, 0, 15));
 
-            SetTexture("displayTexture", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth() / 7, (int)CoreEngine.GetHeight() / 7, TextureMinFilter.Nearest));
-            SetTexture("tempFilter", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
-            SetTexture("tempFilter2", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
+            SetTexture("displayTexture", Texture.GetTexture(IntPtr.Zero, (int)CoreEngine.GetWidth() / 7, (int)CoreEngine.GetHeight() / 7, TextureMinFilter.Nearest));
+            SetTexture("tempFilter", Texture.GetTexture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
+            SetTexture("tempFilter2", Texture.GetTexture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
 
 
             _skyboxShader = Shader.GetShader("skybox");
@@ -86,12 +86,12 @@ namespace NewEngine.Engine.Rendering {
             _altCameraObject = new GameObject("alt camera").AddComponent(_altCamera);
 
             _skyboxMaterial = new Material(null);
-            _skybox = new Mesh("skybox.obj");
+            _skybox = Mesh.GetMesh("skybox.obj");
 
             int width = (int)CoreEngine.GetWidth();
             int height = (int)CoreEngine.GetHeight();
 
-            _tempTarget = new Texture(null, width, height, TextureMinFilter.Nearest);
+            _tempTarget = Texture.GetTexture(IntPtr.Zero, width, height, TextureMinFilter.Nearest);
 
             _plane = PrimitiveObjects.CreatePlane;
             _planeMaterial = new Material(Shader.GetShader("forwardShader"));
@@ -112,9 +112,9 @@ namespace NewEngine.Engine.Rendering {
 
 
         public void ResizeWindow() {
-            SetTexture("displayTexture", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Nearest));
-            SetTexture("tempFilter", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
-            SetTexture("tempFilter2", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
+            SetTexture("displayTexture", Texture.GetTexture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Nearest));
+            SetTexture("tempFilter", Texture.GetTexture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
+            SetTexture("tempFilter2", Texture.GetTexture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
             MainCamera.SetProjection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f),
                 CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000);
         }
@@ -274,7 +274,7 @@ namespace NewEngine.Engine.Rendering {
 
         public void SetSkybox(string textureTopFilename, string textureBottomFilename, string textureFrontFilename,
             string textureBackFilename, string textureLeftFilename, string textureRightFilename) {
-            var cubemap = new CubemapTexture(textureTopFilename, textureBottomFilename, textureFrontFilename,
+            var cubemap = CubemapTexture.GetCubemap(textureTopFilename, textureBottomFilename, textureFrontFilename,
                 textureBackFilename, textureLeftFilename, textureRightFilename);
             _skyboxMaterial.SetCubemapTexture("skybox", cubemap);
         }

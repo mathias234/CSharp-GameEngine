@@ -275,7 +275,7 @@ namespace NewEngine.Engine.Rendering.Shading {
         }
 
         public void Cleanup() {
-            throw new NotImplementedException();
+            //TODO: implement me
         }
     }
 }

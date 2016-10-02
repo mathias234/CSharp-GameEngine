@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NewEngine.Engine.Rendering.Shading;
+using NewEngine.Engine.Core;
 
 namespace NewEngine.Engine.Rendering.ResourceManagament {
     public static class ResourceManager {
@@ -22,6 +19,7 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
 
         public static void CleanupResources() {
             foreach (var resourceManaged in _storedResources) {
+                LogManager.Debug("Removing resource: " + resourceManaged.Value.GetType().FullName);
                 resourceManaged.Value.Cleanup();
             }
         }

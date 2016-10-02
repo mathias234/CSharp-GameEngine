@@ -3,7 +3,7 @@ using NewEngine.Engine.Core;
 using NewEngine.Engine.Rendering.ResourceManagament;
 
 namespace NewEngine.Engine.Rendering {
-    public class CubemapTexture {
+    public class CubemapTexture : IResourceManaged {
         private static Dictionary<string, CubemapResource> _loadedCubemaps = new Dictionary<string, CubemapResource>();
         private CubemapResource _resource;
         private string _filename;
@@ -22,8 +22,13 @@ namespace NewEngine.Engine.Rendering {
             }
         }
 
+        public static CubemapTexture GetCubemap(string textureTop, string textureBottom, string textureFront, string textureBack,
+            string textureLeft, string textureRight) {
+            return ResourceManager.CreateResource<CubemapTexture>(textureTop, textureBottom, textureFront, textureBack, textureLeft,
+                    textureRight);
+        }
 
-        ~CubemapTexture() {
+        public void Cleanup() {
             LogManager.Debug("removing CubemapTexture : " + _filename);
             if (_resource != null && _resource.RemoveReference()) {
                 if (_filename != null) {

@@ -50,14 +50,14 @@ namespace SponzaTest {
                 var material = new Material(Shader.GetShader("forwardShader"));
                     
                 material.SetTexture("cutoutMask",
-                    new Texture("sponza/" + sponzaModel + "_mask.png"));
+                    Texture.GetTexture("sponza/" + sponzaModel + "_mask.png"));
     
 
-                material. SetTexture("diffuse", new Texture("sponza/" + sponzaModel + ".png"));
+                material. SetTexture("diffuse", Texture.GetTexture("sponza/" + sponzaModel + ".png"));
 
-                material.SetTexture("normalMap", new Texture("sponza/" + sponzaModel + "_nrm.png"));
+                material.SetTexture("normalMap", Texture.GetTexture("sponza/" + sponzaModel + "_nrm.png"));
 
-                material.SetTexture("dispMap", new Texture("sponza/" + sponzaModel + "_disp.png"));
+                material.SetTexture("dispMap", Texture.GetTexture("sponza/" + sponzaModel + "_disp.png"));
 
                 material.SetFloat("dispMapScale", displacementScale);
 
@@ -69,7 +69,7 @@ namespace SponzaTest {
                 material.SetFloat("specularPower", 32);
 
                 var sponza =
-        new GameObject(sponzaModel).AddComponent(new MeshRenderer(new Mesh("sponza/" + sponzaModel + "/model.obj"),
+        new GameObject(sponzaModel).AddComponent(new MeshRenderer(Mesh.GetMesh("sponza/" + sponzaModel + "/model.obj"),
             material));
 
 

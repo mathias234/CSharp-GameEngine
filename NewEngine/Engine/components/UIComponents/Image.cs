@@ -14,7 +14,7 @@ namespace NewEngine.Engine.components.UIComponents {
         private Texture _defaultTexture;
 
         public Image(RectTransform rect, Color color, Texture texture) {
-            _defaultTexture = new Texture("default_mask.png");
+            _defaultTexture = Texture.GetTexture("default_mask.png");
             _rectTransform = rect;
 
             _imageShader = Shader.GetShader("UI/UIImage");
@@ -71,7 +71,7 @@ namespace NewEngine.Engine.components.UIComponents {
         }
 
         private void UpdateMesh() {
-            _mesh = new Mesh(new[] {
+            _mesh = Mesh.GetMesh(new[] {
                 new Vertex(new Vector3(-1, -1, 0),
                     new Vector2(-1, 1)),
                 new Vertex(new Vector3(-1, 1, 0) ,

@@ -9,11 +9,15 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering {
-    public class Mesh {
+    public class Mesh : IResourceManaged {
         private static Dictionary<string, MeshResource> _loadedModels = new Dictionary<string, MeshResource>();
         private MeshResource _resource;
         private string _filename;
 
+        /// <summary>
+        /// Use GetShader, if you dont the resource manager WILL not handle this instance
+        /// </summary>
+        /// <param name="filename"></param>
         public Mesh(string filename) {
             _filename = filename;
             if (_loadedModels.ContainsKey(filename)) {
@@ -27,15 +31,14 @@ namespace NewEngine.Engine.Rendering {
             }
         }
 
-        ~Mesh() {
-            LogManager.Debug("removing mesh : " + _filename);
-            if (_resource != null && _resource.RemoveReference()) {
-                if (_filename != null) {
-                    _loadedModels.Remove(_filename);
-                }
-            }
+        public static Mesh GetMesh(string filename) {
+            return ResourceManager.CreateResource<Mesh>(filename);
         }
 
+        /// <summary>
+        /// Use GetShader, if you dont the resource manager WILL not handle this instance
+        /// </summary>
+        /// <param name="filename"></param>
         public Mesh(Vertex[] vertices, int[] indices) {
             CalculateTangents(vertices, indices);
 
@@ -48,6 +51,14 @@ namespace NewEngine.Engine.Rendering {
         }
 
 
+        public static Mesh GetMesh(Vertex[] vertices, int[] indices) {
+            return ResourceManager.CreateResource<Mesh>(vertices, indices);
+        }
+
+        /// <summary>
+        /// Use GetShader, if you dont the resource manager WILL not handle this instance
+        /// </summary>
+        /// <param name="filename"></param>
         public Mesh(Vertex[] vertices, int[] indices, bool calcNormals) {
             Vertices = vertices;
             Indices = indices;
@@ -55,6 +66,19 @@ namespace NewEngine.Engine.Rendering {
             _resource = new MeshResource();
 
             AddVertices(vertices, indices, calcNormals);
+        }
+
+        public static Mesh GetMesh(Vertex[] vertices, int[] indices, bool calcNormals) {
+            return ResourceManager.CreateResource<Mesh>(vertices, indices, calcNormals);
+        }
+
+        public void Cleanup() {
+            LogManager.Debug("removing mesh : " + _filename);
+            if (_resource != null && _resource.RemoveReference()) {
+                if (_filename != null) {
+                    _loadedModels.Remove(_filename);
+                }
+            }
         }
 
         public Vertex[] Vertices { get; private set; }

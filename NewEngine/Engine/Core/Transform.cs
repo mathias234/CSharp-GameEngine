@@ -92,7 +92,7 @@ namespace NewEngine.Engine.Core {
             // ORDER IS IMPORTANT
             var result = rotationMatrix * scaleMatrix * translationMatrix;
 
-            return GetParentMatrix() * result;
+            return  result;
         }
 
 

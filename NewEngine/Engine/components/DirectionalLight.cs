@@ -23,8 +23,8 @@ namespace NewEngine.Engine.components {
                         false, shadowMapSizeAsPowerOf2, shadowSoftness, lightBleedReductionAmount, minVariance);
 
                 int shadowMapSize = 1 << (shadowMapSizeAsPowerOf2 + 1);
-                ShadowInfo.ShadowMap = new Texture(IntPtr.Zero, shadowMapSize, shadowMapSize, TextureMinFilter.Linear, PixelInternalFormat.Rg32f, PixelFormat.Rgba, true);
-                ShadowInfo.TempShadowMap = new Texture(IntPtr.Zero, shadowMapSize, shadowMapSize, TextureMinFilter.Linear, PixelInternalFormat.Rg32f, PixelFormat.Rgba, true);
+                ShadowInfo.ShadowMap = Texture.GetTexture(IntPtr.Zero, shadowMapSize, shadowMapSize, TextureMinFilter.Linear, PixelInternalFormat.Rg32f, PixelFormat.Rgba, true);
+                ShadowInfo.TempShadowMap = Texture.GetTexture(IntPtr.Zero, shadowMapSize, shadowMapSize, TextureMinFilter.Linear, PixelInternalFormat.Rg32f, PixelFormat.Rgba, true);
             }
 
         }
