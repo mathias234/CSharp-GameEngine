@@ -24,7 +24,7 @@ namespace NewEngine.Engine.Rendering {
 
         public static CubemapTexture GetCubemap(string textureTop, string textureBottom, string textureFront, string textureBack,
             string textureLeft, string textureRight) {
-            return ResourceManager.CreateResource<CubemapTexture>(textureTop, textureBottom, textureFront, textureBack, textureLeft,
+            return ResourceManager.CreateResource<CubemapTexture>(false, textureTop, textureBottom, textureFront, textureBack, textureLeft,
                     textureRight);
         }
 

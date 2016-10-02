@@ -32,7 +32,7 @@ namespace NewEngine.Engine.Rendering {
         }
 
         public static Mesh GetMesh(string filename) {
-            return ResourceManager.CreateResource<Mesh>(filename);
+            return ResourceManager.CreateResource<Mesh>(false, filename);
         }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace NewEngine.Engine.Rendering {
 
 
         public static Mesh GetMesh(Vertex[] vertices, int[] indices) {
-            return ResourceManager.CreateResource<Mesh>(vertices, indices);
+            return ResourceManager.CreateResource<Mesh>(false, vertices, indices);
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace NewEngine.Engine.Rendering {
         }
 
         public static Mesh GetMesh(Vertex[] vertices, int[] indices, bool calcNormals) {
-            return ResourceManager.CreateResource<Mesh>(vertices, indices, calcNormals);
+            return ResourceManager.CreateResource<Mesh>(true, vertices, indices, calcNormals);
         }
 
         public void Cleanup() {

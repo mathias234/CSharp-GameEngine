@@ -57,7 +57,7 @@ namespace NewEngine.Engine.Rendering {
             PixelInternalFormat internalFormat = PixelInternalFormat.Rgba,
             PixelFormat format = PixelFormat.Bgra, bool clamp = false,
             FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0) {
-            return ResourceManager.CreateResource<Texture>(filename, target, filter, internalFormat, format, clamp, attachment);
+            return ResourceManager.CreateResource<Texture>(false, filename, target, filter, internalFormat, format, clamp, attachment);
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace NewEngine.Engine.Rendering {
             TextureMinFilter filter = TextureMinFilter.LinearMipmapLinear, PixelInternalFormat internalFormat = PixelInternalFormat.Rgba,
             PixelFormat format = PixelFormat.Bgra, bool clamp = false,
             FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0) {
-            return ResourceManager.CreateResource<Texture>(image, target, filter, internalFormat, format, clamp, attachment);
+            return ResourceManager.CreateResource<Texture>(true, image, target, filter, internalFormat, format, clamp, attachment);
         }
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace NewEngine.Engine.Rendering {
             bool clamp = false,
             FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0,
             TextureTarget target = TextureTarget.Texture2D) {
-            return ResourceManager.CreateResource<Texture>(data, width, height, filter, internalFormat, format, clamp, attachment, target);
+            return ResourceManager.CreateResource<Texture>(true, data, width, height, filter, internalFormat, format, clamp, attachment, target);
         }
 
         /// <summary>
@@ -143,7 +143,7 @@ namespace NewEngine.Engine.Rendering {
             bool clamp = false,
             FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0,
             TextureTarget target = TextureTarget.Texture2D) {
-            return ResourceManager.CreateResource<Texture>(data, width, height, filter, internalFormat, format, clamp, attachment, target);
+            return ResourceManager.CreateResource<Texture>(true, data, width, height, filter, internalFormat, format, clamp, attachment, target);
         }
 
         public void Cleanup() {

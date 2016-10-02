@@ -37,7 +37,7 @@ namespace NewEngine.Engine.Rendering.Shading {
         }
 
         public static Shader GetShader(string shadername) {
-            return ResourceManager.CreateResource<Shader>(shadername);
+            return ResourceManager.CreateResource<Shader>(false, shadername);
         }
 
         private List<string> shaderTypes;
