@@ -19,8 +19,6 @@ namespace Game {
 
         private Material _mainMaterial;
         private GameObject _cube;
-        private Mesh _treeBranch;
-        private Mesh _treeLeaf;
 
         public override void Start() {
             CreateCamera();
@@ -60,9 +58,6 @@ namespace Game {
             var plane = new GameObject("plane");
             _cube = new GameObject("cubebase");
 
-            var cubeMesh = Mesh.GetMesh("plane.obj");
-            var planeMesh = Mesh.GetMesh("plane.obj");
-
             _mainMaterial = new Material(Shader.GetShader("batchedShader"));
 
             _mainMaterial.SetTexture("diffuse", Texture.GetTexture("bricks.png"));
@@ -82,7 +77,6 @@ namespace Game {
 
 
             plane.AddComponent(new BoxCollider(1, 0.1f, 1, 0));
-            _cube.AddComponent(new MeshRenderer(cubeMesh, _mainMaterial));
             _cube.AddComponent(new BoxCollider(1, 1, 1, 0));
 
 
@@ -112,9 +106,6 @@ namespace Game {
             CoreEngine.GetCoreEngine.RenderingEngine.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg",
                 "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
 
-            _treeBranch = Mesh.GetMesh("tree/branch.obj");
-            _treeLeaf = Mesh.GetMesh("tree/leaf.obj");
-
         }
 
         public override void Update(float deltaTime) {
@@ -143,28 +134,6 @@ namespace Game {
                 audioSource.SetLooping(true);
                 audioSource.Is3D(true);
                 audioSource.SetVolume(20);
-            }
-
-            if (Input.GetKeyDown(Key.R)) {
-
-                RayCastResult result;
-
-                PhysicsEngine.Raycast(new Ray(_camera.Transform.Position, -Vector3.UnitY), 10000, out result);
-
-                var branch = new GameObject("branch") {
-                    Transform = { Position = new Vector3(_camera.Transform.Position.X, result.HitData.Location.Y, _camera.Transform.Position.Z) }
-                };
-                branch.AddComponent(new MeshRenderer(_treeBranch, _mainMaterial));
-                AddObject(branch);
-
-                var leaf = new GameObject("leaf") {
-                    Transform = { Position = new Vector3(_camera.Transform.Position.X, result.HitData.Location.Y, _camera.Transform.Position.Z) }
-                };
-                leaf.AddComponent(new MeshRenderer(_treeLeaf, _mainMaterial));
-                AddObject(leaf);
-
-                _spawnedObjects.Add(branch);
-                _spawnedObjects.Add(leaf);
             }
 
             if (Input.GetKeyDown(Key.Q)) {
