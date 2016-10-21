@@ -243,7 +243,7 @@ namespace NewEngine.Engine.Rendering {
             GL.VertexAttribDivisor(1, 1);
             GL.VertexAttribDivisor(2, 1);
 
-            GL.DrawArraysInstanced(BeginMode.TriangleStrip, 0, 4, particleCount);
+            GL.DrawArraysInstanced(PrimitiveType.TriangleStrip, 0, 4, particleCount);
 
             GL.DisableVertexAttribArray(0);
             GL.DisableVertexAttribArray(1);

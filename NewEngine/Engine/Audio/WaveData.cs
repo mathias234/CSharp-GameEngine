@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Diagnostics;
-using System.Threading;
+﻿
+using System;
 using System.IO;
-using OpenTK;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
 using OpenTK.Audio.OpenAL;
-using OpenTK.Audio;
-using OpenTK.Input;
+
 namespace NewEngine.Engine.Audio {
     public class WaveData {
         int channels, bits_per_sample, sample_rate;
