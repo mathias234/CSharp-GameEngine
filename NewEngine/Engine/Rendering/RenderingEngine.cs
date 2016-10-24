@@ -10,6 +10,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering {
     public class RenderingEngine : MappedValues {
+        private static ICoreEngine _coreEngine;
         private Camera _altCamera;
         private GameObject _altCameraObject;
 
@@ -32,7 +33,8 @@ namespace NewEngine.Engine.Rendering {
         private Texture _tempTarget;
 
 
-        public RenderingEngine() {
+        public RenderingEngine(ICoreEngine coreEngine) {
+            _coreEngine = coreEngine;
             _lights = new List<BaseLight>();
             _samplerMap = new Dictionary<string, int> {
                 {"diffuse", 0},
@@ -65,7 +67,7 @@ namespace NewEngine.Engine.Rendering {
 
             SetVector4("clipPlane", new Vector4(0, 0, 0, 15));
 
-            SetTexture("displayTexture", Texture.GetTexture(IntPtr.Zero, (int)CoreEngine.GetWidth() / 7, (int)CoreEngine.GetHeight() / 7, TextureMinFilter.Nearest));
+            SetTexture("displayTexture", Texture.GetTexture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Nearest));
             SetTexture("tempFilter", Texture.GetTexture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
             SetTexture("tempFilter2", Texture.GetTexture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
 
@@ -132,7 +134,7 @@ namespace NewEngine.Engine.Rendering {
 
             DoPostProccess();
 
-            CoreEngine.GetCoreEngine.SwapBuffers();
+            _coreEngine.SwapBuffers();
         }
 
         private void DoPostProccess() {
@@ -345,11 +347,11 @@ namespace NewEngine.Engine.Rendering {
         {
             set
             {
-                CoreEngine.GetCoreEngine.RenderingEngine.SetVector3("ambient", value);
+                _coreEngine.RenderingEngine.SetVector3("ambient", value);
             }
             get
             {
-                return CoreEngine.GetCoreEngine.RenderingEngine.GetVector3("ambient");
+                return _coreEngine.RenderingEngine.GetVector3("ambient");
             }
         }
 

@@ -102,12 +102,12 @@ namespace NewEngine.Engine.components.UIComponents {
         }
 
 
-        public override void AddToEngine(CoreEngine engine) {
+        public override void AddToEngine(ICoreEngine engine) {
             base.AddToEngine(engine);
             engine.RenderingEngine.AddUI(this);
         }
 
-        public override void OnDestroyed(CoreEngine engine) {
+        public override void OnDestroyed(ICoreEngine engine) {
             base.OnDestroyed(engine);
             engine.RenderingEngine.RemoveUI(this);
         }

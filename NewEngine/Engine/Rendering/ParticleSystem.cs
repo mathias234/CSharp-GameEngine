@@ -243,7 +243,7 @@ namespace NewEngine.Engine.Rendering {
             GL.VertexAttribDivisor(1, 1);
             GL.VertexAttribDivisor(2, 1);
 
-            GL.DrawArraysInstanced(PrimitiveType.TriangleStrip, 0, 4, particleCount);
+            GL.DrawArraysInstanced(BeginMode.TriangleStrip, 0, 4, particleCount);
 
             GL.DisableVertexAttribArray(0);
             GL.DisableVertexAttribArray(1);
@@ -256,12 +256,12 @@ namespace NewEngine.Engine.Rendering {
             GL.Disable(EnableCap.Blend);
         }
 
-        public override void AddToEngine(CoreEngine engine) {
+        public override void AddToEngine(ICoreEngine engine) {
             base.AddToEngine(engine);
             engine.RenderingEngine.AddNonBatched(gameObject);
         }
 
-        public override void OnDestroyed(CoreEngine engine) {
+        public override void OnDestroyed(ICoreEngine engine) {
             base.AddToEngine(engine);
             engine.RenderingEngine.RemoveNonBatched(gameObject);
         }

@@ -15,7 +15,6 @@ namespace NewEngine.Engine.Core {
         private static Vector2 _lockMousePosition;
 
         public static void Update(MouseDevice mouse) {
-            _mouseDevice = mouse;
             for (var i = 0; i < NumKeycodes; i++) {
                 _lastKeys[i] = GetKey((Key)i);
             }

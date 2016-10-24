@@ -239,7 +239,7 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
             GL.LinkProgram(Program);
 
             int programLinkStatus;
-            GL.GetProgram(Program, GetProgramParameterName.LinkStatus, out programLinkStatus);
+            GL.GetProgram(Program, ProgramParameter.LinkStatus, out programLinkStatus);
 
             if (programLinkStatus == 0) {
                 LogManager.Error(GL.GetProgramInfoLog(Program));
@@ -248,7 +248,7 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
             GL.ValidateProgram(Program);
 
             int programValidateStatus;
-            GL.GetProgram(Program, GetProgramParameterName.ValidateStatus, out programValidateStatus);
+            GL.GetProgram(Program, ProgramParameter.ValidateStatus, out programValidateStatus);
 
             if (programValidateStatus == 0) {
                 LogManager.Error(GL.GetProgramInfoLog(Program));

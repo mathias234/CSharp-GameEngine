@@ -18,7 +18,7 @@ namespace NewEngine.Engine.Core {
 
         public GameObject GetRootObject => _root ?? (_root = new GameObject("root"));
 
-        public void SetEngine(CoreEngine coreEngine) {
+        public void SetEngine(ICoreEngine coreEngine) {
             GetRootObject.Engine = coreEngine;
         }
 

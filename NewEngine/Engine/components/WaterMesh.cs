@@ -84,11 +84,11 @@ namespace NewEngine.Engine.components {
 
         }
 
-        public override void AddToEngine(CoreEngine engine) {
+        public override void AddToEngine(ICoreEngine engine) {
             engine.RenderingEngine.AddNonBatched(gameObject);
         }
 
-        public override void OnDestroyed(CoreEngine engine) {
+        public override void OnDestroyed(ICoreEngine engine) {
             // FIXME: probably not going to work
             engine.RenderingEngine.RemoveNonBatched(gameObject);
         }

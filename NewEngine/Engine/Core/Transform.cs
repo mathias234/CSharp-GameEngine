@@ -117,7 +117,7 @@ namespace NewEngine.Engine.Core {
 
         public Vector3 GetTransformedPosition() {
 
-            return Vector3.TransformVector(Position, GetParentMatrix());
+            return Vector3.Transform(Position, GetParentMatrix());
         }
 
         public Quaternion GetTransformedRotation() {

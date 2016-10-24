@@ -153,7 +153,7 @@ namespace NewEngine.Engine.Rendering {
 
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, _resource.Ibo);
 
-            GL.DrawElementsInstanced(PrimitiveType.Triangles, _resource.Size, DrawElementsType.UnsignedInt, IntPtr.Zero, amount);
+            GL.DrawElementsInstanced(BeginMode.Triangles, _resource.Size, DrawElementsType.UnsignedInt, IntPtr.Zero, amount);
 
             GL.VertexAttribDivisor(4, 0);
             GL.VertexAttribDivisor(5, 0);
