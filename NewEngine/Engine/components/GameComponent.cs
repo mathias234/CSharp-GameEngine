@@ -15,9 +15,9 @@ namespace NewEngine.Engine.components {
 
         public virtual void OnEnable() {}
 
-        public virtual void AddToEngine(CoreEngine engine) {}
+        public virtual void AddToEngine(ICoreEngine engine) {}
 
-        public virtual void OnDestroyed(CoreEngine engine) {
+        public virtual void OnDestroyed(ICoreEngine engine) {
 
         }
     }

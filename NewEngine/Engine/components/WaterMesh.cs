@@ -28,17 +28,17 @@ namespace NewEngine.Engine.components {
                 3, 0, 2
             };
 
-            _waterMesh = new Mesh(vertices, indices, true);
+            _waterMesh = Mesh.GetMesh(vertices, indices, true);
 
-            _material = new Material(new Shader("water/water"));
-            _material.SetMainTexture(new Texture("dudvMap.png"));
+            _material = new Material(Shader.GetShader("water/water"));
+            _material.SetMainTexture(Texture.GetTexture("dudvMap.png"));
             _material.SetFloat("specularIntensity", 3);
             _material.SetFloat("specularPower", 32);
-            _material.SetTexture("normalMap", new Texture("matchingNormalMap.png"));
+            _material.SetTexture("normalMap", Texture.GetTexture("matchingNormalMap.png"));
 
-            _material.SetTexture("reflectionTexture", new Texture(IntPtr.Zero, 960, 540, TextureMinFilter.Linear));
-            _material.SetTexture("refractionTexture", new Texture(IntPtr.Zero, 960, 540, TextureMinFilter.Linear));
-            _material.SetTexture("refractionTextureDepth", new Texture(IntPtr.Zero, 960, 540, TextureMinFilter.Linear, PixelInternalFormat.DepthComponent, PixelFormat.DepthComponent, false, FramebufferAttachment.DepthAttachment));
+            _material.SetTexture("reflectionTexture", Texture.GetTexture(IntPtr.Zero, 960, 540, TextureMinFilter.Linear));
+            _material.SetTexture("refractionTexture", Texture.GetTexture(IntPtr.Zero, 960, 540, TextureMinFilter.Linear));
+            _material.SetTexture("refractionTextureDepth", Texture.GetTexture(IntPtr.Zero, 960, 540, TextureMinFilter.Linear, PixelInternalFormat.DepthComponent, PixelFormat.DepthComponent, false, FramebufferAttachment.DepthAttachment));
 
             _material.SetFloat("moveFactor", 0);
             _material.SetFloat("waveStrength", waveStrength);
@@ -84,11 +84,11 @@ namespace NewEngine.Engine.components {
 
         }
 
-        public override void AddToEngine(CoreEngine engine) {
+        public override void AddToEngine(ICoreEngine engine) {
             engine.RenderingEngine.AddNonBatched(gameObject);
         }
 
-        public override void OnDestroyed(CoreEngine engine) {
+        public override void OnDestroyed(ICoreEngine engine) {
             // FIXME: probably not going to work
             engine.RenderingEngine.RemoveNonBatched(gameObject);
         }

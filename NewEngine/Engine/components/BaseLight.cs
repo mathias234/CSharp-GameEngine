@@ -29,11 +29,11 @@ namespace NewEngine.Engine.components {
             return result;
         }
 
-        public override void AddToEngine(CoreEngine engine) {
+        public override void AddToEngine(ICoreEngine engine) {
             engine.RenderingEngine.AddLight(this);
         }
 
-        public override void OnDestroyed(CoreEngine engine) {
+        public override void OnDestroyed(ICoreEngine engine) {
             engine.RenderingEngine.RemoveLight(this);
         }
     }

@@ -10,6 +10,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering {
     public class RenderingEngine : MappedValues {
+        private static ICoreEngine _coreEngine;
         private Camera _altCamera;
         private GameObject _altCameraObject;
 
@@ -32,7 +33,8 @@ namespace NewEngine.Engine.Rendering {
         private Texture _tempTarget;
 
 
-        public RenderingEngine() {
+        public RenderingEngine(ICoreEngine coreEngine) {
+            _coreEngine = coreEngine;
             _lights = new List<BaseLight>();
             _samplerMap = new Dictionary<string, int> {
                 {"diffuse", 0},
@@ -65,13 +67,13 @@ namespace NewEngine.Engine.Rendering {
 
             SetVector4("clipPlane", new Vector4(0, 0, 0, 15));
 
-            SetTexture("displayTexture", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth() / 7, (int)CoreEngine.GetHeight() / 7, TextureMinFilter.Nearest));
-            SetTexture("tempFilter", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
-            SetTexture("tempFilter2", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
+            SetTexture("displayTexture", Texture.GetTexture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Nearest));
+            SetTexture("tempFilter", Texture.GetTexture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
+            SetTexture("tempFilter2", Texture.GetTexture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
 
 
-            _skyboxShader = new Shader("skybox");
-            _filterShader = new Shader("filters/filters");
+            _skyboxShader = Shader.GetShader("skybox");
+            _filterShader = Shader.GetShader("filters/filters");
 
             GL.ClearColor(0, 0, 0, 0);
 
@@ -86,15 +88,15 @@ namespace NewEngine.Engine.Rendering {
             _altCameraObject = new GameObject("alt camera").AddComponent(_altCamera);
 
             _skyboxMaterial = new Material(null);
-            _skybox = new Mesh("skybox.obj");
+            _skybox = Mesh.GetMesh("skybox.obj");
 
             int width = (int)CoreEngine.GetWidth();
             int height = (int)CoreEngine.GetHeight();
 
-            _tempTarget = new Texture(null, width, height, TextureMinFilter.Nearest);
+            _tempTarget = Texture.GetTexture(IntPtr.Zero, width, height, TextureMinFilter.Nearest);
 
             _plane = PrimitiveObjects.CreatePlane;
-            _planeMaterial = new Material(new Shader("forwardShader"));
+            _planeMaterial = new Material(Shader.GetShader("forwardShader"));
             _planeMaterial.SetMainTexture(_tempTarget);
             _planeMaterial.SetFloat("specularIntensity", 1);
             _planeMaterial.SetFloat("specularPower", 8);
@@ -112,9 +114,9 @@ namespace NewEngine.Engine.Rendering {
 
 
         public void ResizeWindow() {
-            SetTexture("displayTexture", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Nearest));
-            SetTexture("tempFilter", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
-            SetTexture("tempFilter2", new Texture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
+            SetTexture("displayTexture", Texture.GetTexture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Nearest));
+            SetTexture("tempFilter", Texture.GetTexture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
+            SetTexture("tempFilter2", Texture.GetTexture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
             MainCamera.SetProjection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f),
                 CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000);
         }
@@ -132,7 +134,7 @@ namespace NewEngine.Engine.Rendering {
 
             DoPostProccess();
 
-            CoreEngine.GetCoreEngine.SwapBuffers();
+            _coreEngine.SwapBuffers();
         }
 
         private void DoPostProccess() {
@@ -274,7 +276,7 @@ namespace NewEngine.Engine.Rendering {
 
         public void SetSkybox(string textureTopFilename, string textureBottomFilename, string textureFrontFilename,
             string textureBackFilename, string textureLeftFilename, string textureRightFilename) {
-            var cubemap = new CubemapTexture(textureTopFilename, textureBottomFilename, textureFrontFilename,
+            var cubemap = CubemapTexture.GetCubemap(textureTopFilename, textureBottomFilename, textureFrontFilename,
                 textureBackFilename, textureLeftFilename, textureRightFilename);
             _skyboxMaterial.SetCubemapTexture("skybox", cubemap);
         }
@@ -345,11 +347,11 @@ namespace NewEngine.Engine.Rendering {
         {
             set
             {
-                CoreEngine.GetCoreEngine.RenderingEngine.SetVector3("ambient", value);
+                _coreEngine.RenderingEngine.SetVector3("ambient", value);
             }
             get
             {
-                return CoreEngine.GetCoreEngine.RenderingEngine.GetVector3("ambient");
+                return _coreEngine.RenderingEngine.GetVector3("ambient");
             }
         }
 

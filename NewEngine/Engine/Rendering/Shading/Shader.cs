@@ -11,11 +11,16 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering.Shading {
-    public class Shader {
+    public class Shader : IResourceManaged {
         private Dictionary<string, Dictionary<string, ShaderResource>> _shaderMap = new Dictionary<string, Dictionary<string, ShaderResource>>();
         private string _filename;
 
+        /// <summary>
+        /// Use GetShader, if you dont the resource manager WILL not handle this instance
+        /// </summary>
+        /// <param name="filename"></param>
         public Shader(string filename) {
+
             _filename = filename + ".shader";
 
             var shaderPath = Path.Combine("./res/shaders", _filename);
@@ -31,12 +36,11 @@ namespace NewEngine.Engine.Rendering.Shading {
             }
         }
 
-        ~Shader() {
-            _shaderMap.Remove(_filename);
+        public static Shader GetShader(string shadername) {
+            return ResourceManager.CreateResource<Shader>(false, shadername);
         }
 
         private List<string> shaderTypes;
-
 
         public List<string> GetShaderTypes
         {
@@ -270,29 +274,14 @@ namespace NewEngine.Engine.Rendering.Shading {
             SetUniform(uniformName + ".cutoff", spotLight.Cutoff, pass);
         }
 
-        public static string LoadShader(string filename) {
-            var shaderSource = new StringBuilder();
-            var includeDirective = "#include";
-            try {
-                var reader = new StreamReader(Path.Combine("./res/shaders", filename));
-
-                string line;
-                while ((line = reader.ReadLine()) != null) {
-                    if (line.StartsWith(includeDirective)) {
-                        var match = Regex.Match(line, @"\""([^""]*)\""");
-
-                        shaderSource.Append(LoadShader(match.Groups[1].Value));
-                    }
-                    else {
-                        shaderSource.Append(line).Append("\n");
-                    }
+        public void Cleanup() {
+            foreach (var shaderMap in _shaderMap) {
+                foreach (var shaderResource in shaderMap.Value) {
+                    shaderResource.Value.Cleanup();
                 }
             }
-            catch (Exception e) {
-                LogManager.Error(e.Message + e.StackTrace);
-            }
 
-            return shaderSource.ToString();
+            _shaderMap.Clear();
         }
     }
 }

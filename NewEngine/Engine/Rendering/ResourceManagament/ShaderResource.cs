@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
 using NewEngine.Engine.Core;
 using NewEngine.Engine.Rendering.Shading;
 using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering.ResourceManagament {
-    public class ShaderResource {
+    public class ShaderResource : IResourceManaged {
         private int _refCount;
         private List<int> _shaders;
 
@@ -17,7 +20,6 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
 
         public List<string> UniformTypes { get; set; }
 
-
         public ShaderResource(string filename) {
             Uniforms = new Dictionary<string, int>();
             UniformNames = new List<string>();
@@ -26,8 +28,8 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
             Program = GL.CreateProgram();
 
 
-            var vertexShaderText = Shader.LoadShader(filename + ".vs");
-            var fragmentShaderText = Shader.LoadShader(filename + ".fs");
+            var vertexShaderText = LoadShader(filename + ".vs");
+            var fragmentShaderText = LoadShader(filename + ".fs");
 
             AddVertexShader(vertexShaderText);
             AddFragmentShader(fragmentShaderText);
@@ -44,6 +46,32 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
             if (Program == 0) {
                 LogManager.Error("Shader creation failed: could not find valid memory location in constructor");
             }
+        }
+
+
+        private static string LoadShader(string filename) {
+            var shaderSource = new StringBuilder();
+            var includeDirective = "#include";
+            try {
+                var reader = new StreamReader(Path.Combine("./res/shaders", filename));
+
+                string line;
+                while ((line = reader.ReadLine()) != null) {
+                    if (line.StartsWith(includeDirective)) {
+                        var match = Regex.Match(line, @"\""([^""]*)\""");
+
+                        shaderSource.Append(LoadShader(match.Groups[1].Value));
+                    }
+                    else {
+                        shaderSource.Append(line).Append("\n");
+                    }
+                }
+            }
+            catch (Exception e) {
+                LogManager.Error(e.Message + e.StackTrace);
+            }
+
+            return shaderSource.ToString();
         }
 
         private void AddAllAttributes(string shaderText) {
@@ -123,7 +151,7 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
                 addThis = false;
 
                 foreach (var glslStruct in structComponents) {
-                    AddUniform(uniformName + "." + glslStruct.Name, glslStruct.type, structs);
+                    AddUniform(uniformName + "." + glslStruct.Name, glslStruct.Type, structs);
                 }
             }
 
@@ -188,7 +216,7 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
 
                     var glslStruct = new GlslStruct();
                     glslStruct.Name = componentName;
-                    glslStruct.type = componentType;
+                    glslStruct.Type = componentType;
                     structComponents.Add(glslStruct);
 
                     componentSemicolonPos = shaderText.IndexOf(";",
@@ -270,25 +298,17 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
             return _refCount == 0;
         }
 
-
-        public void Dispose() {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing) {
-            if (disposing) {
-                foreach (var shader in _shaders) {
-                    GL.DetachShader(Program, shader);
-                    GL.DeleteShader(shader);
-                }
-                GL.DeleteProgram(Program);
+        public void Cleanup() {
+            foreach (var shader in _shaders) {
+                GL.DetachShader(Program, shader);
+                GL.DeleteShader(shader);
             }
+            GL.DeleteProgram(Program);
         }
 
         private class GlslStruct {
             public string Name;
-            public string type;
+            public string Type;
         }
     }
 }

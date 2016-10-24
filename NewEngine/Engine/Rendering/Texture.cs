@@ -10,8 +10,7 @@ using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
 
 namespace NewEngine.Engine.Rendering {
     // TODO: maybe clean up the parameters soo much its choking me
-    public class Texture {
-        private static Dictionary<string, TextureResource> _loadedTextures = new Dictionary<string, TextureResource>();
+    public class Texture : IResourceManaged {
         private TextureResource _resource;
         private TextureTarget _target;
         private string _filename;
@@ -19,6 +18,9 @@ namespace NewEngine.Engine.Rendering {
         private int _width;
         private int _height;
 
+        /// <summary>
+        /// Use GetTexture, if you dont the resource manager WILL not handle this instance
+        /// </summary>
         public Texture(string filename, TextureTarget target = TextureTarget.Texture2D,
             TextureMinFilter filter = TextureMinFilter.LinearMipmapLinear, PixelInternalFormat internalFormat = PixelInternalFormat.Rgba,
             PixelFormat format = PixelFormat.Bgra, bool clamp = false,
@@ -26,49 +28,59 @@ namespace NewEngine.Engine.Rendering {
 
             _filename = filename;
 
-            if (_loadedTextures.ContainsKey(filename)) {
-                _resource = _loadedTextures[filename];
-                _resource.AddReference();
-            }
+            Bitmap image;
+            if (File.Exists(Path.Combine("./res/textures", filename)))
+                image = new Bitmap(Path.Combine("./res/textures", filename));
             else {
-                Bitmap image;
-                if (File.Exists(Path.Combine("./res/textures", filename)))
-                    image = new Bitmap(Path.Combine("./res/textures", filename));
-                else {
-                    LogManager.Error("Image does not exists");
-                    image = new Bitmap(Path.Combine("./res/textures", "default_mask.png"));
-                }
-                _width = image.Width;
-                _height = image.Height;
-
-                _resource = LoadTexture(image, filter, internalFormat, format, clamp, attachment, target);
-                _loadedTextures.Add(filename, _resource);
+                LogManager.Error("Image does not exists");
+                image = new Bitmap(Path.Combine("./res/textures", "default_mask.png"));
             }
+            _width = image.Width;
+            _height = image.Height;
+
+            _resource = LoadTexture(image, filter, internalFormat, format, clamp, attachment, target);
             _target = target;
         }
+        /// <summary>
+        /// Resource managed version for filenames
+        /// </summary>
+        public static Texture GetTexture(string filename, TextureTarget target = TextureTarget.Texture2D,
+            TextureMinFilter filter = TextureMinFilter.LinearMipmapLinear,
+            PixelInternalFormat internalFormat = PixelInternalFormat.Rgba,
+            PixelFormat format = PixelFormat.Bgra, bool clamp = false,
+            FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0) {
+            return ResourceManager.CreateResource<Texture>(false, filename, target, filter, internalFormat, format, clamp, attachment);
+        }
 
+        /// <summary>
+        /// Use GetTexture, if you dont the resource manager WILL not handle this instance
+        /// </summary>
         public Texture(Bitmap image, TextureTarget target = TextureTarget.Texture2D,
             TextureMinFilter filter = TextureMinFilter.LinearMipmapLinear, PixelInternalFormat internalFormat = PixelInternalFormat.Rgba,
             PixelFormat format = PixelFormat.Bgra, bool clamp = false,
             FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0) {
 
             _filename = image.GetPixel(2, 3).ToString() + image.GetPixel(1, 1);
+            _width = image.Width;
+            _height = image.Height;
 
-            if (_loadedTextures.ContainsKey(_filename)) {
-                _resource = _loadedTextures[_filename];
-                _resource.AddReference();
-            }
-            else {
-                _width = image.Width;
-                _height = image.Height;
-
-                _resource = LoadTexture(image, filter, internalFormat, format, clamp, attachment, target);
-                _loadedTextures.Add(_filename, _resource);
-            }
+            _resource = LoadTexture(image, filter, internalFormat, format, clamp, attachment, target);
             _target = target;
         }
 
+        /// <summary>
+        /// Resource managed version of bitmap
+        /// </summary>
+        public static Texture GetTexture(Bitmap image, TextureTarget target = TextureTarget.Texture2D,
+            TextureMinFilter filter = TextureMinFilter.LinearMipmapLinear, PixelInternalFormat internalFormat = PixelInternalFormat.Rgba,
+            PixelFormat format = PixelFormat.Bgra, bool clamp = false,
+            FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0) {
+            return ResourceManager.CreateResource<Texture>(true, image, target, filter, internalFormat, format, clamp, attachment);
+        }
 
+        /// <summary>
+        /// Use GetTexture, if you dont the resource manager WILL not handle this instance
+        /// </summary>
         public Texture(char[] data, int width, int height, TextureMinFilter filter = TextureMinFilter.LinearMipmapLinear,
             PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra,
             bool clamp = false,
@@ -82,6 +94,20 @@ namespace NewEngine.Engine.Rendering {
             _target = target;
         }
 
+        /// <summary>
+        /// Resource managed version of char[]
+        /// </summary>
+        public static Texture GetTexture(char[] data, int width, int height, TextureMinFilter filter = TextureMinFilter.LinearMipmapLinear,
+            PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra,
+            bool clamp = false,
+            FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0,
+            TextureTarget target = TextureTarget.Texture2D) {
+            return ResourceManager.CreateResource<Texture>(true, data, width, height, filter, internalFormat, format, clamp, attachment, target);
+        }
+
+        /// <summary>
+        /// Use GetTexture, if you dont the resource manager WILL not handle this instance
+        /// </summary>
         public Texture(IntPtr data, int width, int height, TextureMinFilter filter = TextureMinFilter.LinearMipmapLinear,
             PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra,
             bool clamp = false,
@@ -90,19 +116,23 @@ namespace NewEngine.Engine.Rendering {
             _width = width;
             _height = height;
 
-            _resource = LoadTexture(data, width, height, filter, internalFormat, format, clamp, attachment, target);
+            _resource = LoadTexture(data, width, height, filter, internalFormat, format, clamp, attachment);
             _target = target;
         }
+        /// <summary>
+        /// Resource managed version of IntPtr
+        /// </summary>
+        public static Texture GetTexture(IntPtr data, int width, int height, TextureMinFilter filter = TextureMinFilter.LinearMipmapLinear,
+            PixelInternalFormat internalFormat = PixelInternalFormat.Rgba, PixelFormat format = PixelFormat.Bgra,
+            bool clamp = false,
+            FramebufferAttachment attachment = FramebufferAttachment.ColorAttachment0,
+            TextureTarget target = TextureTarget.Texture2D) {
+            return ResourceManager.CreateResource<Texture>(true, data, width, height, filter, internalFormat, format, clamp, attachment, target);
+        }
 
-
-
-        ~Texture() {
+        public void Cleanup() {
             LogManager.Debug("removing texture : " + _filename);
-            if (_resource != null && _resource.RemoveReference()) {
-                if (_filename != null) {
-                    _loadedTextures.Remove(_filename);
-                }
-            }
+            _resource.Cleanup();
         }
 
         public int Width

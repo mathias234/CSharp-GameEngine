@@ -2,12 +2,13 @@
 using System.Drawing;
 using NewEngine.Engine.Physics;
 using NewEngine.Engine.Rendering;
+using NewEngine.Engine.Rendering.ResourceManagament;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Core {
-    public class CoreEngine : GameWindow {
+    public class CoreEngine : GameWindow, ICoreEngine {
         private static int _width;
         private static int _height;
         private VSyncMode _vSync;
@@ -32,7 +33,7 @@ namespace NewEngine.Engine.Core {
 
         public Game Game { get; set; }
 
-        public static CoreEngine GetCoreEngine { get; private set; }
+        public static ICoreEngine GetCoreEngine { get; private set; }
 
         public RenderingEngine RenderingEngine { get; set; }
 
@@ -40,7 +41,7 @@ namespace NewEngine.Engine.Core {
             Title = title;
 
             ClientSize = new Size(_width, _height);
-            RenderingEngine = new RenderingEngine();
+            RenderingEngine = new RenderingEngine(this);
         }
 
         public void Start() {
@@ -72,6 +73,10 @@ namespace NewEngine.Engine.Core {
             _height = Height;
         }
 
+        public void ShutdownEngine() {
+            ResourceManager.CleanupResources();
+        }
+
         public static void BindAsRenderTarget() {
             GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
             GL.Viewport(0, 0, (int) GetWidth(), (int) GetHeight());
@@ -81,8 +86,17 @@ namespace NewEngine.Engine.Core {
             return _width;
         }
 
+        public static void SetWidth(int width)
+        {
+            _width = width;
+        }
+
         public static float GetHeight() {
             return _height;
+        }
+
+        public static void SetHeight(int height) {
+            _height = height;
         }
     }
 }

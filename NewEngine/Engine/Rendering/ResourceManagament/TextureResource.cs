@@ -4,7 +4,7 @@ using NewEngine.Engine.Core;
 using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering.ResourceManagament {
-    public class TextureResource : IDisposable {
+    public class TextureResource : IResourceManaged {
         private int _frameBuffer;
         private int _height;
         private int[] _id;
@@ -180,27 +180,10 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
             GL.Viewport(0, 0, _width, _height);
         }
 
-
-        public void AddReference() {
-            _refCount++;
-        }
-
-        public bool RemoveReference() {
-            _refCount--;
-            return _refCount == 0;
-        }
-
-        public void Dispose() {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing) {
-            if (disposing) {
-                GL.DeleteTextures(_numTextures, _id);
-                GL.DeleteRenderbuffers(1, ref _renderBuffer);
-                GL.DeleteFramebuffers(1, ref _frameBuffer);
-            }
+        public void Cleanup() {
+            GL.DeleteTextures(_numTextures, _id);
+            GL.DeleteRenderbuffers(1, ref _renderBuffer);
+            GL.DeleteFramebuffers(1, ref _frameBuffer);
         }
     }
 }

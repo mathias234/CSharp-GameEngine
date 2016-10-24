@@ -20,7 +20,7 @@ namespace NewEngine.Engine.components.UIComponents {
             _rectTransform = rect;
             _text = text;
             _material = new Material(null);
-            _imageShader = new Shader("UI/UIText");
+            _imageShader = Shader.GetShader("UI/UIText");
             UpdateMesh();
         }
 
@@ -82,7 +82,7 @@ namespace NewEngine.Engine.components.UIComponents {
             //                (Biggest(_rectTransform.Size.X, _rectTransform.Size.Y) - _rectTransform.Size.X);
 
             //// the Texture coords work, but they might be changed to look better? idk all this flipping and stuff seems wrong TODO: Fixme
-            //_mesh = new Mesh(new[] {
+            //_mesh = Mesh.GetMeshnew[] {
             //    new Vertex(new Vector3(-_rectTransform.Size.X, -_rectTransform.Size.Y, 0) + _rectTransform.Position,
             //        new Vector2(-texCoordX, texCoordY)),
             //    new Vertex(new Vector3(-_rectTransform.Size.X, _rectTransform.Size.Y, 0) + _rectTransform.Position,
@@ -106,7 +106,7 @@ namespace NewEngine.Engine.components.UIComponents {
             }
             _textBmp.Save("image.png", ImageFormat.Png);
             _material = new Material(_imageShader);
-            _material.SetMainTexture(new Texture(_textBmp));
+            _material.SetMainTexture(Texture.GetTexture(_textBmp));
         }
 
 
@@ -133,12 +133,12 @@ namespace NewEngine.Engine.components.UIComponents {
                 _textBmp.Dispose();
         }
 
-        public override void AddToEngine(CoreEngine engine) {
+        public override void AddToEngine(ICoreEngine engine) {
             base.AddToEngine(engine);
             engine.RenderingEngine.AddUI(this);
         }
 
-        public override void OnDestroyed(CoreEngine engine) {
+        public override void OnDestroyed(ICoreEngine engine) {
             base.OnDestroyed(engine);
             engine.RenderingEngine.RemoveUI(this);
         }
