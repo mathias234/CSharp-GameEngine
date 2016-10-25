@@ -14,10 +14,10 @@ namespace NewEngine.Engine.components.UIComponents {
         private Texture _defaultTexture;
 
         public Image(RectTransform rect, Color color, Texture texture) {
-            _defaultTexture = new Texture("default_mask.png");
+            _defaultTexture = Texture.GetTexture("default_mask.png");
             _rectTransform = rect;
 
-            _imageShader = new Shader("UI/UIImage");
+            _imageShader = Shader.GetShader("UI/UIImage");
 
             _material = new Material(_imageShader);
 
@@ -71,7 +71,7 @@ namespace NewEngine.Engine.components.UIComponents {
         }
 
         private void UpdateMesh() {
-            _mesh = new Mesh(new[] {
+            _mesh = Mesh.GetMesh(new[] {
                 new Vertex(new Vector3(-1, -1, 0),
                     new Vector2(-1, 1)),
                 new Vertex(new Vector3(-1, 1, 0) ,
@@ -102,12 +102,12 @@ namespace NewEngine.Engine.components.UIComponents {
         }
 
 
-        public override void AddToEngine(CoreEngine engine) {
+        public override void AddToEngine(ICoreEngine engine) {
             base.AddToEngine(engine);
             engine.RenderingEngine.AddUI(this);
         }
 
-        public override void OnDestroyed(CoreEngine engine) {
+        public override void OnDestroyed(ICoreEngine engine) {
             base.OnDestroyed(engine);
             engine.RenderingEngine.RemoveUI(this);
         }

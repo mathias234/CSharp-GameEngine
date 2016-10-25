@@ -15,13 +15,13 @@ namespace NewEngine.Engine.components {
 
         public Mesh Mesh { get; set; }
 
-        public override void AddToEngine(CoreEngine engine) {
+        public override void AddToEngine(ICoreEngine engine) {
             base.AddToEngine(engine);
 
             engine.RenderingEngine.AddObjectToBatch(Material, Mesh, gameObject);
         }
 
-        public override void OnDestroyed(CoreEngine engine) {
+        public override void OnDestroyed(ICoreEngine engine) {
             base.OnDestroyed(engine);
 
             engine.RenderingEngine.RemoveFromBatch(Material, Mesh, gameObject);

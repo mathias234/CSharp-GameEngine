@@ -8,7 +8,7 @@ using OpenTK.Graphics.OpenGL;
 using PixelFormat = System.Drawing.Imaging.PixelFormat;
 
 namespace NewEngine.Engine.Rendering.ResourceManagament {
-    public class CubemapResource {
+    public class CubemapResource : IResourceManaged {
         private int _cubeMapId;
         private List<string> _textures = new List<string>();
         private int _refCount;
@@ -71,25 +71,8 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
             }
         }
 
-
-        public void AddReference() {
-            _refCount++;
-        }
-
-        public bool RemoveReference() {
-            _refCount--;
-            return _refCount == 0;
-        }
-
-        public void Dispose() {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing) {
-            if (disposing) {
-                GL.DeleteTexture(_cubeMapId);
-            }
+        public void Cleanup() {
+            GL.DeleteTexture(_cubeMapId);
         }
     }
 }

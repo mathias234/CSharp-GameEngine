@@ -68,9 +68,9 @@ namespace NewEngine.Engine.Rendering {
             GL.GenBuffers(1, out _particlesPositionBuffer);
             GL.GenBuffers(1, out _particlesColorBuffer);
 
-            _material = new Material(new Shader("particles"));
-            _material.SetMainTexture(new Texture("test2.png"));
-            _material.SetTexture("cutoutMask", new Texture("test2_cutout.png"));
+            _material = new Material(Shader.GetShader("particles"));
+            _material.SetMainTexture(Texture.GetTexture("test2.png"));
+            _material.SetTexture("cutoutMask", Texture.GetTexture("test2_cutout.png"));
 
             Initialize();
         }
@@ -256,12 +256,12 @@ namespace NewEngine.Engine.Rendering {
             GL.Disable(EnableCap.Blend);
         }
 
-        public override void AddToEngine(CoreEngine engine) {
+        public override void AddToEngine(ICoreEngine engine) {
             base.AddToEngine(engine);
             engine.RenderingEngine.AddNonBatched(gameObject);
         }
 
-        public override void OnDestroyed(CoreEngine engine) {
+        public override void OnDestroyed(ICoreEngine engine) {
             base.AddToEngine(engine);
             engine.RenderingEngine.RemoveNonBatched(gameObject);
         }

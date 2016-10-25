@@ -9,33 +9,28 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering {
-    public class Mesh {
-        private static Dictionary<string, MeshResource> _loadedModels = new Dictionary<string, MeshResource>();
+    public class Mesh : IResourceManaged {
         private MeshResource _resource;
         private string _filename;
 
+        /// <summary>
+        /// Use GetShader, if you dont the resource manager WILL not handle this instance
+        /// </summary>
+        /// <param name="filename"></param>
         public Mesh(string filename) {
             _filename = filename;
-            if (_loadedModels.ContainsKey(filename)) {
-                _resource = _loadedModels[filename];
-                _resource.AddReference();
-            }
-            else {
-                _resource = new MeshResource();
-                LoadMesh(filename);
-                _loadedModels.Add(filename, _resource);
-            }
+            _resource = new MeshResource();
+            LoadMesh(filename);
         }
 
-        ~Mesh() {
-            LogManager.Debug("removing mesh : " + _filename);
-            if (_resource != null && _resource.RemoveReference()) {
-                if (_filename != null) {
-                    _loadedModels.Remove(_filename);
-                }
-            }
+        public static Mesh GetMesh(string filename) {
+            return ResourceManager.CreateResource<Mesh>(false, filename);
         }
 
+        /// <summary>
+        /// Use GetShader, if you dont the resource manager WILL not handle this instance
+        /// </summary>
+        /// <param name="filename"></param>
         public Mesh(Vertex[] vertices, int[] indices) {
             CalculateTangents(vertices, indices);
 
@@ -48,6 +43,14 @@ namespace NewEngine.Engine.Rendering {
         }
 
 
+        public static Mesh GetMesh(Vertex[] vertices, int[] indices) {
+            return ResourceManager.CreateResource<Mesh>(false, vertices, indices);
+        }
+
+        /// <summary>
+        /// Use GetShader, if you dont the resource manager WILL not handle this instance
+        /// </summary>
+        /// <param name="filename"></param>
         public Mesh(Vertex[] vertices, int[] indices, bool calcNormals) {
             Vertices = vertices;
             Indices = indices;
@@ -55,6 +58,14 @@ namespace NewEngine.Engine.Rendering {
             _resource = new MeshResource();
 
             AddVertices(vertices, indices, calcNormals);
+        }
+
+        public static Mesh GetMesh(Vertex[] vertices, int[] indices, bool calcNormals) {
+            return ResourceManager.CreateResource<Mesh>(true, vertices, indices, calcNormals);
+        }
+
+        public void Cleanup() {
+            _resource.Cleanup();
         }
 
         public Vertex[] Vertices { get; private set; }

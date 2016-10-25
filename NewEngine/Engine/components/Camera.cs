@@ -26,7 +26,7 @@ namespace NewEngine.Engine.components {
         }
 
 
-        public override void AddToEngine(CoreEngine engine) {
+        public override void AddToEngine(ICoreEngine engine) {
             engine.RenderingEngine.AddCamera(this);
         }
     }

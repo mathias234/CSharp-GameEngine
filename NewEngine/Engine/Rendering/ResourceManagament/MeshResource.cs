@@ -2,7 +2,7 @@
 using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering.ResourceManagament {
-    public class MeshResource : IDisposable {
+    public class MeshResource : IResourceManaged {
         private int _ibo;
         private int _refCount;
         private int _vbo;
@@ -33,28 +33,12 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
             set { _matrixBuffer = value; }
         }
 
-
-        public void AddReference() {
-            _refCount++;
-        }
-
-        public bool RemoveReference() {
-            _refCount--;
-            return _refCount == 0;
-        }
-
-        public void Dispose() {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing) {
-            if (disposing) {
-                GL.DeleteBuffers(1, ref _vbo);
-                GL.DeleteBuffers(1, ref _ibo);
-                GL.DeleteVertexArray(_vbo);
-                GL.DeleteVertexArray(_ibo);
-            }
+        public void Cleanup() {
+            GL.DeleteBuffers(1, ref _vbo);
+            GL.DeleteBuffers(1, ref _ibo);
+            GL.DeleteBuffers(1, ref _matrixBuffer);
+            GL.DeleteVertexArray(_vbo);
+            GL.DeleteVertexArray(_ibo);
         }
     }
 }

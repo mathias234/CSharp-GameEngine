@@ -13,7 +13,7 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
 
         protected MappedValues() {
             if(defaultTexture == null)
-               defaultTexture = new Texture("default_mask.png");
+               defaultTexture = Texture.GetTexture("default_mask.png");
 
             _stringVector3Map = new Dictionary<string, Vector3>();
             _stringVector4Map = new Dictionary<string, Vector4>();

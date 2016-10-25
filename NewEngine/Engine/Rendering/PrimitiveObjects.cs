@@ -20,7 +20,7 @@ namespace NewEngine.Engine.Rendering {
                 3, 0, 2
             };
 
-            return new Mesh(vertices, indices, true);
+            return Mesh.GetMesh(vertices, indices, true);
         }
     }
 }

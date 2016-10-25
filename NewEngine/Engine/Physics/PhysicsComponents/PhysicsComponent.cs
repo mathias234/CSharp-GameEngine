@@ -20,7 +20,7 @@ namespace NewEngine.Engine.Physics.PhysicsComponents {
             return new Quaternion(quaternion.X, quaternion.Y, quaternion.Z, quaternion.W);
         }
 
-        public override void OnDestroyed(CoreEngine engine) {
+        public override void OnDestroyed(ICoreEngine engine) {
             PhysicsEngine.RemoveFromPhysicsEngine(PhysicsObject);
         }
     }
