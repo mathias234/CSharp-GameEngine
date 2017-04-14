@@ -4,9 +4,12 @@ using NewEngine.Engine.Rendering;
 using NewEngine.Engine.Rendering.ResourceManagament;
 using NewEngine.Engine.Rendering.Shading;
 
-namespace NewEngine.Engine.components {
-    public class MeshRenderer : GameComponent {
-        public MeshRenderer(Mesh mesh, Material material = null) {
+namespace NewEngine.Engine.components
+{
+    public class MeshRenderer : GameComponent
+    {
+        public MeshRenderer(Mesh mesh, Material material = null)
+        {
             Mesh = mesh;
             Material = material;
         }
@@ -15,16 +18,22 @@ namespace NewEngine.Engine.components {
 
         public Mesh Mesh { get; set; }
 
-        public override void AddToEngine(ICoreEngine engine) {
-            base.AddToEngine(engine);
+        public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage)
+        {
+            if (!Material.Shader.GetShaderTypes.Contains(shaderType))
+                return;
 
-            engine.RenderingEngine.AddObjectToBatch(Material, Mesh, gameObject);
+            Material.Shader.Bind(shaderType);
+            Material.Shader.UpdateUniforms(Transform, Material, renderingEngine, shaderType);
+            Mesh.Draw();
+        }
+
+        public override void AddToEngine(ICoreEngine engine) {
+            engine.RenderingEngine.AddNonBatched(gameObject);
         }
 
         public override void OnDestroyed(ICoreEngine engine) {
-            base.OnDestroyed(engine);
-
-            engine.RenderingEngine.RemoveFromBatch(Material, Mesh, gameObject);
+            engine.RenderingEngine.RemoveNonBatched(gameObject);
         }
     }
 }

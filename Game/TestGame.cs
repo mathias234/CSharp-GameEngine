@@ -63,7 +63,7 @@ namespace Game {
             var plane = new GameObject("plane");
             _cube = new GameObject("cubebase");
 
-            _mainMaterial = new Material(Shader.GetShader("batchedShader"));
+            _mainMaterial = new Material(Shader.GetShader("forwardShader"));
 
             _mainMaterial.SetTexture("diffuse", Texture.GetTexture("bricks.png"));
 
@@ -112,8 +112,8 @@ namespace Game {
                 "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
 
 
-            for (int x = -20; x < 20; x++) {
-                for (int z = -20; z < 20; z++) {
+            for (int x = -5; x < 5; x++) {
+                for (int z = -5; z < 5; z++) {
 
                     var y2 = Math.Pow(x, 3) * z + Math.Pow(z, 3) * x;
 
@@ -185,7 +185,6 @@ namespace Game {
         }
 
         public void StartMassiveSpawn() {
-
             for (int i = 0; i < 5; i++) {
                 for (int j = 0; j < 5; j++) {
                     for (int k = 0; k < 5; k++) {
