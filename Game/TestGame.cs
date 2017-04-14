@@ -111,6 +111,26 @@ namespace Game {
             GetRootObject.Engine.RenderingEngine.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg",
                 "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
 
+
+            for (int x = -20; x < 20; x++) {
+                for (int z = -20; z < 20; z++) {
+
+                    var y2 = Math.Pow(x, 3) * z + Math.Pow(z, 3) * x;
+
+                    y2 = (y2 / 10000) * -1;
+
+                    var gObj = new GameObject("sphere:") {
+                        Transform = { Position = _camera.Transform.Position + (new Vector3(x, (float)y2, z) * 2) }
+                    };
+
+                    var _mesh = Mesh.GetMesh("cube.obj");
+
+                    gObj.AddComponent(new MeshRenderer(_mesh, _mainMaterial));
+                    //gObj.AddComponent(new SphereCollider(2, 1));
+                    AddObject(gObj);
+                    _spawnedObjects.Add(gObj);
+                }
+            }
         }
 
         public override void Update(float deltaTime) {
@@ -123,6 +143,10 @@ namespace Game {
 
             if (Input.GetKeyDown(Key.E)) {
                 StartMassiveSpawn();
+            }
+
+            if (Input.GetKeyDown(Key.R)) {
+                SingleSpawn();
             }
 
             if (Input.GetKeyDown(Key.F)) {
@@ -179,6 +203,22 @@ namespace Game {
                 }
             }
         }
+
+
+        public void SingleSpawn() {
+
+            var gObj = new GameObject("sphere:") {
+                Transform = { Position = _camera.Transform.Position }
+            };
+
+            var _mesh = Mesh.GetMesh("cube.obj");
+
+            gObj.AddComponent(new MeshRenderer(_mesh, _mainMaterial));
+            //gObj.AddComponent(new SphereCollider(2, 1));
+            AddObject(gObj);
+            _spawnedObjects.Add(gObj);
+        }
+
 
         public void CreateCamera() {
             _camera = new GameObject("main camera")
