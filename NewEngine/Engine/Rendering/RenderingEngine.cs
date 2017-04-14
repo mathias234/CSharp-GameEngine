@@ -18,8 +18,7 @@ namespace NewEngine.Engine.Rendering {
 
         private List<BaseLight> _lights;
         private Dictionary<string, int> _samplerMap;
-        private Dictionary<Material, BatchMeshRenderer> _batches = new Dictionary<Material, BatchMeshRenderer>();
-        private List<GameObject> _nonBatched = new List<GameObject>();
+        private List<GameObject> gameObjects = new List<GameObject>();
         private List<UiComponent> _ui = new List<UiComponent>();
 
         private Mesh _skybox;
@@ -163,28 +162,8 @@ namespace NewEngine.Engine.Rendering {
 
             RenderSkybox();
 
-            foreach (var batch in _batches) {
-                batch.Value.Render(null, "ambient", deltaTime, this, renderStage);
-                foreach (var light in _lights) {
-                    ActiveLight = light;
-                    GL.Enable(EnableCap.Blend);
-                    GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.One);
-                    GL.DepthMask(false);
-                    GL.DepthFunc(DepthFunction.Equal);
-
-                    if (light.ShadowInfo != null)
-                        SetTexture("shadowMap", light.ShadowInfo.ShadowMap);
-
-                    batch.Value.Render(light.GetType().Name, light.GetType().Name, deltaTime, this, renderStage);
-
-                    GL.DepthMask(true);
-                    GL.DepthFunc(DepthFunction.Less);
-                    GL.Disable(EnableCap.Blend);
-                }
-            }
-
-            foreach (var nonBatched in _nonBatched) {
-                nonBatched.RenderAll(null, "ambient", deltaTime, this, renderStage);
+            foreach (var gameObject in gameObjects) {
+                gameObject.RenderAll(null, "ambient", deltaTime, this, renderStage);
 
                 foreach (var light in _lights) {
                     ActiveLight = light;
@@ -196,7 +175,7 @@ namespace NewEngine.Engine.Rendering {
                     if (light.ShadowInfo != null)
                         SetTexture("shadowMap", light.ShadowInfo.ShadowMap);
 
-                    nonBatched.RenderAll(light.GetType().Name, light.GetType().Name, deltaTime, this, renderStage);
+                    gameObject.RenderAll(light.GetType().Name, light.GetType().Name, deltaTime, this, renderStage);
 
                     GL.DepthMask(true);
                     GL.DepthFunc(DepthFunction.Less);
@@ -240,11 +219,7 @@ namespace NewEngine.Engine.Rendering {
 
                     if (flipFaces) GL.CullFace(CullFaceMode.Front);
 
-                    foreach (var batch in _batches) {
-                        batch.Value.Render("shadowMapGenerator", "shadowMapGen", deltaTime, this, "shadowMapGen");
-                    }
-
-                    foreach (var gameObject in _nonBatched) {
+                    foreach (var gameObject in gameObjects) {
                         gameObject.RenderAll("shadowMapGenerator", "shadowMapGen", deltaTime, this, "shadowMapGen");
                     }
 
@@ -359,36 +334,13 @@ namespace NewEngine.Engine.Rendering {
             _lights.Add(light);
         }
 
-        public void AddObjectToBatch(Material material, Mesh mesh, GameObject gameObject) {
-            if (_batches.ContainsKey(material)) {
-                _batches[material].AddGameObject(mesh, gameObject);
-            }
-            else {
-                _batches.Add(material, new BatchMeshRenderer(material, mesh, gameObject));
-            }
-        }
-
-        public void RemoveFromBatch(Material material, Mesh mesh, GameObject gameObject) {
-            if (_batches.ContainsKey(material)) {
-                if (_batches[material].RemoveGameObject(mesh, gameObject) == 0) {
-                    _batches.Remove(material);
-                }
-            }
-        }
-
-        public void UpdateBatch(Material material, Mesh mesh, GameObject gameObject) {
-            if (_batches.ContainsKey(material)) {
-                _batches[material].UpdateObject(mesh, gameObject);
-            }
-        }
-
         public void AddNonBatched(GameObject gameObject) {
-            _nonBatched.Add(gameObject);
+            this.gameObjects.Add(gameObject);
         }
 
         public void RemoveNonBatched(GameObject gameObject) {
-            if (_nonBatched.Contains(gameObject)) {
-                _nonBatched.Remove(gameObject);
+            if (this.gameObjects.Contains(gameObject)) {
+                this.gameObjects.Remove(gameObject);
             }
         }
 
