@@ -1,1 +1,1 @@
-#include "shadowMapGenerator.fsh"
+#include "batching/shadowMapGenerator.fsh"
