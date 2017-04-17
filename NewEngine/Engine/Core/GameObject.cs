@@ -71,7 +71,7 @@ namespace NewEngine.Engine.Core {
 
             //TODO: find a more elegant solution
             for (var i = 0; i < _components.Count; i++) {
-                if (_components[i].IsEnabled != false) continue;
+                if (_components[i].IsEnabled) continue;
                 _components[i].OnEnable();
                 _components[i].IsEnabled = true;
             }
@@ -100,6 +100,16 @@ namespace NewEngine.Engine.Core {
             }
         }
 
+        // recursivly ask all the components to add itself to the rendering engine for rendering
+        public void AddToEngine(ICoreEngine engine) {
+            foreach (var gameComponent in _components) {
+                gameComponent.AddToEngine(engine);
+            }
+
+            foreach (var gameObject in _children) {
+                gameObject.AddToEngine(engine);
+            }
+        }
 
         public List<GameObject> GetAllAttached() {
             var result = new List<GameObject> {this};

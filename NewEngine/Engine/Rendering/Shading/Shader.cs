@@ -122,7 +122,7 @@ namespace NewEngine.Engine.Rendering.Shading {
                 if (uniformName.StartsWith("R_")) {
                     var unprefixedUniformName = uniformName.Substring(2);
                     if (unprefixedUniformName == "lightMatrix") {
-                        SetUniform(uniformName, modelMatrix * renderingEngine.LightMatrix, pass);
+                        SetUniform(uniformName, renderingEngine.LightMatrix, pass);
                     }
                     else if (uniformType == "sampler2D") {
                         var samplerSlot = renderingEngine.GetSamplerSlot(unprefixedUniformName);

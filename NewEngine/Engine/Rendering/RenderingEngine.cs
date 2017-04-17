@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using NewEngine.Engine.components;
 using NewEngine.Engine.components.UIComponents;
 using NewEngine.Engine.Core;
@@ -18,7 +19,9 @@ namespace NewEngine.Engine.Rendering {
 
         private List<BaseLight> _lights;
         private Dictionary<string, int> _samplerMap;
-        private List<GameObject> gameObjects = new List<GameObject>();
+
+        // this list will be filled and deleted every render
+        private List<GameComponent> _renderableComponents = new List<GameComponent>();
         private List<UiComponent> _ui = new List<UiComponent>();
 
         private Mesh _skybox;
@@ -127,11 +130,16 @@ namespace NewEngine.Engine.Rendering {
         }
 
         public void RenderBatches(float deltaTime) {
+            CoreEngine core = (CoreEngine) _coreEngine;
+            core.Game.GetRootObject.AddToEngine(CoreEngine.GetCoreEngine);
+
             RenderShadowMap(deltaTime);
 
             RenderObject(GetTexture("displayTexture"), deltaTime, "ambient", true);
 
             DoPostProccess();
+            _renderableComponents = new List<GameComponent>();
+            _lights = new List<BaseLight>();
 
             _coreEngine.SwapBuffers();
         }
@@ -154,6 +162,10 @@ namespace NewEngine.Engine.Rendering {
             // ApplyFilter(_fxaaFilter, _lights[1].ShadowInfo.ShadowMap, null);
         }
 
+        public void CreateBatch() {
+
+        }
+
         public void RenderObject(Texture mainRenderTarget, float deltaTime, string renderStage, bool drawUi) {
             mainRenderTarget.BindAsRenderTarget();
 
@@ -162,8 +174,10 @@ namespace NewEngine.Engine.Rendering {
 
             RenderSkybox();
 
-            foreach (var gameObject in gameObjects) {
-                gameObject.RenderAll(null, "ambient", deltaTime, this, renderStage);
+            var batchedObjects = CreateBatchFromList(_renderableComponents);
+
+            foreach (var batchedObject in batchedObjects) {
+                batchedObject.Value.Render(null, "ambient", deltaTime, this, renderStage);
 
                 foreach (var light in _lights) {
                     ActiveLight = light;
@@ -175,13 +189,38 @@ namespace NewEngine.Engine.Rendering {
                     if (light.ShadowInfo != null)
                         SetTexture("shadowMap", light.ShadowInfo.ShadowMap);
 
-                    gameObject.RenderAll(light.GetType().Name, light.GetType().Name, deltaTime, this, renderStage);
+                    batchedObject.Value.Render(light.GetType().Name, light.GetType().Name, deltaTime, this, renderStage);
 
                     GL.DepthMask(true);
                     GL.DepthFunc(DepthFunction.Less);
                     GL.Disable(EnableCap.Blend);
                 }
             }
+
+            foreach (var gameComponent in _renderableComponents) {
+                if (gameComponent is MeshRenderer) continue;
+
+                gameComponent.Render(null, "ambient", deltaTime, this, renderStage);
+
+                foreach (var light in _lights)
+                {
+                    ActiveLight = light;
+                    GL.Enable(EnableCap.Blend);
+                    GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.One);
+                    GL.DepthMask(false);
+                    GL.DepthFunc(DepthFunction.Equal);
+
+                    if (light.ShadowInfo != null)
+                        SetTexture("shadowMap", light.ShadowInfo.ShadowMap);
+
+                    gameComponent.Render(light.GetType().Name, light.GetType().Name, deltaTime, this, renderStage);
+
+                    GL.DepthMask(true);
+                    GL.DepthFunc(DepthFunction.Less);
+                    GL.Disable(EnableCap.Blend);
+                }
+            }
+
 
             if (drawUi) {
                 foreach (var uiComponent in _ui) {
@@ -190,6 +229,25 @@ namespace NewEngine.Engine.Rendering {
             }
 
             GetTexture("displayTexture").BindAsRenderTarget();
+
+        }
+
+        private Dictionary<Material, BatchMeshRenderer> CreateBatchFromList(List<GameComponent> components) {
+            var meshRenderers = new Dictionary<Material, BatchMeshRenderer>();
+
+            foreach (var gameComponent in components) {
+                if (gameComponent is MeshRenderer) {
+                    var mr = (MeshRenderer) gameComponent;
+                    if (meshRenderers.ContainsKey(mr.Material)) {
+                        meshRenderers[mr.Material].AddGameObject(mr.Mesh, mr.gameObject);
+                    }
+                    else {
+                        meshRenderers.Add(mr.Material, new BatchMeshRenderer(mr.Material, mr.Mesh, mr.gameObject));
+                    }
+                }
+            }
+
+            return meshRenderers;
         }
 
         private void RenderShadowMap(float deltaTime) {
@@ -219,8 +277,8 @@ namespace NewEngine.Engine.Rendering {
 
                     if (flipFaces) GL.CullFace(CullFaceMode.Front);
 
-                    foreach (var gameObject in gameObjects) {
-                        gameObject.RenderAll("shadowMapGenerator", "shadowMapGen", deltaTime, this, "shadowMapGen");
+                    foreach (var renderableComponent in _renderableComponents) {
+                        renderableComponent.Render("shadowMapGenerator", "shadowMapGen", deltaTime, this, "shadowMapGen");
                     }
 
                     if (flipFaces) GL.CullFace(CullFaceMode.Back);
@@ -242,6 +300,9 @@ namespace NewEngine.Engine.Rendering {
         }
 
         private void RenderSkybox() {
+            if (_skyboxMaterial.GetCubemapTexture("skybox") == null)
+                return;
+
             GL.DepthMask(false);
             _skyboxShader.Bind("skybox");
             _skyboxShader.UpdateUniforms(MainCamera.Transform, _skyboxMaterial, this, "skybox");
@@ -334,13 +395,13 @@ namespace NewEngine.Engine.Rendering {
             _lights.Add(light);
         }
 
-        public void AddNonBatched(GameObject gameObject) {
-            this.gameObjects.Add(gameObject);
+        public void AddNonBatched(GameComponent gameComponent) {
+            this._renderableComponents.Add(gameComponent);
         }
 
-        public void RemoveNonBatched(GameObject gameObject) {
-            if (this.gameObjects.Contains(gameObject)) {
-                this.gameObjects.Remove(gameObject);
+        public void RemoveNonBatched(GameComponent gameComponent) {
+            if (this._renderableComponents.Contains(gameComponent)) {
+                this._renderableComponents.Remove(gameComponent);
             }
         }
 

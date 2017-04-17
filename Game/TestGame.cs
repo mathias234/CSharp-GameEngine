@@ -60,36 +60,23 @@ namespace Game {
             //AddObject(particleObj2);
             //AddObject(particleObj);
 
-            var plane = new GameObject("plane");
             _cube = new GameObject("cubebase");
 
-            _mainMaterial = new Material(Shader.GetShader("forwardShader"));
+            _mainMaterial = new Material(Shader.GetShader("batchedShader"));
 
-            _mainMaterial.SetTexture("diffuse", Texture.GetTexture("bricks.png"));
-
-            _mainMaterial.SetTexture("normalMap", Texture.GetTexture("bricks_nrm.png"));
-
-            _mainMaterial.SetTexture("dispMap", Texture.GetTexture("bricks_disp.jpg"));
-
-            _mainMaterial.SetFloat("dispMapScale", 0.01f);
-
-            var baseBias = _mainMaterial.GetFloat("dispMapScale") / 2.0f;
-
-            _mainMaterial.SetFloat("dispMapBias", -baseBias + baseBias * 0);
+            _mainMaterial.SetTexture("diffuse", Texture.GetTexture("PressurePlate.png"));
 
             _mainMaterial.SetFloat("specularIntensity", 0.5f);
             _mainMaterial.SetFloat("specularPower", 32);
 
 
-            plane.AddComponent(new BoxCollider(1, 0.1f, 1, 0));
-            _cube.AddComponent(new BoxCollider(1, 1, 1, 0));
+            _cube.AddComponent(new BoxCollider(1, 0.1f, 1, 0));
+
+            _cube.AddComponent(new MeshRenderer(Mesh.GetMesh("cube.obj"), _mainMaterial));
 
 
-            _cube.Transform.Position = new Vector3(0, 10, 0);
-            plane.Transform.Position = new Vector3(0, -1, 0);
-            _cube.Transform.Scale = new Vector3(1);
-
-            AddObject(plane);
+            _cube.Transform.Position = new Vector3(0, -2, 0);
+            _cube.Transform.Scale = new Vector3(20, 1, 20);
             AddObject(_cube);
 
 
@@ -103,7 +90,7 @@ namespace Game {
 
             water.AddComponent(new WaterMesh(300, 300, 0.05f, 0.02f, 0.2f, 12));
 
-            water.Transform.Position = new Vector3(0, 1.5f, 0);
+            water.Transform.Position = new Vector3(0, 2.5f, 0);
 
             AddObject(terrain);
             AddObject(water);
@@ -111,34 +98,13 @@ namespace Game {
             GetRootObject.Engine.RenderingEngine.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg",
                 "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
 
-
-            for (int x = -5; x < 5; x++) {
-                for (int z = -5; z < 5; z++) {
-
-                    var y2 = Math.Pow(x, 3) * z + Math.Pow(z, 3) * x;
-
-                    y2 = (y2 / 10000) * -1;
-
-                    var gObj = new GameObject("sphere:") {
-                        Transform = { Position = _camera.Transform.Position + (new Vector3(x, (float)y2, z) * 2) }
-                    };
-
-                    var _mesh = Mesh.GetMesh("cube.obj");
-
-                    gObj.AddComponent(new MeshRenderer(_mesh, _mainMaterial));
-                    //gObj.AddComponent(new SphereCollider(2, 1));
-                    AddObject(gObj);
-                    _spawnedObjects.Add(gObj);
-                }
-            }
         }
 
         public override void Update(float deltaTime) {
-            //_cube.Transform.Position += new Vector3(42, 10, 0);
-
-            //LogManager.Debug(GetRootObject.GetChildren().Count.ToString());
-
             base.Update(deltaTime);
+
+            _cube.Transform.Position += new Vector3(0.1f, 0,0);
+
             var flameColor = new Vector3(0, 1.0f, 1.0f);
 
             if (Input.GetKeyDown(Key.E)) {
@@ -173,14 +139,14 @@ namespace Game {
 
             if (Input.GetKeyDown(Key.P)) {
 
-                var spotLightObj = new GameObject("Spot Light");
-                var spotLight = new SpotLight(new Vector3(1, 1, 0), 5f, new Attenuation(0, 0, 0.01f), MathHelper.DegreesToRadians(70), 0, 0.5f, 0.6f);
-                spotLightObj.Transform.Position = new Vector3(CoreEngine.GetCoreEngine.RenderingEngine.MainCamera.Transform.GetTransformedPosition());
-                spotLightObj.Transform.Rotate(new Vector3(0, 1, 0), MathHelper.DegreesToRadians(0));
+                var pointLight = new GameObject("Point Light");
+                var spotLight = new PointLight(flameColor, 5f, new Attenuation(0, 0, 0.1f));
+                pointLight.Transform.Position = new Vector3(CoreEngine.GetCoreEngine.RenderingEngine.MainCamera.Transform.GetTransformedPosition());
+                pointLight.Transform.Rotate(new Vector3(0, 1, 0), MathHelper.DegreesToRadians(0));
 
-                spotLightObj.AddComponent(spotLight);
+                pointLight.AddComponent(spotLight);
 
-                AddObject(spotLightObj);
+                AddObject(pointLight);
             }
         }
 
@@ -226,7 +192,6 @@ namespace Game {
                 .AddComponent(new Camera(Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f), CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000)))
                 .AddComponent(new AudioListener());
 
-            _camera.Transform.Position = new Vector3(50, 50, 190);
             _camera.Transform.Rotate(new Vector3(1, 0, 0), -0.4f);
 
             AddObject(_camera);
