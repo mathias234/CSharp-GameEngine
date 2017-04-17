@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NewEngine</RootNamespace>
     <AssemblyName>NewEngine</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
@@ -40,21 +40,17 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BEPUik, Version=1.4.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\BEPUphysics.1.4.0\lib\net40\BEPUik.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="BEPUik, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\BEPUphysics.1.5.0\lib\net46\BEPUik.dll</HintPath>
     </Reference>
-    <Reference Include="BEPUphysics, Version=1.4.0.0, Culture=neutral, PublicKeyToken=31f6a8732a21de19, processorArchitecture=MSIL">
-      <HintPath>..\packages\BEPUphysics.1.4.0\lib\net40\BEPUphysics.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="BEPUphysics, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\BEPUphysics.1.5.0\lib\net46\BEPUphysics.dll</HintPath>
     </Reference>
-    <Reference Include="BEPUutilities, Version=1.4.0.0, Culture=neutral, PublicKeyToken=31f6a8732a21de19, processorArchitecture=MSIL">
-      <HintPath>..\packages\BEPUphysics.1.4.0\lib\net40\BEPUutilities.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="BEPUutilities, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\BEPUphysics.1.5.0\lib\net46\BEPUutilities.dll</HintPath>
     </Reference>
-    <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <HintPath>..\packages\OpenTK.1.1.2349.61993\lib\NET40\OpenTK.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="OpenTK, Version=2.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenTK.2.0.0\lib\net20\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -153,6 +149,7 @@
     <None Include="app.config" />
     <None Include="Configs\App.config" />
     <None Include="Configs\packages.config" />
+    <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

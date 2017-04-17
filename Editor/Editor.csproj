@@ -110,10 +110,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Game\TestGame.csproj">
-      <Project>{2EFA7D3A-23C6-4B45-BFCE-C60F2C3A4891}</Project>
-      <Name>TestGame</Name>
-    </ProjectReference>
     <ProjectReference Include="..\NewEngine\NewEngine.csproj">
       <Project>{F4B7A456-30F9-4B1E-8FD7-10957293EB61}</Project>
       <Name>NewEngine</Name>

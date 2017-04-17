@@ -69,4 +69,4 @@ C:\CSharpGame\NewEngine\bin\Debug\BEPUutilities.xml
 C:\CSharpGame\NewEngine\bin\Debug\OpenTK.xml
 C:\CSharpGame\NewEngine\obj\Debug\NewEngine.dll
 C:\CSharpGame\NewEngine\obj\Debug\NewEngine.pdb
-C:\CSharpGame\NewEngine\bin\Debug\OpenTK.dll.config
+C:\CSharpGame\NewEngine\obj\Debug\NewEngine.csprojResolveAssemblyReference.cache
