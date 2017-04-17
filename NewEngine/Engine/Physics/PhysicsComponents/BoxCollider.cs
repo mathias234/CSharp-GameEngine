@@ -22,6 +22,9 @@ namespace NewEngine.Engine.Physics.PhysicsComponents {
         }
 
         public override void Update(float deltaTime) {
+            if (_mass <= 0)
+                return;
+
             var obj = (Box) PhysicsObject;
             if (obj == null) return;
             gameObject.Transform.Position = FromBepuVector3(obj.Position);

@@ -29,11 +29,11 @@ namespace NewEngine.Engine.components
         }
 
         public override void AddToEngine(ICoreEngine engine) {
-            engine.RenderingEngine.AddNonBatched(gameObject);
+            engine.RenderingEngine.AddNonBatched(this);
         }
 
         public override void OnDestroyed(ICoreEngine engine) {
-            engine.RenderingEngine.RemoveNonBatched(gameObject);
+            engine.RenderingEngine.RemoveNonBatched(this);
         }
     }
 }

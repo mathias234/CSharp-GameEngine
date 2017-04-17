@@ -19,9 +19,10 @@ uniform vec4 R_clipPlane;
 void main()
 {
     gl_Position = (T_VP * model) * vec4(position, 1.0);
-
     texCoord0 = texCoord;
-	shadowMapCoords0 = R_lightMatrix * vec4(position, 1.0);
+	
+	shadowMapCoords0 = (R_lightMatrix * model) * vec4(position, 1.0);
+	
     worldPos0 = (model * vec4(position, 1.0)).xyz;
 	
 	vec4 WorldPosition = (model * vec4(position, 1.0));
