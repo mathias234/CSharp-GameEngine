@@ -64,7 +64,17 @@ namespace Game {
 
             _mainMaterial = new Material(Shader.GetShader("batchedShader"));
 
-            _mainMaterial.SetTexture("diffuse", Texture.GetTexture("PressurePlate.png"));
+            _mainMaterial.SetTexture("diffuse", Texture.GetTexture("bricks.png"));
+
+            _mainMaterial.SetTexture("normalMap", Texture.GetTexture("bricks_nrm.png"));
+
+            _mainMaterial.SetTexture("dispMap", Texture.GetTexture("bricks_disp.jpg"));
+
+            _mainMaterial.SetFloat("dispMapScale", 0.01f);
+
+            var baseBias = _mainMaterial.GetFloat("dispMapScale") / 2.0f;
+
+            _mainMaterial.SetFloat("dispMapBias", -baseBias + baseBias * 0);
 
             _mainMaterial.SetFloat("specularIntensity", 0.5f);
             _mainMaterial.SetFloat("specularPower", 32);
@@ -76,24 +86,24 @@ namespace Game {
 
 
             _cube.Transform.Position = new Vector3(0, -2, 0);
-            _cube.Transform.Scale = new Vector3(20, 1, 20);
+            _cube.Transform.Scale = new Vector3(200, 1, 200);
             AddObject(_cube);
 
 
-            var terrain = new GameObject("terrain");
-            var water = new GameObject("water");
-            var water2 = new GameObject("water2");
+            //var terrain = new GameObject("terrain");
+            //var water = new GameObject("water");
+            //var water2 = new GameObject("water2");
 
-            terrain.AddComponent(new TerrainMesh("terrain1/terrain.jpg", 300, 300, 0.025f, "terrain1/tex1.jpg",
-                "default_normal.png", "terrain1/tex2.jpg", "terrain1/tex2Nrm.jpg", "terrain1/layer1.jpg",
-                "terrain1/tex2.jpg", "terrain1/tex2Nrm.jpg", "terrain1/layer1.jpg", 0.1f, 64));
+            //terrain.AddComponent(new TerrainMesh("terrain1/terrain.jpg", 300, 300, 0.025f, "terrain1/tex1.jpg",
+            //    "default_normal.png", "terrain1/tex2.jpg", "terrain1/tex2Nrm.jpg", "terrain1/layer1.jpg",
+            //    "terrain1/tex2.jpg", "terrain1/tex2Nrm.jpg", "terrain1/layer1.jpg", 0.1f, 64));
 
-            water.AddComponent(new WaterMesh(300, 300, 0.05f, 0.02f, 0.2f, 12));
+            //water.AddComponent(new WaterMesh(300, 300, 0.05f, 0.02f, 0.2f, 12));
 
-            water.Transform.Position = new Vector3(0, 2.5f, 0);
+            //water.Transform.Position = new Vector3(0, 2.5f, 0);
 
-            AddObject(terrain);
-            AddObject(water);
+            //AddObject(terrain);
+            //AddObject(water);
 
             GetRootObject.Engine.RenderingEngine.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg",
                 "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
@@ -103,7 +113,7 @@ namespace Game {
         public override void Update(float deltaTime) {
             base.Update(deltaTime);
 
-            _cube.Transform.Position += new Vector3(0.1f, 0,0);
+            //_cube.Transform.Position += new Vector3(0.1f, 0,0);
 
             var flameColor = new Vector3(0, 1.0f, 1.0f);
 
