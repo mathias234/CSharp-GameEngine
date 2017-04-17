@@ -65,7 +65,7 @@ namespace NewEngine.Engine.Rendering {
             SetFloat("fxaaSpanMax", 8);
             SetFloat("fxaaReduceMin", 1 / 128.0f);
             SetFloat("fxaaReduceMul", 1 / 8.0f);
-            SetFloat("bloomAmount", 0.0f);
+            SetFloat("bloomAmount", 0.3f);
 
             SetVector4("clipPlane", new Vector4(0, 0, 0, 15));
 
@@ -92,8 +92,8 @@ namespace NewEngine.Engine.Rendering {
             _skyboxMaterial = new Material(null);
             _skybox = Mesh.GetMesh("skybox.obj");
 
-            int width = (int)CoreEngine.GetWidth();
-            int height = (int)CoreEngine.GetHeight();
+            var width = (int)CoreEngine.GetWidth();
+            var height = (int)CoreEngine.GetHeight();
 
             _tempTarget = Texture.GetTexture(IntPtr.Zero, width, height, TextureMinFilter.Nearest);
 
@@ -130,7 +130,7 @@ namespace NewEngine.Engine.Rendering {
         }
 
         public void RenderBatches(float deltaTime) {
-            CoreEngine core = (CoreEngine) _coreEngine;
+            var core = (CoreEngine) _coreEngine;
             core.Game.GetRootObject.AddToEngine(CoreEngine.GetCoreEngine);
 
             RenderShadowMap(deltaTime);
@@ -334,7 +334,7 @@ namespace NewEngine.Engine.Rendering {
             var temp = GetTexture("tempFilter");
 
             if (axis == Vector2.UnitX) {
-                SetVector3("blurScale", new Vector3(0.0f, blurAmount / texture.Width, 0.0f));
+                SetVector3("blurScale", new Vector3( blurAmount / texture.Width, 0.0f, 0.0f));
             }
             else if (axis == Vector2.UnitY) {
                 SetVector3("blurScale", new Vector3(0.0f, blurAmount / texture.Height, 0.0f));

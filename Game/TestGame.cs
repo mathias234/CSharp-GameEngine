@@ -44,21 +44,11 @@ namespace Game {
 
             var particleObj = new GameObject("Particle");
 
-            particleObj.AddComponent(new ParticleSystem(20, new Vector3(-20, 0, -20), new Vector3(20, 2, 20),
-                new Vector4(0, 0, 0, 1), new Vector4(1, 1, 1, 1), 2, new Vector3(0, 0 /*-9.825f*/, 0),
-                new Vector3(0, 0.1f, 0), new Vector3(0, 0.5f, 0), 2, 5, 1, 10, 2, true, false, true));
+            particleObj.AddComponent(new ParticleSystem(200000, Texture.GetTexture("test2_cutout.png"),  new Vector3(-200, 90, -200), new Vector3(200, 90, 200),
+                //new Vector4(1, 0.5f, 0, 1), new Vector4(1f, 0.7f, 0, 1), 2, new Vector3(0, 0 -9.825f, 0),
+                new Vector4(1, 1, 1, 1), new Vector4(1, 1, 1, 1), 2, new Vector3(0, 0 -9.825f, 0),
+                new Vector3(0, 0.1f, 0), new Vector3(0, 0.5f, 0), 1, 2, 100, 100, 20, false, true, true));
 
-            var particleObj2 = new GameObject("Particle2");
-
-            particleObj2.AddComponent(new ParticleSystem(20, new Vector3(-20, 0, -20), new Vector3(20, 2, 20),
-                new Vector4(0, 0, 0, 1), new Vector4(1, 1, 1, 1), 2, new Vector3(0, 0 /*-9.825f*/, 0),
-                new Vector3(0, 0.1f, 0), new Vector3(0, 0.5f, 0), 2, 5, 1, 10, 2, true, false, true));
-
-            particleObj2.Transform.Position = new Vector3(100, 0, 0);
-
-            AddObject(_directionalLightObj);
-            //AddObject(particleObj2);
-            //AddObject(particleObj);
 
             _cube = new GameObject("cubebase");
 
@@ -87,23 +77,25 @@ namespace Game {
 
             _cube.Transform.Position = new Vector3(0, -2, 0);
             _cube.Transform.Scale = new Vector3(200, 1, 200);
-            AddObject(_cube);
 
+            var terrain = new GameObject("terrain");
+            var water = new GameObject("water");
+            var water2 = new GameObject("water2");
 
-            //var terrain = new GameObject("terrain");
-            //var water = new GameObject("water");
-            //var water2 = new GameObject("water2");
+            terrain.AddComponent(new TerrainMesh("terrain1/terrain.jpg", 300, 300, 0.025f, "terrain1/tex1.jpg",
+                "default_normal.png", "terrain1/tex2.jpg", "terrain1/tex2Nrm.jpg", "terrain1/layer1.jpg",
+                "terrain1/tex2.jpg", "terrain1/tex2Nrm.jpg", "terrain1/layer1.jpg", 0.1f, 64));
 
-            //terrain.AddComponent(new TerrainMesh("terrain1/terrain.jpg", 300, 300, 0.025f, "terrain1/tex1.jpg",
-            //    "default_normal.png", "terrain1/tex2.jpg", "terrain1/tex2Nrm.jpg", "terrain1/layer1.jpg",
-            //    "terrain1/tex2.jpg", "terrain1/tex2Nrm.jpg", "terrain1/layer1.jpg", 0.1f, 64));
+            water.AddComponent(new WaterMesh(300, 300, 0.05f, 0.02f, 0.2f, 12));
 
-            //water.AddComponent(new WaterMesh(300, 300, 0.05f, 0.02f, 0.2f, 12));
+            water.Transform.Position = new Vector3(0, 2.5f, 0);
 
-            //water.Transform.Position = new Vector3(0, 2.5f, 0);
+            AddObject(terrain);
+            AddObject(water);
+            //AddObject(_cube);
+            AddObject(_directionalLightObj);
+            AddObject(particleObj);
 
-            //AddObject(terrain);
-            //AddObject(water);
 
             GetRootObject.Engine.RenderingEngine.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg",
                 "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
