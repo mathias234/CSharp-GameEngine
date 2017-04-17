@@ -45,7 +45,7 @@ namespace NewEngine.Engine.Rendering {
         private int _newParticlesEachFrame;
         private Material _material;
 
-        public ParticleSystem(int maxParticles, Vector3 startPostionMin, Vector3 startPostionMax, Vector4 colorMin, Vector4 colorMax, float spread, Vector3 gravity, Vector3 directionMin, Vector3 directionMax, float sizeMin, float sizeMax, float lifeMin, float lifeMax, int newParticlesEachFrame, bool allowTransparency, bool overwriteOldParticles, bool fadeOut) {
+        public ParticleSystem(int maxParticles, Texture texture, Vector3 startPostionMin, Vector3 startPostionMax, Vector4 colorMin, Vector4 colorMax, float spread, Vector3 gravity, Vector3 directionMin, Vector3 directionMax, float sizeMin, float sizeMax, float lifeMin, float lifeMax, int newParticlesEachFrame, bool allowTransparency, bool overwriteOldParticles, bool fadeOut) {
             _maxParticles = maxParticles;
             _startPostionMin = startPostionMin;
             _startPostionMax = startPostionMax;
@@ -70,7 +70,7 @@ namespace NewEngine.Engine.Rendering {
 
             _material = new Material(Shader.GetShader("particles"));
             _material.SetMainTexture(Texture.GetTexture("test2.png"));
-            _material.SetTexture("cutoutMask", Texture.GetTexture("test2_cutout.png"));
+            _material.SetTexture("cutoutMask", texture);
 
             Initialize();
         }
@@ -243,7 +243,7 @@ namespace NewEngine.Engine.Rendering {
             GL.VertexAttribDivisor(1, 1);
             GL.VertexAttribDivisor(2, 1);
 
-            GL.DrawArraysInstanced(BeginMode.TriangleStrip, 0, 4, particleCount);
+            GL.DrawArraysInstanced(PrimitiveType.TriangleStrip, 0, 4, particleCount);
 
             GL.DisableVertexAttribArray(0);
             GL.DisableVertexAttribArray(1);
