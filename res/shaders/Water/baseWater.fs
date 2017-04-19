@@ -15,8 +15,11 @@ uniform float moveFactor;
 uniform float waveStrength;
 uniform float refractivePower;
 
+uniform vec4 waterColor;
+
 void main()
 {
+
 	vec2 ndc = (clipSpace.xy / clipSpace.w) / 2.0 + 0.5;
 	vec2 reflectTexCoord = vec2(ndc.x, -ndc.y);
 	vec2 refractTexCoord = vec2(ndc.x, ndc.y);
@@ -54,7 +57,7 @@ void main()
 	
 	
 	fragColor = mix(reflectColor, refractColor, refractiveFactor);
-	fragColor = mix(fragColor, vec4(0.0, 0.3, 0.5, 1.0), clamp(waterDepth / 5, 0.0, 1.0) / 1.5);
+	fragColor = mix(fragColor, waterColor, clamp(waterDepth / 5, 0.0, 1.0) / 1.5);
 	fragColor.a = clamp(waterDepth/5.0, 0.0, 1.0);
 }
 	

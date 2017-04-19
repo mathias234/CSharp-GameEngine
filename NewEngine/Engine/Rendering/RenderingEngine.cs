@@ -65,7 +65,7 @@ namespace NewEngine.Engine.Rendering {
             SetFloat("fxaaSpanMax", 8);
             SetFloat("fxaaReduceMin", 1 / 128.0f);
             SetFloat("fxaaReduceMul", 1 / 8.0f);
-            SetFloat("bloomAmount", 0.3f);
+            SetFloat("bloomAmount", 0.05f);
 
             SetVector4("clipPlane", new Vector4(0, 0, 0, 15));
 

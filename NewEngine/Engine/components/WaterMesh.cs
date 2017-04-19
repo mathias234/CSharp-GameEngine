@@ -13,7 +13,7 @@ namespace NewEngine.Engine.components {
         private Material _material;
         private float _waveSpeed;
 
-        public WaterMesh(int width, int height, float waveSpeed = 0.01f, float waveStrength = 0.02f, float refractivePower = 0.5f, float dudvTiling = 6) {
+        public WaterMesh(int width, int height, Vector4 waterColor, float waveSpeed = 0.01f, float waveStrength = 0.02f, float refractivePower = 0.5f, float dudvTiling = 6) {
             _waveSpeed = waveSpeed;
 
             Vertex[] vertices = {
@@ -44,6 +44,8 @@ namespace NewEngine.Engine.components {
             _material.SetFloat("waveStrength", waveStrength);
             _material.SetFloat("refractivePower", refractivePower);
             _material.SetFloat("tiling", dudvTiling);
+
+            _material.SetVector4("waterColor", waterColor);
         }
 
         public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage) {
@@ -65,7 +67,7 @@ namespace NewEngine.Engine.components {
             renderingEngine.MainCamera.Transform.Position += new Vector3(0, distance, 0);
             renderingEngine.MainCamera.Transform.Rotation = renderingEngine.MainCamera.Transform.Rotation.InvertPitch(); ;
 
-            renderingEngine.SetVector4("clipPlane", new Vector4(0, -1, 0, Transform.Position.Y + 0.1f));
+            renderingEngine.SetVector4("clipPlane", new Vector4(0, -1, 0, Transform.Position.Y + 0.5f));
             renderingEngine.RenderObject(_material.GetTexture("refractionTexture"), deltaTime, "refract", false);
             renderingEngine.RenderObject(_material.GetTexture("refractionTextureDepth"), deltaTime, "refract", false);
 
