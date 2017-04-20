@@ -200,7 +200,10 @@ namespace NewEngine.Engine.Rendering.Shading {
                         LogManager.Error("Failed to update uniform: " + uniformName + ", not a valid argument of Camera");
                 }
                 else {
-                    if (uniformType == "vec3") {
+                    if (uniformType == "vec2") {
+                        SetUniform(uniformName, material.GetVector2(uniformName), pass);
+                    }
+                    else if (uniformType == "vec3") {
                         SetUniform(uniformName, material.GetVector3(uniformName), pass);
                     }
                     else if (uniformType == "vec4") {
@@ -233,6 +236,10 @@ namespace NewEngine.Engine.Rendering.Shading {
 
         public void SetUniform(string uniformName, float value, string pass) {
             GL.Uniform1(GetResourceFromPass(pass).Uniforms[uniformName], value);
+        }
+
+        public void SetUniform(string uniformName, Vector2 value, string pass) {
+            GL.Uniform2(GetResourceFromPass(pass).Uniforms[uniformName], value);
         }
 
         public void SetUniform(string uniformName, Vector3 value, string pass) {

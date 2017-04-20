@@ -9,6 +9,7 @@ using NewEngine.Engine.Rendering.Shading;
 using OpenTK;
 using OpenTK.Input;
 using NewEngine.Engine.Audio;
+using NewEngine.Engine.Rendering.Fonts;
 using NewEngine.Engine.Rendering.GUI;
 
 namespace Game {
@@ -24,11 +25,20 @@ namespace Game {
         public override void Start() {
             CreateCamera();
 
+
             var UIImage = new GameObject("UI image");
             UIImage.AddComponent(new Image(Texture.GetTexture("bricks.png")));
-            UIImage.Transform.Scale = new Vector3(100, 30, 1);
-
+            UIImage.Transform.Scale = new Vector3(0.3f, 0.1f, 1);
+            UIImage.Transform.Position = new Vector3(0, 1.0f - 0.1f, 0);
             AddObject(UIImage);
+
+
+
+            FontType font = new FontType(Texture.GetTexture("verdana.png"), "./res/fonts/verdana.fnt");
+            GUIText text = new GUIText("SO MUCH AWESOME TEXT!!", 1, font, new Vector2(0, 0.03f), 1, true);
+            text.Color = new Vector3(0, 0, 0.2f);
+
+
 
             //AudioMaster.Initialize();
 
@@ -108,8 +118,6 @@ namespace Game {
 
         public override void Update(float deltaTime) {
             base.Update(deltaTime);
-
-            LogManager.Debug(Fps.GetFps(deltaTime).ToString());
 
             //_cube.Transform.Position += new Vector3(0.1f, 0,0);
 

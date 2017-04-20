@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace NewEngine.Engine.Rendering.Fonts {
     public class FontType {
-        private int _textureAtlas;
+        private Texture _textureAtlas;
         private TextMeshCreator _loader;
 
-        public FontType(int textureAtlas, string filename) {
+        public FontType(Texture textureAtlas, string filename) {
             _textureAtlas = textureAtlas;
             _loader = new TextMeshCreator(filename);
         }
 
-        public int TextureAtlas => _textureAtlas;
+        public Texture TextureAtlas => _textureAtlas;
 
 
         public TextMeshData LoadText(GUIText text) {

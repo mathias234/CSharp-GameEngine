@@ -105,4 +105,3 @@ char id=216     x=85   y=75   width=58   height=64   xoffset=2    yoffset=15   x
 char id=229     x=42   y=75   width=43   height=65   xoffset=2    yoffset=11   xadvance=49   page=0    chnl=0 
 char id=230     x=170  y=424  width=71   height=44   xoffset=2    yoffset=31   xadvance=74   page=0    chnl=0 
 char id=248     x=262  y=369  width=46   height=53   xoffset=2    yoffset=27   xadvance=50   page=0    chnl=0 
-kernings count=0

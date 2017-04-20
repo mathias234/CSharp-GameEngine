@@ -76,7 +76,7 @@ namespace NewEngine.Engine.Rendering {
 
             GL.FrontFace(FrontFaceDirection.Cw);
             //GL.CullFace(CullFaceMode.Back);
-            GL.Enable(EnableCap.CullFace);
+            //GL.Enable(EnableCap.CullFace);
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.DepthClamp);
             GL.Enable(EnableCap.ClipPlane0);
