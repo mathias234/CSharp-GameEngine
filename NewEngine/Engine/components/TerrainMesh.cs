@@ -140,7 +140,7 @@ namespace NewEngine.Engine.components {
             _mesh = Mesh.GetMesh(verts.ToArray(), tris.ToArray(), true);
         }
 
-        public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage) {
+        public override void Render(string shader, string shaderType, float deltaTime, BaseRenderingEngine renderingEngine, string renderStage) {
             if (!_material.Shader.GetShaderTypes.Contains(shaderType))
                 return;
 
@@ -152,13 +152,7 @@ namespace NewEngine.Engine.components {
         public override void AddToEngine(ICoreEngine engine) {
             base.AddToEngine(engine);
 
-            engine.RenderingEngine.AddNonBatched(this);
-        }
-
-        public override void OnDestroyed(ICoreEngine engine) {
-            base.OnDestroyed(engine);
-
-            engine.RenderingEngine.RemoveNonBatched(this);
+            engine.RenderingEngine.AddToEngine(this);
         }
     }
 }

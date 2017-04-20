@@ -15,7 +15,16 @@ namespace NewEngine.Engine.components {
             LogManager.Debug(Transform.Rotation.ToString());
         }
 
-        public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage) {
+        public override void Render(string shader, string shaderType, float deltaTime, BaseRenderingEngine baseRenderingEngine, string renderStage) {
+            RenderingEngine renderingEngine;
+            if (baseRenderingEngine is RenderingEngine) {
+                renderingEngine = (RenderingEngine)baseRenderingEngine;
+            }
+            else {
+                LogManager.Error("called in wrong engine");
+                return;
+            }
+
             _renderingEngine = renderingEngine;
         }
     }

@@ -89,10 +89,10 @@ namespace Game {
 
             water.Transform.Position = new Vector3(0, 20, 0);
 
-            //AddObject(terrain);
-            //AddObject(water);
-            ////AddObject(_cube);
-            //AddObject(_directionalLightObj);
+            AddObject(terrain);
+            AddObject(water);
+            //AddObject(_cube);
+            AddObject(_directionalLightObj);
             //AddObject(particleObj);
 
 

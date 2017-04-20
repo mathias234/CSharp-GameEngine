@@ -66,8 +66,10 @@ namespace NewEngine.Engine.Core {
         }
 
         private void Render(object sender, FrameEventArgs e) {
-            RenderingEngine.RenderBatches((float)e.Time); // clear the screen and render all objects
-            GUIRenderingEngine.Render((float) e.Time); // when rendering engine is done this will render all ui objects
+            Game.GetRootObject.AddToEngine(this);
+
+            RenderingEngine.Render((float)e.Time); // clear the screen and render all objects
+            GUIRenderingEngine.Render((float)e.Time); // when rendering engine is done this will render all ui objects
 
             SwapBuffers();
         }

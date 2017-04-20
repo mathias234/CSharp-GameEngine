@@ -13,11 +13,12 @@ namespace NewEngine.Engine.Rendering.GUI {
 
         public Texture Texture { get; set; }
 
-        public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage) {
+        public override void Render(string shader, string shaderType, float deltaTime, BaseRenderingEngine renderingEngine, string renderStage) {
 
         }
 
         public override void AddToEngine(ICoreEngine engine) {
+            engine.GUIRenderingEngine.AddToEngine(this);
         }
 
         public override void OnDestroyed(ICoreEngine engine) {

@@ -18,7 +18,7 @@ namespace NewEngine.Engine.components
 
         public Mesh Mesh { get; set; }
 
-        public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage)
+        public override void Render(string shader, string shaderType, float deltaTime, BaseRenderingEngine renderingEngine, string renderStage)
         {
             if (!Material.Shader.GetShaderTypes.Contains(shaderType))
                 return;
@@ -29,11 +29,7 @@ namespace NewEngine.Engine.components
         }
 
         public override void AddToEngine(ICoreEngine engine) {
-            engine.RenderingEngine.AddNonBatched(this);
-        }
-
-        public override void OnDestroyed(ICoreEngine engine) {
-            engine.RenderingEngine.RemoveNonBatched(this);
+            engine.RenderingEngine.AddToEngine(this);
         }
     }
 }
