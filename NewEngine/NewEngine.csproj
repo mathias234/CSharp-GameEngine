@@ -108,6 +108,8 @@
     <Compile Include="Engine\Rendering\Fonts\GUIText.cs" />
     <Compile Include="Engine\Rendering\Fonts\TextMeshCreator.cs" />
     <Compile Include="Engine\Rendering\Fonts\TextMeshData.cs" />
+    <Compile Include="Engine\Rendering\GUI\GUIRenderer.cs" />
+    <Compile Include="Engine\Rendering\GUI\Image.cs" />
     <Compile Include="Engine\Rendering\MeshLoading\FBX\FbxModel.cs" />
     <Compile Include="Engine\Rendering\MeshLoading\IndexedModel.cs" />
     <Compile Include="Engine\Rendering\MeshLoading\Obj\ObjIndex.cs" />

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using NewEngine.Engine.components;
-using NewEngine.Engine.components.UIComponents;
 using NewEngine.Engine.Core;
 using NewEngine.Engine.Rendering.ResourceManagament;
 using NewEngine.Engine.Rendering.Shading;
@@ -22,7 +21,6 @@ namespace NewEngine.Engine.Rendering {
 
         // this list will be filled and deleted every render
         private List<GameComponent> _renderableComponents = new List<GameComponent>();
-        private List<UiComponent> _ui = new List<UiComponent>();
 
         private Mesh _skybox;
         private Material _skyboxMaterial;
@@ -33,7 +31,6 @@ namespace NewEngine.Engine.Rendering {
         private Transform _planeTransform;
         private Material _planeMaterial;
         private Texture _tempTarget;
-
 
         public RenderingEngine(ICoreEngine coreEngine) {
             _coreEngine = coreEngine;
@@ -140,8 +137,6 @@ namespace NewEngine.Engine.Rendering {
             DoPostProccess();
             _renderableComponents = new List<GameComponent>();
             _lights = new List<BaseLight>();
-
-            _coreEngine.SwapBuffers();
         }
 
         private void DoPostProccess() {
@@ -221,15 +216,7 @@ namespace NewEngine.Engine.Rendering {
                 }
             }
 
-
-            if (drawUi) {
-                foreach (var uiComponent in _ui) {
-                    uiComponent.Render(null, "ui", deltaTime, this, "ui");
-                }
-            }
-
             GetTexture("displayTexture").BindAsRenderTarget();
-
         }
 
         private Dictionary<Material, BatchMeshRenderer> CreateBatchFromList(List<GameComponent> components) {
@@ -402,16 +389,6 @@ namespace NewEngine.Engine.Rendering {
         public void RemoveNonBatched(GameComponent gameComponent) {
             if (this._renderableComponents.Contains(gameComponent)) {
                 this._renderableComponents.Remove(gameComponent);
-            }
-        }
-
-        public void AddUI(UiComponent uiComponent) {
-            _ui.Add(uiComponent);
-        }
-
-        public void RemoveUI(UiComponent uiComponent) {
-            if (_ui.Contains(uiComponent)) {
-                _ui.Remove(uiComponent);
             }
         }
 

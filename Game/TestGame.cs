@@ -50,7 +50,7 @@ namespace Game {
                 new Vector3(0, 0.1f, 0), new Vector3(0, 0.5f, 0), 1, 2, 100, 100, 20, false, true, true));
 
 
-            _cube = new GameObject("cubebase");
+            _cube = new GameObject("Cube");
 
             _mainMaterial = new Material(Shader.GetShader("batchedShader"));
 
@@ -89,16 +89,15 @@ namespace Game {
 
             water.Transform.Position = new Vector3(0, 20, 0);
 
-            AddObject(terrain);
-            AddObject(water);
-            //AddObject(_cube);
-            AddObject(_directionalLightObj);
-            AddObject(particleObj);
+            //AddObject(terrain);
+            //AddObject(water);
+            ////AddObject(_cube);
+            //AddObject(_directionalLightObj);
+            //AddObject(particleObj);
 
 
             GetRootObject.Engine.RenderingEngine.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg",
                 "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
-
         }
 
         public override void Update(float deltaTime) {
@@ -136,6 +135,7 @@ namespace Game {
                 foreach (var spawnedObject in _spawnedObjects) {
                     spawnedObject.Destroy();
                 }
+                _spawnedObjects.Clear();
             }
 
             if (Input.GetKeyDown(Key.P)) {
@@ -148,6 +148,22 @@ namespace Game {
                 pointLight.AddComponent(spotLight);
 
                 AddObject(pointLight);
+            }
+
+            double i = 0;
+
+            foreach (var spawnedObject in _spawnedObjects) {
+                Random r = new Random(DateTime.Now.Millisecond);
+
+                double speed = 2;
+
+                double x = r.NextDouble() / speed + (i + 10); 
+                double y = r.NextDouble() / speed + (i + 10);
+                double z = r.NextDouble() / speed + (i + 10);
+
+                spawnedObject.Transform.Position = new Vector3((float)x, (float)y, (float)z);
+
+                i++;
             }
         }
 
