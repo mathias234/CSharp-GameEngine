@@ -54,7 +54,9 @@ namespace NewEngine.Engine.Core {
             RenderFrame += Render;
             Resize += ResizeWindow;
             VSync = _vSync;
-            Run(70);
+
+            // Later make this customizable
+            Run(200, 200);
         }
 
         private void Run(object sender, FrameEventArgs e) {

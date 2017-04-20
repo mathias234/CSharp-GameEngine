@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using NewEngine.Engine.components;
 using NewEngine.Engine.Core;
 using NewEngine.Engine.Physics;
@@ -10,6 +9,7 @@ using NewEngine.Engine.Rendering.Shading;
 using OpenTK;
 using OpenTK.Input;
 using NewEngine.Engine.Audio;
+using NewEngine.Engine.Rendering.GUI;
 
 namespace Game {
     public class TestGame : NewEngine.Engine.Core.Game {
@@ -24,76 +24,82 @@ namespace Game {
         public override void Start() {
             CreateCamera();
 
-            AudioMaster.Initialize();
+            var UIImage = new GameObject("UI image");
+            UIImage.AddComponent(new Image(Texture.GetTexture("bricks.png")));
+            UIImage.Transform.Scale = new Vector3(100, 30, 1);
 
-            RenderingEngine.AmbientLight = new Vector3(0.3f);
+            AddObject(UIImage);
 
-            _directionalLightObj = new GameObject("Directinal Light");
-            var directionalLight = new DirectionalLight(new Vector3(1), 0.5f, 10, 140, 0.9f);
-            _directionalLightObj.AddComponent(directionalLight);
-            _directionalLightObj.Transform.Rotation *= Quaternion.FromAxisAngle(new Vector3(1, 0, 0),
-                (float)MathHelper.DegreesToRadians(-80));
+            //AudioMaster.Initialize();
 
-            var spotLightObj = new GameObject("Spot Light");
-            var spotLight = new SpotLight(new Vector3(1, 1, 0), 5f, new Attenuation(0, 0, 0.01f),
-                MathHelper.DegreesToRadians(70), 0, 0.5f, 0.6f);
-            spotLightObj.Transform.Position = new Vector3(30, 0, 30);
-            spotLightObj.Transform.Rotate(new Vector3(0, 1, 0), MathHelper.DegreesToRadians(0));
+            //RenderingEngine.AmbientLight = new Vector3(0.3f);
 
-            spotLightObj.AddComponent(spotLight);
+            //_directionalLightObj = new GameObject("Directinal Light");
+            //var directionalLight = new DirectionalLight(new Vector3(1), 0.5f, 10, 140, 0.9f);
+            //_directionalLightObj.AddComponent(directionalLight);
+            //_directionalLightObj.Transform.Rotation *= Quaternion.FromAxisAngle(new Vector3(1, 0, 0),
+            //    (float)MathHelper.DegreesToRadians(-80));
 
-            var particleObj = new GameObject("Particle");
+            //var spotLightObj = new GameObject("Spot Light");
+            //var spotLight = new SpotLight(new Vector3(1, 1, 0), 5f, new Attenuation(0, 0, 0.01f),
+            //    MathHelper.DegreesToRadians(70), 0, 0.5f, 0.6f);
+            //spotLightObj.Transform.Position = new Vector3(30, 0, 30);
+            //spotLightObj.Transform.Rotate(new Vector3(0, 1, 0), MathHelper.DegreesToRadians(0));
 
-            particleObj.AddComponent(new ParticleSystem(200000, Texture.GetTexture("test2_cutout.png"),  new Vector3(-200, 90, -200), new Vector3(200, 90, 200),
-                //new Vector4(1, 0.5f, 0, 1), new Vector4(1f, 0.7f, 0, 1), 2, new Vector3(0, 0 -9.825f, 0),
-                new Vector4(1, 1, 1, 1), new Vector4(1, 1, 1, 1), 2, new Vector3(0, 0 -9.825f, 0),
-                new Vector3(0, 0.1f, 0), new Vector3(0, 0.5f, 0), 1, 2, 100, 100, 20, false, true, true));
+            //spotLightObj.AddComponent(spotLight);
 
+            //var particleObj = new GameObject("Particle");
 
-            _cube = new GameObject("Cube");
-
-            _mainMaterial = new Material(Shader.GetShader("batchedShader"));
-
-            _mainMaterial.SetTexture("diffuse", Texture.GetTexture("bricks.png"));
-
-            _mainMaterial.SetTexture("normalMap", Texture.GetTexture("bricks_nrm.png"));
-
-            _mainMaterial.SetTexture("dispMap", Texture.GetTexture("bricks_disp.jpg"));
-
-            _mainMaterial.SetFloat("dispMapScale", 0.01f);
-
-            var baseBias = _mainMaterial.GetFloat("dispMapScale") / 2.0f;
-
-            _mainMaterial.SetFloat("dispMapBias", -baseBias + baseBias * 0);
-
-            _mainMaterial.SetFloat("specularIntensity", 0.5f);
-            _mainMaterial.SetFloat("specularPower", 32);
+            //particleObj.AddComponent(new ParticleSystem(200000, Texture.GetTexture("test2_cutout.png"),  new Vector3(-200, 90, -200), new Vector3(200, 90, 200),
+            //    //new Vector4(1, 0.5f, 0, 1), new Vector4(1f, 0.7f, 0, 1), 2, new Vector3(0, 0 -9.825f, 0),
+            //    new Vector4(1, 1, 1, 1), new Vector4(1, 1, 1, 1), 2, new Vector3(0, 0 -9.825f, 0),
+            //    new Vector3(0, 0.1f, 0), new Vector3(0, 0.5f, 0), 1, 2, 100, 100, 20, false, true, true));
 
 
-            _cube.AddComponent(new BoxCollider(1, 0.1f, 1, 0));
+            //_cube = new GameObject("Cube");
 
-            _cube.AddComponent(new MeshRenderer(Mesh.GetMesh("cube.obj"), _mainMaterial));
+            //_mainMaterial = new Material(Shader.GetShader("batchedShader"));
+
+            //_mainMaterial.SetTexture("diffuse", Texture.GetTexture("bricks.png"));
+
+            //_mainMaterial.SetTexture("normalMap", Texture.GetTexture("bricks_nrm.png"));
+
+            //_mainMaterial.SetTexture("dispMap", Texture.GetTexture("bricks_disp.jpg"));
+
+            //_mainMaterial.SetFloat("dispMapScale", 0.01f);
+
+            //var baseBias = _mainMaterial.GetFloat("dispMapScale") / 2.0f;
+
+            //_mainMaterial.SetFloat("dispMapBias", -baseBias + baseBias * 0);
+
+            //_mainMaterial.SetFloat("specularIntensity", 0.5f);
+            //_mainMaterial.SetFloat("specularPower", 32);
 
 
-            _cube.Transform.Position = new Vector3(0, -2, 0);
-            _cube.Transform.Scale = new Vector3(200, 1, 200);
+            //_cube.AddComponent(new BoxCollider(1, 0.1f, 1, 0));
 
-            var terrain = new GameObject("terrain");
-            var water = new GameObject("water");
+            //_cube.AddComponent(new MeshRenderer(Mesh.GetMesh("cube.obj"), _mainMaterial));
 
-            terrain.AddComponent(new TerrainMesh("terrain1/terrain.jpg", 300, 300, 0.1f, "terrain1/tex1.jpg",
-                "default_normal.png", "terrain1/tex2.jpg", "terrain1/tex2Nrm.jpg", "terrain1/layer1.jpg",
-                "terrain1/tex2.jpg", "terrain1/tex2Nrm.jpg", "terrain1/layer1.jpg", 0.1f, 64));
 
-            water.AddComponent(new WaterMesh(300, 300, new Vector4(0.7f, 1, 0.9f, 1), 0.05f, 0.02f, 0.2f, 12));
+            //_cube.Transform.Position = new Vector3(0, -2, 0);
+            //_cube.Transform.Scale = new Vector3(200, 1, 200);
 
-            water.Transform.Position = new Vector3(0, 20, 0);
+            //var terrain = new GameObject("terrain");
+            //var water = new GameObject("water");
 
-            AddObject(terrain);
-            AddObject(water);
-            //AddObject(_cube);
-            AddObject(_directionalLightObj);
-            //AddObject(particleObj);
+            //terrain.AddComponent(new TerrainMesh("terrain1/terrain.jpg", 300, 300, 0.1f, "terrain1/tex1.jpg",
+            //    "default_normal.png", "terrain1/tex2.jpg", "terrain1/tex2Nrm.jpg", "terrain1/layer1.jpg",
+            //    "terrain1/tex2.jpg", "terrain1/tex2Nrm.jpg", "terrain1/layer1.jpg", 0.1f, 64));
+
+            //water.AddComponent(new WaterMesh(300, 300, new Vector4(0.7f, 1, 0.9f, 1), 0.05f, 0.02f, 0.2f, 12));
+
+            //water.Transform.Position = new Vector3(0, 20, 0);
+
+            //AddObject(terrain);
+            //AddObject(water);
+            ////AddObject(_cube);
+            //AddObject(_directionalLightObj);
+            ////AddObject(particleObj);
 
 
             GetRootObject.Engine.RenderingEngine.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg",
@@ -102,6 +108,8 @@ namespace Game {
 
         public override void Update(float deltaTime) {
             base.Update(deltaTime);
+
+            LogManager.Debug(Fps.GetFps(deltaTime).ToString());
 
             //_cube.Transform.Position += new Vector3(0.1f, 0,0);
 
