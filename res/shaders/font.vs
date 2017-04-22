@@ -1,15 +1,15 @@
 #version 330
 
-in vec2 position;
-in vec2 textureCoords;
-
-out vec2 pass_textureCoords;
+layout (location = 0) in vec2 position;
+layout (location = 1) in vec2 textureCoords;
 
 uniform vec2 translation;
 
-void main(void){
+out vec2 pass_textureCoords;
 
-	gl_Position = vec4(position + translation * vec2(2.0, -2.0), 0.0, 1.0);
+void main(void){
 	pass_textureCoords = textureCoords;
+
+    gl_Position = vec4((position + translation * vec2(2.0, -2.0)), 0.0, 1.0);
 
 }

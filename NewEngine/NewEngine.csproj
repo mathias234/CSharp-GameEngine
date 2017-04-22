@@ -79,10 +79,8 @@
     <Compile Include="Engine\components\ShadowInfo.cs" />
     <Compile Include="Engine\components\TerrainMesh.cs" />
     <Compile Include="Engine\ICoreEngine.cs" />
+    <Compile Include="Engine\Rendering\BaseRenderingEngine.cs" />
     <Compile Include="Engine\Rendering\Fonts\TextMaster.cs" />
-    <Compile Include="Engine\components\UIComponents\Text.cs" />
-    <Compile Include="Engine\components\UIComponents\Image.cs" />
-    <Compile Include="Engine\components\UIComponents\UiComponent.cs" />
     <Compile Include="Engine\components\WaterMesh.cs" />
     <Compile Include="Engine\Core\GameObject.cs" />
     <Compile Include="Engine\Core\LockBitmap.cs" />
@@ -108,6 +106,8 @@
     <Compile Include="Engine\Rendering\Fonts\GUIText.cs" />
     <Compile Include="Engine\Rendering\Fonts\TextMeshCreator.cs" />
     <Compile Include="Engine\Rendering\Fonts\TextMeshData.cs" />
+    <Compile Include="Engine\Rendering\GUI\GUIRenderer.cs" />
+    <Compile Include="Engine\Rendering\GUI\Image.cs" />
     <Compile Include="Engine\Rendering\MeshLoading\FBX\FbxModel.cs" />
     <Compile Include="Engine\Rendering\MeshLoading\IndexedModel.cs" />
     <Compile Include="Engine\Rendering\MeshLoading\Obj\ObjIndex.cs" />

@@ -4,10 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NewEngine.Engine.components;
+using NewEngine.Engine.Core;
+using NewEngine.Engine.Rendering.Shading;
 using OpenTK;
+using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering.Fonts {
-    public class GUIText {
+    public class GUIText : GameComponent {
         private string _textString;
         private float _fontSize;
 
@@ -32,6 +35,30 @@ namespace NewEngine.Engine.Rendering.Fonts {
             _lineMaxSize = maxLineLength;
             _centerText = centered;
             TextMaster.LoadText(this);
+        }
+
+        public override void Render(string shader, string shaderType, float deltaTime, BaseRenderingEngine renderingEngine, string renderStage) {
+            var mat = new Material(Shader.GetShader("font"));
+            mat.SetMainTexture(_font.TextureAtlas);
+            mat.SetVector3("color", Color);
+            mat.SetVector2("translation", Position);
+            mat.Shader.Bind("default");
+            mat.Shader.UpdateUniforms(new Transform(), mat, CoreEngine.GetCoreEngine.RenderingEngine, "default");
+            RenderText(this, mat);
+        }
+
+        public void RenderText(GUIText text, Material mat) {
+            GL.BindVertexArray(text.Mesh);
+            GL.EnableVertexAttribArray(0);
+            GL.EnableVertexAttribArray(1);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, text.VertexCount);
+            GL.DisableVertexAttribArray(0);
+            GL.DisableVertexAttribArray(1);
+            GL.BindVertexArray(0);
+        }
+
+        public override void AddToEngine(ICoreEngine engine) {
+            engine.GUIRenderingEngine.AddToEngine(this);
         }
 
         public void Remove() {

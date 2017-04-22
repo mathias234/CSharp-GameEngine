@@ -11,7 +11,7 @@ namespace NewEngine.Engine.components {
 
         public virtual void Update(float deltaTime) {}
 
-        public virtual void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage) {}
+        public virtual void Render(string shader, string shaderType, float deltaTime, BaseRenderingEngine renderingEngine, string renderStage) {}
 
         public virtual void OnEnable() {}
 

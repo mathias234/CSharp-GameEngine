@@ -2,6 +2,7 @@
 using System.Drawing;
 using NewEngine.Engine.Physics;
 using NewEngine.Engine.Rendering;
+using NewEngine.Engine.Rendering.GUI;
 using NewEngine.Engine.Rendering.ResourceManagament;
 using OpenTK;
 using OpenTK.Graphics;
@@ -36,12 +37,14 @@ namespace NewEngine.Engine.Core {
         public static ICoreEngine GetCoreEngine { get; private set; }
 
         public RenderingEngine RenderingEngine { get; set; }
+        public GUIRenderer GUIRenderingEngine { get; set; }
 
         public void CreateWindow(string title) {
             Title = title;
 
             ClientSize = new Size(_width, _height);
             RenderingEngine = new RenderingEngine(this);
+            GUIRenderingEngine = new GUIRenderer(this);
         }
 
         public void Start() {
@@ -51,7 +54,9 @@ namespace NewEngine.Engine.Core {
             RenderFrame += Render;
             Resize += ResizeWindow;
             VSync = _vSync;
-            Run(70);
+
+            // Later make this customizable
+            Run(200, 200);
         }
 
         private void Run(object sender, FrameEventArgs e) {
@@ -63,7 +68,12 @@ namespace NewEngine.Engine.Core {
         }
 
         private void Render(object sender, FrameEventArgs e) {
-            RenderingEngine.RenderBatches((float)e.Time);
+            Game.GetRootObject.AddToEngine(this);
+
+            RenderingEngine.Render((float)e.Time); // clear the screen and render all objects
+            GUIRenderingEngine.Render((float)e.Time); // when rendering engine is done this will render all ui objects
+
+            SwapBuffers();
         }
 
         private void ResizeWindow(object sender, EventArgs e) {

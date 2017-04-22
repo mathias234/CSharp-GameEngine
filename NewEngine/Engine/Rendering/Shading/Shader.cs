@@ -96,8 +96,10 @@ namespace NewEngine.Engine.Rendering.Shading {
             }
         }
 
-        public virtual void UpdateUniforms(Transform transform, Material material, RenderingEngine renderingEngine, string pass) {
-            if (renderingEngine.MainCamera == null) {
+        public virtual void UpdateUniforms(Transform transform, Material material, BaseRenderingEngine baseRenderingEngine, string pass) {
+            Camera mainCamera = CoreEngine.GetCoreEngine.RenderingEngine.MainCamera;
+
+            if (mainCamera == null) {
                 LogManager.Debug("No Camera");
                 return;
             }
@@ -106,14 +108,14 @@ namespace NewEngine.Engine.Rendering.Shading {
 
             var modelMatrix = transform.GetTransformation();
 
-            var vpMatrix = renderingEngine.MainCamera.GetViewProjection();
+            var vpMatrix = mainCamera.GetViewProjection();
 
             var mvpMatrix = modelMatrix * vpMatrix;
 
-            var orthoMatrix = renderingEngine.MainCamera.GetOrtographicProjection();
+            var orthoMatrix = mainCamera.GetOrtographicProjection();
 
-            var cameraMatrix = renderingEngine.MainCamera.Transform.GetTransformationNoRot();
-            var cameraPositionMatrix = cameraMatrix * renderingEngine.MainCamera.GetViewProjection();
+            var cameraMatrix = mainCamera.Transform.GetTransformationNoRot();
+            var cameraPositionMatrix = cameraMatrix * mainCamera.GetViewProjection();
 
             for (var i = 0; i < resource.UniformNames.Count; i++) {
                 var uniformName = resource.UniformNames[i];
@@ -122,33 +124,33 @@ namespace NewEngine.Engine.Rendering.Shading {
                 if (uniformName.StartsWith("R_")) {
                     var unprefixedUniformName = uniformName.Substring(2);
                     if (unprefixedUniformName == "lightMatrix") {
-                        SetUniform(uniformName, renderingEngine.LightMatrix, pass);
+                        SetUniform(uniformName, CoreEngine.GetCoreEngine.RenderingEngine.LightMatrix, pass);
                     }
                     else if (uniformType == "sampler2D") {
-                        var samplerSlot = renderingEngine.GetSamplerSlot(unprefixedUniformName);
-                        renderingEngine.GetTexture(unprefixedUniformName).Bind(samplerSlot, TextureTarget.Texture2D);
+                        var samplerSlot = baseRenderingEngine.GetSamplerSlot(unprefixedUniformName);
+                        baseRenderingEngine.GetTexture(unprefixedUniformName).Bind(samplerSlot, TextureTarget.Texture2D);
                         SetUniform(uniformName, samplerSlot, pass);
                     }
                     else if (uniformType == "samplerCube") {
-                        var samplerSlot = renderingEngine.GetSamplerSlot(unprefixedUniformName);
-                        renderingEngine.GetTexture(unprefixedUniformName)
+                        var samplerSlot = baseRenderingEngine.GetSamplerSlot(unprefixedUniformName);
+                        baseRenderingEngine.GetTexture(unprefixedUniformName)
                             .Bind(samplerSlot, TextureTarget.TextureCubeMap);
                         SetUniform(uniformName, samplerSlot, pass);
                     }
                     else if (uniformType == "vec3")
-                        SetUniform(uniformName, renderingEngine.GetVector3(unprefixedUniformName), pass);
+                        SetUniform(uniformName, baseRenderingEngine.GetVector3(unprefixedUniformName), pass);
                     else if (uniformType == "vec4")
-                        SetUniform(uniformName, renderingEngine.GetVector4(unprefixedUniformName), pass);
+                        SetUniform(uniformName, baseRenderingEngine.GetVector4(unprefixedUniformName), pass);
                     else if (uniformType == "float")
-                        SetUniform(uniformName, renderingEngine.GetFloat(unprefixedUniformName), pass);
+                        SetUniform(uniformName, baseRenderingEngine.GetFloat(unprefixedUniformName), pass);
                     else if (uniformType == "DirectionalLight")
-                        SetUniformDirectionalLight(uniformName, (DirectionalLight)renderingEngine.ActiveLight, pass);
+                        SetUniformDirectionalLight(uniformName, (DirectionalLight)CoreEngine.GetCoreEngine.RenderingEngine.ActiveLight, pass);
                     else if (uniformType == "PointLight")
-                        SetUniformPointLight(uniformName, (PointLight)renderingEngine.ActiveLight, pass);
+                        SetUniformPointLight(uniformName, (PointLight)CoreEngine.GetCoreEngine.RenderingEngine.ActiveLight, pass);
                     else if (uniformType == "SpotLight")
-                        SetUniformSpotLight(uniformName, (SpotLight)renderingEngine.ActiveLight, pass);
+                        SetUniformSpotLight(uniformName, (SpotLight)CoreEngine.GetCoreEngine.RenderingEngine.ActiveLight, pass);
                     else
-                        renderingEngine.UpdateUniformStruct(transform, material, this, uniformName, uniformType);
+                        baseRenderingEngine.UpdateUniformStruct(transform, material, this, uniformName, uniformType);
                 }
                 else if (uniformType == "sampler2D") {
                     if (material.GetTexture(uniformName) == null) {
@@ -156,7 +158,7 @@ namespace NewEngine.Engine.Rendering.Shading {
                     }
                     else {
                         var texture = material.GetTexture(uniformName);
-                        var samplerSlot = renderingEngine.GetSamplerSlot(uniformName);
+                        var samplerSlot = baseRenderingEngine.GetSamplerSlot(uniformName);
                         texture.Bind(samplerSlot, TextureTarget.Texture2D);
                         SetUniform(uniformName, samplerSlot, pass);
                     }
@@ -168,7 +170,7 @@ namespace NewEngine.Engine.Rendering.Shading {
                     else {
                         var texture = material.GetCubemapTexture(uniformName);
 
-                        var samplerSlot = renderingEngine.GetSamplerSlot(uniformName);
+                        var samplerSlot = baseRenderingEngine.GetSamplerSlot(uniformName);
                         texture.Bind(samplerSlot);
                         SetUniform(uniformName, samplerSlot, pass);
                     }
@@ -192,13 +194,16 @@ namespace NewEngine.Engine.Rendering.Shading {
 
                 else if (uniformName.StartsWith("C_")) {
                     if (uniformName == "C_eyePos") {
-                        SetUniform(uniformName, renderingEngine.MainCamera.Transform.GetTransformedPosition(), pass);
+                        SetUniform(uniformName, mainCamera.Transform.GetTransformedPosition(), pass);
                     }
                     else
                         LogManager.Error("Failed to update uniform: " + uniformName + ", not a valid argument of Camera");
                 }
                 else {
-                    if (uniformType == "vec3") {
+                    if (uniformType == "vec2") {
+                        SetUniform(uniformName, material.GetVector2(uniformName), pass);
+                    }
+                    else if (uniformType == "vec3") {
                         SetUniform(uniformName, material.GetVector3(uniformName), pass);
                     }
                     else if (uniformType == "vec4") {
@@ -231,6 +236,10 @@ namespace NewEngine.Engine.Rendering.Shading {
 
         public void SetUniform(string uniformName, float value, string pass) {
             GL.Uniform1(GetResourceFromPass(pass).Uniforms[uniformName], value);
+        }
+
+        public void SetUniform(string uniformName, Vector2 value, string pass) {
+            GL.Uniform2(GetResourceFromPass(pass).Uniforms[uniformName], value);
         }
 
         public void SetUniform(string uniformName, Vector3 value, string pass) {

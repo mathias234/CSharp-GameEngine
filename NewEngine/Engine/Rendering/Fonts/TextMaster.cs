@@ -14,38 +14,21 @@ namespace NewEngine.Engine.components {
         private int _vao;
         private static Dictionary<FontType, List<GUIText>> _texts = new Dictionary<FontType, List<GUIText>>();
 
-
-        public TextMaster() {
-
-        }
-
-        //public void Render(Dictionary<FontType, List<GUIText>> texts) {
-        //    GL.Enable(EnableCap.Blend);
-        //    GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-        //    GL.Disable(EnableCap.DepthTest);
-
-        //    foreach (var font in texts.Keys) {
-        //        _shader.Bind();
-        //        _shader.UpdateUniforms(new Transform(), _material, CoreEngine.GetCoreEngine.RenderingEngine);
-
-        //    }
-
-        //    GL.Disable(EnableCap.Blend);
-        //    GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.One);
-        //    GL.Enable(EnableCap.DepthTest);
-        //}
-
-
         public static void LoadText(GUIText text) {
             FontType font = text.Font;
             TextMeshData data = font.LoadText(text);
             int vao = LoadToVAO(data.VertexPositions, data.TextureCoords);
             text.SetMeshInfo(vao, data.VertexCount);
-            List<GUIText> textBatch = _texts[font];
+
+            List<GUIText> textBatch = null;
+            if (_texts.ContainsKey(font))
+                textBatch = _texts[font];
+
             if (textBatch == null) {
                 textBatch = new List<GUIText>();
                 _texts.Add(font, textBatch);
             }
+
             textBatch.Add(text);
         }
 
@@ -79,6 +62,5 @@ namespace NewEngine.Engine.components {
             GL.VertexAttribPointer(attributeNumber, coordinateSize, VertexAttribPointerType.Float, false, 0, 0);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
         }
-
     }
 }

@@ -48,7 +48,16 @@ namespace NewEngine.Engine.components {
             _material.SetVector4("waterColor", waterColor);
         }
 
-        public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage) {
+        public override void Render(string shader, string shaderType, float deltaTime, BaseRenderingEngine baseRenderingEngine, string renderStage) {
+            RenderingEngine renderingEngine;
+            if (baseRenderingEngine is RenderingEngine) {
+                renderingEngine = (RenderingEngine)baseRenderingEngine;
+            }
+            else {
+                LogManager.Error("called in wrong engine");
+                return;
+            }
+
             if (renderStage.ToLower() == "refract" || renderStage.ToLower() == "reflect") {
                 return;
             }
@@ -87,12 +96,7 @@ namespace NewEngine.Engine.components {
         }
 
         public override void AddToEngine(ICoreEngine engine) {
-            engine.RenderingEngine.AddNonBatched(this);
-        }
-
-        public override void OnDestroyed(ICoreEngine engine) {
-            // FIXME: probably not going to work
-            engine.RenderingEngine.RemoveNonBatched(this);
+            engine.RenderingEngine.AddToEngine(this);
         }
     }
 }

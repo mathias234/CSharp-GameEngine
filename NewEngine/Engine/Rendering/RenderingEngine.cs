@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using NewEngine.Engine.components;
-using NewEngine.Engine.components.UIComponents;
 using NewEngine.Engine.Core;
 using NewEngine.Engine.Rendering.ResourceManagament;
 using NewEngine.Engine.Rendering.Shading;
@@ -10,19 +9,16 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering {
-    public class RenderingEngine : MappedValues {
-        private static ICoreEngine _coreEngine;
+    public class RenderingEngine : BaseRenderingEngine {
         private Camera _altCamera;
         private GameObject _altCameraObject;
 
         private Matrix4 _biasMatrix = Matrix4.CreateTranslation(1.0f, 1.0f, 1.0f) * Matrix4.CreateScale(0.5f, 0.5f, 0.5f);
 
         private List<BaseLight> _lights;
-        private Dictionary<string, int> _samplerMap;
 
         // this list will be filled and deleted every render
         private List<GameComponent> _renderableComponents = new List<GameComponent>();
-        private List<UiComponent> _ui = new List<UiComponent>();
 
         private Mesh _skybox;
         private Material _skyboxMaterial;
@@ -34,11 +30,10 @@ namespace NewEngine.Engine.Rendering {
         private Material _planeMaterial;
         private Texture _tempTarget;
 
-
         public RenderingEngine(ICoreEngine coreEngine) {
-            _coreEngine = coreEngine;
+            MainEngine = coreEngine;
             _lights = new List<BaseLight>();
-            _samplerMap = new Dictionary<string, int> {
+            SamplerMap = new Dictionary<string, int> {
                 {"diffuse", 0},
                 {"normalMap", 1},
                 {"dispMap", 2},
@@ -81,7 +76,7 @@ namespace NewEngine.Engine.Rendering {
 
             GL.FrontFace(FrontFaceDirection.Cw);
             //GL.CullFace(CullFaceMode.Back);
-            GL.Enable(EnableCap.CullFace);
+            //GL.Enable(EnableCap.CullFace);
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.DepthClamp);
             GL.Enable(EnableCap.ClipPlane0);
@@ -129,10 +124,7 @@ namespace NewEngine.Engine.Rendering {
             LogManager.Error("Failed to update uniform: " + uniformName + ", not a valid type in Rendering Engine");
         }
 
-        public void RenderBatches(float deltaTime) {
-            var core = (CoreEngine) _coreEngine;
-            core.Game.GetRootObject.AddToEngine(CoreEngine.GetCoreEngine);
-
+        public override void Render(float deltaTime) {
             RenderShadowMap(deltaTime);
 
             RenderObject(GetTexture("displayTexture"), deltaTime, "ambient", true);
@@ -140,8 +132,6 @@ namespace NewEngine.Engine.Rendering {
             DoPostProccess();
             _renderableComponents = new List<GameComponent>();
             _lights = new List<BaseLight>();
-
-            _coreEngine.SwapBuffers();
         }
 
         private void DoPostProccess() {
@@ -221,15 +211,7 @@ namespace NewEngine.Engine.Rendering {
                 }
             }
 
-
-            if (drawUi) {
-                foreach (var uiComponent in _ui) {
-                    uiComponent.Render(null, "ui", deltaTime, this, "ui");
-                }
-            }
-
             GetTexture("displayTexture").BindAsRenderTarget();
-
         }
 
         private Dictionary<Material, BatchMeshRenderer> CreateBatchFromList(List<GameComponent> components) {
@@ -383,11 +365,11 @@ namespace NewEngine.Engine.Rendering {
         {
             set
             {
-                _coreEngine.RenderingEngine.SetVector3("ambient", value);
+                MainEngine.RenderingEngine.SetVector3("ambient", value);
             }
             get
             {
-                return _coreEngine.RenderingEngine.GetVector3("ambient");
+                return MainEngine.RenderingEngine.GetVector3("ambient");
             }
         }
 
@@ -395,24 +377,8 @@ namespace NewEngine.Engine.Rendering {
             _lights.Add(light);
         }
 
-        public void AddNonBatched(GameComponent gameComponent) {
-            this._renderableComponents.Add(gameComponent);
-        }
-
-        public void RemoveNonBatched(GameComponent gameComponent) {
-            if (this._renderableComponents.Contains(gameComponent)) {
-                this._renderableComponents.Remove(gameComponent);
-            }
-        }
-
-        public void AddUI(UiComponent uiComponent) {
-            _ui.Add(uiComponent);
-        }
-
-        public void RemoveUI(UiComponent uiComponent) {
-            if (_ui.Contains(uiComponent)) {
-                _ui.Remove(uiComponent);
-            }
+        public override void AddToEngine(GameComponent gameComponent) {
+            _renderableComponents.Add(gameComponent);
         }
 
         public void RemoveLight(BaseLight light) {
@@ -421,10 +387,6 @@ namespace NewEngine.Engine.Rendering {
 
         public void AddCamera(Camera camera) {
             MainCamera = camera;
-        }
-
-        public int GetSamplerSlot(string samplerName) {
-            return _samplerMap[samplerName];
         }
     }
 }

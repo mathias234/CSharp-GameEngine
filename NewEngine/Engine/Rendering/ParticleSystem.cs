@@ -102,7 +102,16 @@ namespace NewEngine.Engine.Rendering {
             GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(_maxParticles * 4 * sizeof(float)), IntPtr.Zero, BufferUsageHint.StreamDraw);
         }
 
-        public override void Render(string shader, string shaderType, float deltaTime, RenderingEngine renderingEngine, string renderStage) {
+        public override void Render(string shader, string shaderType, float deltaTime, BaseRenderingEngine baseRenderingEngine, string renderStage) {
+            RenderingEngine renderingEngine;
+            if (baseRenderingEngine is RenderingEngine) {
+                renderingEngine = (RenderingEngine)baseRenderingEngine;
+            }
+            else {
+                LogManager.Error("called in wrong engine");
+                return;
+            }
+
             if (!_material.Shader.GetShaderTypes.Contains(shaderType))
                 return;
 
@@ -258,24 +267,16 @@ namespace NewEngine.Engine.Rendering {
 
         public override void AddToEngine(ICoreEngine engine) {
             base.AddToEngine(engine);
-            engine.RenderingEngine.AddNonBatched(this);
+            engine.RenderingEngine.AddToEngine(this);
         }
-
-        public override void OnDestroyed(ICoreEngine engine) {
-            base.AddToEngine(engine);
-            engine.RenderingEngine.RemoveNonBatched(this);
-        }
-
 
         public float GetRandomNumber(double minimum, double maximum) {
             return (float)(_random.NextDouble() * (maximum - minimum) + minimum);
         }
 
-        public int MaxParticles
-        {
+        public int MaxParticles {
             get { return _maxParticles; }
-            set
-            {
+            set {
                 _maxParticles = value;
                 Initialize();
             }
@@ -321,97 +322,82 @@ namespace NewEngine.Engine.Rendering {
             else
                 return int.MaxValue;
         }
-#region getter/setter
+        #region getter/setter
 
-        public Vector3 StartPostionMin
-        {
+        public Vector3 StartPostionMin {
             get { return _startPostionMin; }
             set { _startPostionMin = value; }
         }
 
-        public Vector3 StartPostionMax
-        {
+        public Vector3 StartPostionMax {
             get { return _startPostionMax; }
             set { _startPostionMax = value; }
         }
 
-        public float Spread
-        {
+        public float Spread {
             get { return _spread; }
             set { _spread = value; }
         }
 
-        public Vector3 DirectionMin
-        {
+        public Vector3 DirectionMin {
             get { return _directionMin; }
             set { _directionMin = value; }
         }
 
-        public Vector3 DirectionMax
-        {
+        public Vector3 DirectionMax {
             get { return _directionMax; }
             set { _directionMax = value; }
         }
 
-        public Vector4 ColorMin
-        {
+        public Vector4 ColorMin {
             get { return _colorMin; }
             set { _colorMin = value; }
         }
 
-        public Vector4 ColorMax
-        {
+        public Vector4 ColorMax {
             get { return _colorMax; }
             set { _colorMax = value; }
         }
 
-        public Vector3 Gravity
-        {
+        public Vector3 Gravity {
             get { return _gravity; }
             set { _gravity = value; }
         }
 
-        public float SizeMin
-        {
+        public float SizeMin {
             get { return _sizeMin; }
             set { _sizeMin = value; }
         }
 
-        public float SizeMax
-        {
+        public float SizeMax {
             get { return _sizeMax; }
             set { _sizeMax = value; }
         }
 
-        public float LifeMin
-        {
+        public float LifeMin {
             get { return _lifeMin; }
             set { _lifeMin = value; }
         }
 
-        public float LifeMax
-        {
+        public float LifeMax {
             get { return _lifeMax; }
             set { _lifeMax = value; }
         }
 
-        public bool AllowTransparency
-        {
+        public bool AllowTransparency {
             get { return _allowTransparency; }
             set { _allowTransparency = value; }
         }
 
-        public bool OverwriteOldParticles
-        {
+        public bool OverwriteOldParticles {
             get { return _overwriteOldParticles; }
             set { _overwriteOldParticles = value; }
         }
 
-        public bool FadeOut
-        {
+        public bool FadeOut {
             get { return _fadeOut; }
             set { _fadeOut = value; }
         }
-#endregion
+        #endregion
     }
 }
