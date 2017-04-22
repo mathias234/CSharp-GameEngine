@@ -14,10 +14,12 @@ uniform mat4 T_MVP;
 
 uniform vec4 R_clipPlane;
 
+uniform vec2 tiling;
+
 void main()
 {
     gl_Position = T_MVP * vec4(position, 1.0);
-    texCoord0 = texCoord;
+    texCoord0 = texCoord * tiling;
     worldPos0 = (T_model * vec4(position, 1.0)).xyz;
     
 	vec4 WorldPosition = (T_model * vec4(position, 1.0));
