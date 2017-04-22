@@ -17,12 +17,13 @@ uniform mat4 R_lightMatrix;
 
 uniform vec4 R_clipPlane;
 
+uniform vec2 tiling;
 
 void main()
 {
     gl_Position = T_MVP * vec4(position, 1.0);
 
-    texCoord0 = texCoord;
+    texCoord0 = texCoord * tiling;
 	shadowMapCoords0 = (R_lightMatrix * T_model) * vec4(position, 1.0);
     worldPos0 = (T_model * vec4(position, 1.0)).xyz;
 	
