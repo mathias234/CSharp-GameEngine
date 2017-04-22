@@ -10,7 +10,7 @@ using NewEngine.Engine.Rendering.Shading;
 using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.components {
-    public class TextMaster : GameComponent {
+    public class TextMaster {
         private int _vao;
         private static Dictionary<FontType, List<GUIText>> _texts = new Dictionary<FontType, List<GUIText>>();
 
@@ -31,36 +31,6 @@ namespace NewEngine.Engine.components {
 
             textBatch.Add(text);
         }
-
-        public static void Render() {
-            GL.Enable(EnableCap.Blend);
-            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-            GL.Disable(EnableCap.DepthTest);
-            foreach (var font in _texts.Keys) {
-
-                foreach (var guiText in _texts[font]) {
-                    var mat = new Material(Shader.GetShader("font"));
-                    mat.SetMainTexture(font.TextureAtlas);
-                    mat.SetVector3("color", guiText.Color);
-                    mat.SetVector2("translation", guiText.Position);
-                    mat.Shader.Bind("default");
-                    mat.Shader.UpdateUniforms(new Transform(), mat, CoreEngine.GetCoreEngine.RenderingEngine, "default");
-                    RenderText(guiText, mat);
-                }
-            }
-
-        }
-
-        public static void RenderText(GUIText text, Material mat) {
-            GL.BindVertexArray(text.Mesh);
-            GL.EnableVertexAttribArray(0);
-            GL.EnableVertexAttribArray(1);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, text.VertexCount);
-            GL.DisableVertexAttribArray(0);
-            GL.DisableVertexAttribArray(1);
-            GL.BindVertexArray(0);
-        }
-
 
         public static void RemoveText(GUIText text) {
             List<GUIText> textBatch = _texts[text.Font];

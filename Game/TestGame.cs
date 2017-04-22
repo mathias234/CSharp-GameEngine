@@ -22,22 +22,15 @@ namespace Game {
         private Material _mainMaterial;
         private GameObject _cube;
 
+
         public override void Start() {
             CreateCamera();
 
+            FontType font = new FontType(Texture.GetTexture("verdana/verdana.png"), "./res/textures/verdana/verdana.fnt");
 
-            var UIImage = new GameObject("UI image");
-            UIImage.AddComponent(new Image(Texture.GetTexture("bricks.png")));
-            UIImage.Transform.Scale = new Vector3(0.3f, 0.1f, 1);
-            UIImage.Transform.Position = new Vector3(0, 1.0f - 0.1f, 0);
-            AddObject(UIImage);
-
-
-
-            FontType font = new FontType(Texture.GetTexture("verdana.png"), "./res/fonts/verdana.fnt");
-            GUIText text = new GUIText("SO MUCH AWESOME TEXT!!", 1, font, new Vector2(0, 0.03f), 1, true);
-            text.Color = new Vector3(0, 0, 0.2f);
-
+            var uiText = new GameObject("UI image");
+            uiText.AddComponent(new GUIText("SO MUCH AWESOME TEXT!!", 1, font, new Vector2(0, 0.03f), 1, true));
+            AddObject(uiText);
 
 
             //AudioMaster.Initialize();
