@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using BEPUphysics;
 using BEPUutilities;
 using BEPUutilities.Threading;
@@ -18,6 +19,12 @@ namespace NewEngine.Engine.Physics {
         public static void AddToPhysicsEngine(ISpaceObject obj) {
             if (_physicsSpace == null) {
                 var parallelLooper = new ParallelLooper();
+
+                if (Environment.ProcessorCount > 1) {
+                    for (int i = 0; i < Environment.ProcessorCount; i++) {
+                        parallelLooper.AddThread();
+                    }
+                }
 
                 _physicsSpace = new Space(parallelLooper) { ForceUpdater = { Gravity = new Vector3(0, -9.81f, 0) } };
             }
