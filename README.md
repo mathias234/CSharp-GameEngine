@@ -9,11 +9,11 @@ use mklink /J in each game folder to link to the res folder that contains all th
  mklink /J "C:\engine\builds\debug\res" "C:\engine\res"
 ```
 
+**Current Work**
+- General fixing, improvements, simplifing things. before i add any more features
+
 **Known Issues:**
 - You can currently only have ONE shadow caster
-- Batching sometimes moves objects to wrong positions, needs more testing
-
-- General preformance and memory improvements required
 
 **Future Plans:**
 - More UI stuff like text, and clicking and stuff
