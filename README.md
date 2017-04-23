@@ -16,7 +16,6 @@ use mklink /J in each game folder to link to the res folder that contains all th
 - You can currently only have ONE shadow caster
 
 **Future Plans:**
-- More UI stuff like text, and clicking and stuff
+- More UI stuff like buttons and other clicky stuff
 - Editor
-- Sound(3d and 2d) - IMPORTANT!
 - Better Object loading, like more formats and load materials from obj
