@@ -30,10 +30,7 @@ namespace NewEngine.Engine.Rendering {
 
             Bitmap image;
             if (File.Exists(Path.Combine("./res/textures", filename))) {
-                LogManager.Debug("loading texture: " + filename);
                 image = new Bitmap(Path.Combine("./res/textures", filename));
-                LogManager.Debug(image.GetPixel(0, 0).ToString());
-
             }
             else {
                 LogManager.Error("Image does not exists");
