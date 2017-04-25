@@ -106,8 +106,10 @@ namespace NewEngine.Engine.Core {
                 gameComponent.AddToEngine(engine);
             }
 
-            foreach (var gameObject in _children) {
-                gameObject.AddToEngine(engine);
+            for (int i = 0; i < _children.Count; i++) {
+                if(_children[i] == null) continue;
+                
+                _children[i].AddToEngine(engine);
             }
         }
 
