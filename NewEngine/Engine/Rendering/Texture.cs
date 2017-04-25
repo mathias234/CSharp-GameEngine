@@ -29,17 +29,24 @@ namespace NewEngine.Engine.Rendering {
             _filename = filename;
 
             Bitmap image;
-            if (File.Exists(Path.Combine("./res/textures", filename)))
+            if (File.Exists(Path.Combine("./res/textures", filename))) {
+                LogManager.Debug("loading texture: " + filename);
                 image = new Bitmap(Path.Combine("./res/textures", filename));
+                LogManager.Debug(image.GetPixel(0, 0).ToString());
+
+            }
             else {
                 LogManager.Error("Image does not exists");
                 image = new Bitmap(Path.Combine("./res/textures", "default_mask.png"));
             }
-            _width = image.Width;
-            _height = image.Height;
 
-            _resource = LoadTexture(image, filter, internalFormat, format, clamp, attachment, target);
-            _target = target;
+            Dispatcher.Current.BeginInvoke(() => {
+                _width = image.Width;
+                _height = image.Height;
+
+                _resource = LoadTexture(image, filter, internalFormat, format, clamp, attachment, target);
+                _target = target;
+            });
         }
         /// <summary>
         /// Resource managed version for filenames
@@ -135,13 +142,11 @@ namespace NewEngine.Engine.Rendering {
             _resource.Cleanup();
         }
 
-        public int Width
-        {
+        public int Width {
             get { return _width; }
         }
 
-        public int Height
-        {
+        public int Height {
             get { return _height; }
         }
 
