@@ -49,7 +49,14 @@ namespace NewEngine.Engine.Physics {
 
             BEPUphysics.RayCastResult tempResult;
 
-            _physicsSpace.RayCast(tempRay, maximumLength, out tempResult);
+            try {
+                _physicsSpace.RayCast(tempRay, maximumLength, out tempResult);
+            }
+            catch (Exception) {
+                // ignored
+                result = null;
+                return;
+            }
 
             var hit = new RayHit {
                 Location = FromBepuVector3(tempResult.HitData.Location),
