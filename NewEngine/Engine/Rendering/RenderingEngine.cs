@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NewEngine.Engine.components;
 using NewEngine.Engine.Core;
 using NewEngine.Engine.Rendering.ResourceManagament;
@@ -18,8 +20,8 @@ namespace NewEngine.Engine.Rendering {
         private List<BaseLight> _lights;
 
         // this list will be filled and deleted every render
-        private List<GameComponent> _renderableComponents = new List<GameComponent>();
-
+        //private List<GameComponent> _renderableComponents = new List<GameComponent>();
+        private ConcurrentQueue<GameComponent> _renderableComponents = new ConcurrentQueue<GameComponent>();
         private Mesh _skybox;
         private Material _skyboxMaterial;
         private Shader _skyboxShader;
@@ -130,7 +132,7 @@ namespace NewEngine.Engine.Rendering {
             RenderObject(GetTexture("displayTexture"), deltaTime, "ambient", true);
 
             DoPostProccess();
-            _renderableComponents = new List<GameComponent>();
+            _renderableComponents = new ConcurrentQueue<GameComponent>();
             _lights = new List<BaseLight>();
         }
 
@@ -187,16 +189,14 @@ namespace NewEngine.Engine.Rendering {
                 }
             }
 
-            for (int i = 0; i < _renderableComponents.Count; i++) {
-                var gameComponent = _renderableComponents[i];
-
+            //for (int i = 0; i < _renderableComponents.Count; i++) {
+            foreach (var gameComponent in _renderableComponents) {
                 if (gameComponent is MeshRenderer) continue;
-                if(gameComponent == null) continue;
+                if (gameComponent == null) continue;
 
                 gameComponent.Render(null, "ambient", deltaTime, this, renderStage);
 
-                foreach (var light in _lights)
-                {
+                foreach (var light in _lights) {
                     ActiveLight = light;
                     GL.Enable(EnableCap.Blend);
                     GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.One);
@@ -217,20 +217,19 @@ namespace NewEngine.Engine.Rendering {
             GetTexture("displayTexture").BindAsRenderTarget();
         }
 
-        private Dictionary<Material, BatchMeshRenderer> CreateBatchFromList(List<GameComponent> components) {
-            var meshRenderers = new Dictionary<Material, BatchMeshRenderer>();
+        private ConcurrentDictionary<Material, BatchMeshRenderer> CreateBatchFromList(ConcurrentQueue<GameComponent> components) {
+            var meshRenderers = new ConcurrentDictionary<Material, BatchMeshRenderer>();
 
-            for (int i = 0; i < components.Count; i++) {
-                var gameComponent = components[i];
+            foreach (var gameComponent in components) {
                 if (gameComponent == null) continue;
 
                 if (gameComponent is MeshRenderer) {
-                    var mr = (MeshRenderer) gameComponent;
+                    var mr = (MeshRenderer)gameComponent;
                     if (meshRenderers.ContainsKey(mr.Material)) {
                         meshRenderers[mr.Material].AddGameObject(mr.Mesh, mr.gameObject);
                     }
                     else {
-                        meshRenderers.Add(mr.Material, new BatchMeshRenderer(mr.Material, mr.Mesh, mr.gameObject));
+                        meshRenderers.TryAdd(mr.Material, new BatchMeshRenderer(mr.Material, mr.Mesh, mr.gameObject));
                     }
                 }
             }
@@ -266,11 +265,11 @@ namespace NewEngine.Engine.Rendering {
                     if (flipFaces) GL.CullFace(CullFaceMode.Front);
 
 
-                    for (int i = 0; i < _renderableComponents.Count; i++) {
-                        if(_renderableComponents[i] == null)
+                    foreach (var gameComponent in _renderableComponents) {
+                        if (gameComponent == null)
                             continue;
 
-                        _renderableComponents[i].Render("shadowMapGenerator", "shadowMapGen", deltaTime, this, "shadowMapGen");
+                        gameComponent.Render("shadowMapGenerator", "shadowMapGen", deltaTime, this, "shadowMapGen");
                     }
 
                     if (flipFaces) GL.CullFace(CullFaceMode.Back);
@@ -326,7 +325,7 @@ namespace NewEngine.Engine.Rendering {
             var temp = GetTexture("tempFilter");
 
             if (axis == Vector2.UnitX) {
-                SetVector3("blurScale", new Vector3( blurAmount / texture.Width, 0.0f, 0.0f));
+                SetVector3("blurScale", new Vector3(blurAmount / texture.Width, 0.0f, 0.0f));
             }
             else if (axis == Vector2.UnitY) {
                 SetVector3("blurScale", new Vector3(0.0f, blurAmount / texture.Height, 0.0f));
@@ -371,14 +370,11 @@ namespace NewEngine.Engine.Rendering {
             return GL.GetString(StringName.Version);
         }
 
-        public static Vector3 AmbientLight
-        {
-            set
-            {
+        public static Vector3 AmbientLight {
+            set {
                 MainEngine.RenderingEngine.SetVector3("ambient", value);
             }
-            get
-            {
+            get {
                 return MainEngine.RenderingEngine.GetVector3("ambient");
             }
         }
@@ -388,7 +384,13 @@ namespace NewEngine.Engine.Rendering {
         }
 
         public override void AddToEngine(GameComponent gameComponent) {
-            _renderableComponents.Add(gameComponent);
+            try {
+                _renderableComponents.Enqueue(gameComponent);
+            }
+            catch (Exception e) {
+                LogManager.Error(e.Message);
+            }
+
         }
 
         public void RemoveLight(BaseLight light) {

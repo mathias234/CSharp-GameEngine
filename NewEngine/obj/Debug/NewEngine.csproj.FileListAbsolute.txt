@@ -70,3 +70,17 @@ C:\CSharpGame\NewEngine\bin\Debug\OpenTK.xml
 C:\CSharpGame\NewEngine\obj\Debug\NewEngine.dll
 C:\CSharpGame\NewEngine\obj\Debug\NewEngine.pdb
 C:\CSharpGame\NewEngine\obj\Debug\NewEngine.csprojResolveAssemblyReference.cache
+C:\CSharp-GameEngine\NewEngine\bin\Debug\NewEngine.dll.config
+C:\CSharp-GameEngine\NewEngine\bin\Debug\NewEngine.dll
+C:\CSharp-GameEngine\NewEngine\bin\Debug\NewEngine.pdb
+C:\CSharp-GameEngine\NewEngine\bin\Debug\BEPUik.dll
+C:\CSharp-GameEngine\NewEngine\bin\Debug\BEPUphysics.dll
+C:\CSharp-GameEngine\NewEngine\bin\Debug\BEPUutilities.dll
+C:\CSharp-GameEngine\NewEngine\bin\Debug\OpenTK.dll
+C:\CSharp-GameEngine\NewEngine\bin\Debug\BEPUik.xml
+C:\CSharp-GameEngine\NewEngine\bin\Debug\BEPUphysics.xml
+C:\CSharp-GameEngine\NewEngine\bin\Debug\BEPUutilities.xml
+C:\CSharp-GameEngine\NewEngine\bin\Debug\OpenTK.xml
+C:\CSharp-GameEngine\NewEngine\obj\Debug\NewEngine.csprojResolveAssemblyReference.cache
+C:\CSharp-GameEngine\NewEngine\obj\Debug\NewEngine.dll
+C:\CSharp-GameEngine\NewEngine\obj\Debug\NewEngine.pdb
