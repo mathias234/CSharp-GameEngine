@@ -187,8 +187,11 @@ namespace NewEngine.Engine.Rendering {
                 }
             }
 
-            foreach (var gameComponent in _renderableComponents) {
+            for (int i = 0; i < _renderableComponents.Count; i++) {
+                var gameComponent = _renderableComponents[i];
+
                 if (gameComponent is MeshRenderer) continue;
+                if(gameComponent == null) continue;
 
                 gameComponent.Render(null, "ambient", deltaTime, this, renderStage);
 
@@ -217,7 +220,10 @@ namespace NewEngine.Engine.Rendering {
         private Dictionary<Material, BatchMeshRenderer> CreateBatchFromList(List<GameComponent> components) {
             var meshRenderers = new Dictionary<Material, BatchMeshRenderer>();
 
-            foreach (var gameComponent in components) {
+            for (int i = 0; i < components.Count; i++) {
+                var gameComponent = components[i];
+                if (gameComponent == null) continue;
+
                 if (gameComponent is MeshRenderer) {
                     var mr = (MeshRenderer) gameComponent;
                     if (meshRenderers.ContainsKey(mr.Material)) {
@@ -259,8 +265,12 @@ namespace NewEngine.Engine.Rendering {
 
                     if (flipFaces) GL.CullFace(CullFaceMode.Front);
 
-                    foreach (var renderableComponent in _renderableComponents) {
-                        renderableComponent.Render("shadowMapGenerator", "shadowMapGen", deltaTime, this, "shadowMapGen");
+
+                    for (int i = 0; i < _renderableComponents.Count; i++) {
+                        if(_renderableComponents[i] == null)
+                            continue;
+
+                        _renderableComponents[i].Render("shadowMapGenerator", "shadowMapGen", deltaTime, this, "shadowMapGen");
                     }
 
                     if (flipFaces) GL.CullFace(CullFaceMode.Back);

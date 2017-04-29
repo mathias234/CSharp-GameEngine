@@ -1,4 +1,5 @@
 ﻿using System;
+using NewEngine.Engine.Core;
 using OpenTK.Graphics.OpenGL;
 
 namespace NewEngine.Engine.Rendering.ResourceManagament {
@@ -9,9 +10,11 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
         private int _matrixBuffer;
 
         public MeshResource() {
-            GL.GenBuffers(1, out _vbo);
-            GL.GenBuffers(1, out _ibo);
-            GL.GenBuffers(1, out _matrixBuffer);
+            Dispatcher.Current.BeginInvoke(() => {
+                GL.GenBuffers(1, out _vbo);
+                GL.GenBuffers(1, out _ibo);
+                GL.GenBuffers(1, out _matrixBuffer);
+            });
             Size = 0;
             _refCount = 1;
         }

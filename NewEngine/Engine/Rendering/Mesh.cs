@@ -72,11 +72,12 @@ namespace NewEngine.Engine.Rendering {
 
         public int[] Indices { get; private set; }
 
-        public string Filename
-        {
+        public string Filename {
             get { return _filename; }
             set { _filename = value; }
         }
+
+        private bool readyToDraw = false;
 
         private void AddVertices(Vertex[] vertices, int[] indices, bool calcNormals) {
             if (calcNormals) {
@@ -85,20 +86,26 @@ namespace NewEngine.Engine.Rendering {
 
             _resource.Size = indices.Length;
 
-            GL.BindBuffer(BufferTarget.ArrayBuffer, _resource.Vbo);
-            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(vertices.Length * Vertex.SizeInBytes), vertices,
-                BufferUsageHint.StaticDraw);
+            Dispatcher.Current.BeginInvoke(() => {
+                GL.BindBuffer(BufferTarget.ArrayBuffer, _resource.Vbo);
+                GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(vertices.Length * Vertex.SizeInBytes), vertices,
+                    BufferUsageHint.StaticDraw);
 
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _resource.Ibo);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, _resource.Ibo);
 
-            var reversedIndices = (int[])indices.Clone();
+                var reversedIndices = (int[])indices.Clone();
 
-            Array.Reverse(reversedIndices);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(_resource.Size * 4 /* size of int */),
-                reversedIndices, BufferUsageHint.StaticDraw);
+                Array.Reverse(reversedIndices);
+                GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(_resource.Size * 4 /* size of int */),
+                    reversedIndices, BufferUsageHint.StaticDraw);
+
+                readyToDraw = true;
+            });
         }
 
         public void Draw() {
+            if(!readyToDraw) return;
+
             GL.EnableVertexAttribArray(0);
             GL.EnableVertexAttribArray(1);
             GL.EnableVertexAttribArray(2);

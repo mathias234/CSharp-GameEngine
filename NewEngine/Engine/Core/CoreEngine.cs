@@ -39,7 +39,11 @@ namespace NewEngine.Engine.Core {
         public RenderingEngine RenderingEngine { get; set; }
         public GUIRenderer GUIRenderingEngine { get; set; }
 
+        private Dispatcher _dispatcher;
+
         public void CreateWindow(string title) {
+            _dispatcher = new Dispatcher();
+
             Title = title;
 
             ClientSize = new Size(_width, _height);
@@ -48,6 +52,7 @@ namespace NewEngine.Engine.Core {
         }
 
         public void Start() {
+
             Game.Start();
 
             UpdateFrame += Run;
@@ -65,6 +70,8 @@ namespace NewEngine.Engine.Core {
             Input.Update(Mouse);
 
             PhysicsEngine.Update((float) e.Time);
+
+            _dispatcher.Update();
         }
 
         private void Render(object sender, FrameEventArgs e) {
