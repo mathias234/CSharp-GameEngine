@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NewEngine.Engine.components;
 using NewEngine.Engine.Rendering;
@@ -77,7 +78,12 @@ namespace NewEngine.Engine.Core {
             }
 
             for (var i = 0; i < _children.Count; i++) {
-                _children[i].UpdateAll(deltaTime);
+                try {
+                    _children[i].UpdateAll(deltaTime);
+                }
+                catch (Exception e) {
+                    LogManager.Error(e.ToString());
+                }
             }
         }
 
