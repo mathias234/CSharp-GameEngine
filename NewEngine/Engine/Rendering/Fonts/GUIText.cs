@@ -34,7 +34,37 @@ namespace NewEngine.Engine.Rendering.Fonts {
             _position = position;
             _lineMaxSize = maxLineLength;
             _centerText = centered;
-            TextMaster.LoadText(this);
+            LoadText();
+        }
+
+        public void LoadText() {
+            FontType font = Font;
+            TextMeshData data = font.LoadText(this);
+            int vao = LoadToVAO(data.VertexPositions, data.TextureCoords);
+            SetMeshInfo(vao, data.VertexCount);
+        }
+
+        public int LoadToVAO(float[] positions, float[] textureCoords) {
+            int vaoId;
+            GL.GenVertexArrays(1, out vaoId);
+            GL.BindVertexArray(vaoId);
+
+            StoreDataInAttrib(0, 2, positions);
+            StoreDataInAttrib(1, 2, textureCoords);
+
+            GL.BindVertexArray(0);
+
+            return vaoId;
+        }
+
+        private void StoreDataInAttrib(int attributeNumber, int coordinateSize, float[] data) {
+            int vboId;
+            GL.GenBuffers(1, out vboId);
+
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vboId);
+            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(data.Length * 4), data, BufferUsageHint.StaticDraw);
+            GL.VertexAttribPointer(attributeNumber, coordinateSize, VertexAttribPointerType.Float, false, 0, 0);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
         }
 
         public override void Render(string shader, string shaderType, float deltaTime, BaseRenderingEngine renderingEngine, string renderStage) {
@@ -61,9 +91,10 @@ namespace NewEngine.Engine.Rendering.Fonts {
             engine.GUIRenderingEngine.AddToEngine(this);
         }
 
-        public void Remove() {
-            TextMaster.RemoveText(this);
-        }
+        public void DestroyOldText() {
+            int _textMeshVao = 0;
+            int _vertexCount = 0;
+    }
 
         public FontType Font => _font;
 
@@ -77,6 +108,15 @@ namespace NewEngine.Engine.Rendering.Fonts {
         {
             get { return _numberOfLines; }
             set { _numberOfLines = value; }
+        }
+
+        public string TextString {
+            get { return _textString; }
+            set {
+                _textString = value;
+                DestroyOldText();
+                LoadText();
+            }
         }
 
         public Vector2 Position => _position;
@@ -96,6 +136,5 @@ namespace NewEngine.Engine.Rendering.Fonts {
 
         public float MaxLineSize => _lineMaxSize;
 
-        public string TextString => _textString;
     }
 }
