@@ -20,11 +20,12 @@ namespace NewEngine.Engine.Physics {
             if (_physicsSpace == null) {
                 var parallelLooper = new ParallelLooper();
 
-                if (Environment.ProcessorCount > 1) {
-                    for (int i = 0; i < Environment.ProcessorCount; i++) {
-                        parallelLooper.AddThread();
-                    }
-                }
+                // FIXME: cant have multiple threads when using audio system. dunno why
+                //if (Environment.ProcessorCount > 1) {
+                //    for (int i = 0; i < Environment.ProcessorCount; i++) {
+                //        parallelLooper.AddThread();
+                //    }
+                //}
 
                 _physicsSpace = new Space(parallelLooper) { ForceUpdater = { Gravity = new Vector3(0, -9.81f, 0) } };
             }
