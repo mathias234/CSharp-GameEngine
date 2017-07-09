@@ -50,7 +50,7 @@ namespace NewEngine.Engine.Core {
             var unitLength = w2 + x2 + y2 + z2; // Normalised == 1, otherwise correction divisor.
             double abcd = q.W*q.X + q.Y*q.Z;
             var eps = 1e-7; // TODO: pick from your math lib instead of hardcoding.
-            var pi = Math.PI; // TODO: pick from your math lib instead of hardcoding.
+            var pi = Math.PI;
 
             if (abcd > (0.5 - eps)*unitLength) {
                 yaw = 2*Math.Atan2(q.Y, q.W);

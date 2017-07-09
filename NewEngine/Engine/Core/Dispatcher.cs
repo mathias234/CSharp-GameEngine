@@ -11,7 +11,6 @@ namespace NewEngine.Engine.Core {
         private bool m_run;
         private Queue<Action> m_wait = new Queue<Action>();
 
-        private Dispatcher m_current;
         public static Dispatcher Current {
             get;
             private set;

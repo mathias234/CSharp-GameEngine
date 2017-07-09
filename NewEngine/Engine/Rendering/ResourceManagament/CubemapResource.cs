@@ -11,7 +11,6 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
     public class CubemapResource : IResourceManaged {
         private int _cubeMapId;
         private List<string> _textures = new List<string>();
-        private int _refCount;
 
         public CubemapResource(string textureTop, string textureBottom, string textureFront, string textureBack,
             string textureLeft, string textureRight) {

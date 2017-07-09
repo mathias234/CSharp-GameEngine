@@ -121,7 +121,7 @@ namespace NewEngine.Engine.Rendering {
         }
 
         // TODO: change this as i dont want people to override the RenderingEngine i rather want them to add their function using either an Action or Func <- not decided
-        public virtual void UpdateUniformStruct(Transform transform, Material material, Shader shader,
+        public override void UpdateUniformStruct(Transform transform, Material material, Shader shader,
             string uniformName, string uniformType) {
             LogManager.Error("Failed to update uniform: " + uniformName + ", not a valid type in Rendering Engine");
         }

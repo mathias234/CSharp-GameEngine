@@ -11,7 +11,6 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
         private int _numTextures;
         private int _renderBuffer;
         private int _width;
-        private int _refCount;
 
         public TextureResource(int numTexture, int width, int height, List<char[]> data, TextureMinFilter[] filters,
             PixelInternalFormat[] internalFormat, PixelFormat[] format, bool clamp, FramebufferAttachment[] attachments,
@@ -25,7 +24,6 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
 
             InitTextures(data, filters, internalFormat, format, clamp, targets);
             InitRenderTargets(attachments, targets);
-            _refCount = 1;
         }
 
         public TextureResource(int numTexture, int width, int height, IntPtr[] data, TextureMinFilter[] filters,
@@ -40,7 +38,6 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
 
             InitTextures(data, filters, internalFormat, format, clamp, targets);
             InitRenderTargets(attachments, targets);
-            _refCount = 1;
         }
 
         private void InitRenderTargets(FramebufferAttachment[] attachments, TextureTarget[] targets) {

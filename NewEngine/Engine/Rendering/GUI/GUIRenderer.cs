@@ -18,8 +18,7 @@ namespace NewEngine.Engine.Rendering.GUI {
             gameComponents = new List<GameComponent>();
         }
 
-        public void Render(float time) {
-
+        public override void Render(float time) {
             foreach (var gameComponent in gameComponents) {
                 GL.Enable(EnableCap.Blend);
                 GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
@@ -33,7 +32,7 @@ namespace NewEngine.Engine.Rendering.GUI {
             gameComponents = new List<GameComponent>();
         }
 
-        public void AddToEngine(GameComponent gc) {
+        public override void AddToEngine(GameComponent gc) {
             gameComponents.Add(gc);
         }
     }

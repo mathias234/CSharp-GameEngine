@@ -92,20 +92,18 @@ namespace NewEngine.Engine.Rendering.Fonts {
         }
 
         public void DestroyOldText() {
-            int _textMeshVao = 0;
-            int _vertexCount = 0;
-    }
+            _textMeshVao = 0;
+            _vertexCount = 0;
+        }
 
         public FontType Font => _font;
 
-        public Vector3 Color
-        {
+        public Vector3 Color {
             get { return _color; }
             set { _color = value; }
         }
 
-        public int NumberOfLines
-        {
+        public int NumberOfLines {
             get { return _numberOfLines; }
             set { _numberOfLines = value; }
         }

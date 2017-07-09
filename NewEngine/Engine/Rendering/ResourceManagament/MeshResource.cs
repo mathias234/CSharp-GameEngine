@@ -5,7 +5,6 @@ using OpenTK.Graphics.OpenGL;
 namespace NewEngine.Engine.Rendering.ResourceManagament {
     public class MeshResource : IResourceManaged {
         private int _ibo;
-        private int _refCount;
         private int _vbo;
         private int _matrixBuffer;
 
@@ -16,7 +15,6 @@ namespace NewEngine.Engine.Rendering.ResourceManagament {
                 GL.GenBuffers(1, out _matrixBuffer);
             });
             Size = 0;
-            _refCount = 1;
         }
 
         public int Vbo {

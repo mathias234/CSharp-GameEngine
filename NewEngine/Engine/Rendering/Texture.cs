@@ -10,6 +10,7 @@ using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
 
 namespace NewEngine.Engine.Rendering {
     // TODO: maybe clean up the parameters soo much its choking me
+    // FAST
     public class Texture : IResourceManaged {
         private TextureResource _resource;
         private TextureTarget _target;
