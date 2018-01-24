@@ -99,3 +99,5 @@ G:\dev\CSharp-GameEngine\NewEngine\obj\Debug\NewEngine.csprojResolveAssemblyRefe
 G:\dev\CSharp-GameEngine\NewEngine\obj\Debug\NewEngine.csproj.CoreCompileInputs.cache
 G:\dev\CSharp-GameEngine\NewEngine\obj\Debug\NewEngine.dll
 G:\dev\CSharp-GameEngine\NewEngine\obj\Debug\NewEngine.pdb
+G:\dev\CSharp-GameEngine\NewEngine\bin\Debug\FileSystem.dll
+G:\dev\CSharp-GameEngine\NewEngine\bin\Debug\FileSystem.pdb

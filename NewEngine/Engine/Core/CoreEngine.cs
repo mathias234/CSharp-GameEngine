@@ -7,6 +7,7 @@ using NewEngine.Engine.Rendering.ResourceManagament;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
+using FileSystem;
 
 namespace NewEngine.Engine.Core {
     public class CoreEngine : GameWindow, ICoreEngine {
@@ -29,6 +30,9 @@ namespace NewEngine.Engine.Core {
             Game = game;
             _vSync = vSync;
 
+            // Initialize the filesystem
+            FileManager.Init();
+
             game.SetEngine(this);
         }
 
@@ -38,7 +42,6 @@ namespace NewEngine.Engine.Core {
 
         public RenderingEngine RenderingEngine { get; set; }
         public GUIRenderer GUIRenderingEngine { get; set; }
-
         private Dispatcher _dispatcher;
 
         public void CreateWindow(string title) {

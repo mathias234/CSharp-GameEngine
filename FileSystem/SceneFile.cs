@@ -1,13 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace FileSystem
 {
-    [Serializable]
-    [Extension(".scene")]
-    public class SceneFile
+    [FileExtension("scene")]
+    public class SceneFile : ISerializableFile
     {
+        public void Deserialize(BinaryReader reader)
+        {
 
+        }
+
+        public void Serialize(BinaryWriter writer)
+        {
+
+        }
     }
 }
