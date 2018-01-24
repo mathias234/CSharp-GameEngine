@@ -26,13 +26,6 @@ namespace Game {
         public override void Start() {
             CreateCamera();
 
-            FontType font = new FontType(Texture.GetTexture("verdana/verdana.png"), "./res/textures/verdana/verdana.fnt");
-
-            var uiText = new GameObject("UI image");
-            uiText.AddComponent(new GUIText("SO MUCH AWESOME TEXT!!", 1, font, new Vector2(0, 0.03f), 1, true));
-            AddObject(uiText);
-
-
             AudioMaster.Initialize();
 
             RenderingEngine.AmbientLight = new Vector3(0.3f);
@@ -88,22 +81,22 @@ namespace Game {
             _cube.Transform.Scale = new Vector3(200, 1, 200);
 
             var terrain = new GameObject("terrain");
-            //var water = new GameObject("water");
+            var water = new GameObject("water");
 
             terrain.AddComponent(new TerrainMesh("terrain1/terrain.jpg", 300, 300, 0.1f, "terrain1/tex1.jpg",
                 "default_normal.png", "terrain1/tex2.jpg", "terrain1/tex2Nrm.jpg", "terrain1/layer1.jpg",
                 "terrain1/tex2.jpg", "terrain1/tex2Nrm.jpg", "terrain1/layer1.jpg", 0.1f, 64));
 
 
-            //water.AddComponent(new WaterMesh(300, 300, new Vector4(0.7f, 1, 0.9f, 1), 0.05f, 0.02f, 0.2f, 12));
+            water.AddComponent(new WaterMesh(300, 300, new Vector4(0.7f, 1, 0.9f, 1), 0.05f, 0.02f, 0.2f, 12));
 
-            //water.Transform.Position = new Vector3(0, 20, 0);
+            water.Transform.Position = new Vector3(0, 20, 0);
 
             AddObject(terrain);
-            //AddObject(water);
-            ////AddObject(_cube);
-            //AddObject(_directionalLightObj);
-            ////AddObject(particleObj);
+            AddObject(water);
+            //AddObject(_cube);
+            AddObject(_directionalLightObj);
+            //AddObject(particleObj);
 
             GetRootObject.Engine.RenderingEngine.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg",
                 "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
