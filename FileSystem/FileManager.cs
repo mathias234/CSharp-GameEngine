@@ -52,8 +52,9 @@ namespace FileSystem
         }
 
 
-        public static void SaveFile<T>(string filename) where T : ISerializableFile
+        public static void SaveFile<T>(string filename, T file) where T : ISerializableFile
         {
+            Console.WriteLine("Trying to save file: " + filename);
             var ext = Path.GetExtension(filename);
 
             if (extTypeCache.ContainsKey(ext))
@@ -63,8 +64,6 @@ namespace FileSystem
 
                 using (BinaryWriter writer = new BinaryWriter(new FileStream(filename, FileMode.Create)))
                 {
-                    ISerializableFile file = (T)Activator.CreateInstance(typeof(T));
-
                     file.Serialize(writer);
                 }
             }

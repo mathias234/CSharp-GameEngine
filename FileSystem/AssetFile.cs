@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FileSystem
 {
-    [FileExtension("asset")]
+    [FileExtension(".asset")]
     public class AssetFile : ISerializableFile
     {
         public void Deserialize(BinaryReader reader)

@@ -73,7 +73,7 @@ namespace NewEngine.Engine.Rendering.Fonts {
             mat.SetVector3("color", Color);
             mat.SetVector2("translation", Position);
             mat.Shader.Bind("default");
-            mat.Shader.UpdateUniforms(new Transform(), mat, CoreEngine.GetCoreEngine.RenderingEngine, "default");
+            mat.Shader.UpdateUniforms(new Transform(), mat, RenderingEngine.Instance, "default");
             RenderText(this, mat);
         }
 

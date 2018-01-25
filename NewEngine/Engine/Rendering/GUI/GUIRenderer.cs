@@ -14,7 +14,6 @@ namespace NewEngine.Engine.Rendering.GUI {
                 {"diffuse", 0}
             };
 
-            MainEngine = coreEngine;
             gameComponents = new List<GameComponent>();
         }
 

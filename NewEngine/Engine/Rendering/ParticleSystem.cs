@@ -179,7 +179,7 @@ namespace NewEngine.Engine.Rendering {
                     p.Position += p.Speed * deltaTime;
 
                     p.CameraDistance =
-                        (p.Position - CoreEngine.GetCoreEngine.RenderingEngine.MainCamera.Transform.Position)
+                        (p.Position - RenderingEngine.Instance.MainCamera.Transform.Position)
                             .LengthSquared;
 
                     _particulePostitionSizeData[4 * particleCount + 0] = p.Position.X;

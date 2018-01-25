@@ -1,4 +1,5 @@
 ﻿using NewEngine.Engine.Core;
+using NewEngine.Engine.Rendering;
 using OpenTK;
 
 namespace NewEngine.Engine.components {
@@ -22,7 +23,7 @@ namespace NewEngine.Engine.components {
         }
 
         public Matrix4 GetOrtographicProjection() {
-            return Matrix4.CreateOrthographic(CoreEngine.GetWidth(), CoreEngine.GetHeight(), 0.1f, 1000.0f);
+            return Matrix4.CreateOrthographic(RenderingEngine.GetWidth(), RenderingEngine.GetHeight(), 0.1f, 1000.0f);
         }
 
 

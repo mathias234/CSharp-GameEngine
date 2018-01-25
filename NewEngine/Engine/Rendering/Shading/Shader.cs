@@ -97,7 +97,7 @@ namespace NewEngine.Engine.Rendering.Shading {
         }
 
         public virtual void UpdateUniforms(Transform transform, Material material, BaseRenderingEngine baseRenderingEngine, string pass) {
-            Camera mainCamera = CoreEngine.GetCoreEngine.RenderingEngine.MainCamera;
+            Camera mainCamera = RenderingEngine.Instance.MainCamera;
 
             if (mainCamera == null) {
                 LogManager.Debug("No Camera");
@@ -124,7 +124,7 @@ namespace NewEngine.Engine.Rendering.Shading {
                 if (uniformName.StartsWith("R_")) {
                     var unprefixedUniformName = uniformName.Substring(2);
                     if (unprefixedUniformName == "lightMatrix") {
-                        SetUniform(uniformName, CoreEngine.GetCoreEngine.RenderingEngine.LightMatrix, pass);
+                        SetUniform(uniformName,RenderingEngine.Instance.LightMatrix, pass);
                     }
                     else if (uniformType == "sampler2D") {
                         var samplerSlot = baseRenderingEngine.GetSamplerSlot(unprefixedUniformName);
@@ -144,11 +144,11 @@ namespace NewEngine.Engine.Rendering.Shading {
                     else if (uniformType == "float")
                         SetUniform(uniformName, baseRenderingEngine.GetFloat(unprefixedUniformName), pass);
                     else if (uniformType == "DirectionalLight")
-                        SetUniformDirectionalLight(uniformName, (DirectionalLight)CoreEngine.GetCoreEngine.RenderingEngine.ActiveLight, pass);
+                        SetUniformDirectionalLight(uniformName, (DirectionalLight)RenderingEngine.Instance.ActiveLight, pass);
                     else if (uniformType == "PointLight")
-                        SetUniformPointLight(uniformName, (PointLight)CoreEngine.GetCoreEngine.RenderingEngine.ActiveLight, pass);
+                        SetUniformPointLight(uniformName, (PointLight)RenderingEngine.Instance.ActiveLight, pass);
                     else if (uniformType == "SpotLight")
-                        SetUniformSpotLight(uniformName, (SpotLight)CoreEngine.GetCoreEngine.RenderingEngine.ActiveLight, pass);
+                        SetUniformSpotLight(uniformName, (SpotLight)RenderingEngine.Instance.ActiveLight, pass);
                     else
                         baseRenderingEngine.UpdateUniformStruct(transform, material, this, uniformName, uniformType);
                 }

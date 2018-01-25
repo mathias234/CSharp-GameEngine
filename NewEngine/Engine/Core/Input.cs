@@ -1,4 +1,5 @@
-﻿using OpenTK;
+﻿using NewEngine.Engine.Rendering;
+using OpenTK;
 using OpenTK.Input;
 
 namespace NewEngine.Engine.Core {
@@ -33,7 +34,7 @@ namespace NewEngine.Engine.Core {
         }
 
         public static bool GetKey(Key keyCode) {
-            if (CoreEngine.GetCoreEngine.Focused == false)
+            if (RenderingEngine.Focused == false)
                 return false;
 
             return Keyboard.GetState().IsKeyDown(keyCode);

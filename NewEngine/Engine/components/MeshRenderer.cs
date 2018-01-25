@@ -8,6 +8,12 @@ namespace NewEngine.Engine.components
 {
     public class MeshRenderer : GameComponent
     {
+        public MeshRenderer(string mesh, string material)
+        {
+            Mesh = NewEngine.Engine.Rendering.Mesh.GetMesh(mesh);
+            Material = new Material(Shader.GetShader("batchedShader"));
+        }
+
         public MeshRenderer(Mesh mesh, Material material = null)
         {
             Mesh = mesh;

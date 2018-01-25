@@ -12,8 +12,10 @@ using NewEngine.Engine.Audio;
 using NewEngine.Engine.Rendering.Fonts;
 using NewEngine.Engine.Rendering.GUI;
 
-namespace Game {
-    public class TestGame : NewEngine.Engine.Core.Game {
+namespace Game
+{
+    public class TestGame : NewEngine.Engine.Core.Game
+    {
         private GameObject _camera;
         private GameObject _directionalLightObj;
 
@@ -23,7 +25,8 @@ namespace Game {
         private GameObject _cube;
 
 
-        public override void Start() {
+        public override void Start()
+        {
             CreateCamera();
 
             AudioMaster.Initialize();
@@ -36,88 +39,144 @@ namespace Game {
             _directionalLightObj.Transform.Rotation *= Quaternion.FromAxisAngle(new Vector3(1, 0, 0),
                 (float)MathHelper.DegreesToRadians(-80));
 
-            var spotLightObj = new GameObject("Spot Light");
-            var spotLight = new SpotLight(new Vector3(1, 1, 0), 5f, new Attenuation(0, 0, 0.01f),
-                MathHelper.DegreesToRadians(70), 0, 0.5f, 0.6f);
-            spotLightObj.Transform.Position = new Vector3(30, 0, 30);
-            spotLightObj.Transform.Rotate(new Vector3(0, 1, 0), MathHelper.DegreesToRadians(0));
+            //_mainMaterial = new Material(Shader.GetShader("batchedShader"));
 
-            spotLightObj.AddComponent(spotLight);
+            //_mainMaterial.SetTexture("diffuse", Texture.GetTexture("bricks.png"));
 
-            var particleObj = new GameObject("Particle");
+            //_mainMaterial.SetTexture("normalMap", Texture.GetTexture("bricks_nrm.png"));
 
-            particleObj.AddComponent(new ParticleSystem(200000, Texture.GetTexture("test2_cutout.png"), new Vector3(-200, 90, -200), new Vector3(200, 90, 200),
-                //new Vector4(1, 0.5f, 0, 1), new Vector4(1f, 0.7f, 0, 1), 2, new Vector3(0, 0 -9.825f, 0),
-                new Vector4(1, 1, 1, 1), new Vector4(1, 1, 1, 1), 2, new Vector3(0, 0 - 9.825f, 0),
-                new Vector3(0, 0.1f, 0), new Vector3(0, 0.5f, 0), 1, 2, 100, 100, 20, false, true, true));
+            //_mainMaterial.SetTexture("dispMap", Texture.GetTexture("bricks_disp.jpg"));
+
+            //_mainMaterial.SetFloat("dispMapScale", 0.01f);
+
+            //var baseBias = _mainMaterial.GetFloat("dispMapScale") / 2.0f;
+
+            //_mainMaterial.SetFloat("dispMapBias", -baseBias + baseBias * 0);
+
+            //_mainMaterial.SetFloat("specularIntensity", 0.5f);
+            //_mainMaterial.SetFloat("specularPower", 32);
+
+            // TEST (CREATE A SCENE FILE) 
+            {
+                FileSystem.SceneFile sceneFile = new FileSystem.SceneFile();
+                sceneFile.GameObjects = new List<FileSystem.GameObject>();
+
+                for (int i = 0; i < 20; i++)
+                {
+                    FileSystem.GameObject gObj = new FileSystem.GameObject();
+                    gObj.Name = "GameObject " + i;
+                    gObj.X = i;
+                    gObj.Y = i;
+                    gObj.Z = i;
+
+                    gObj.Components = new List<FileSystem.GameComponent>();
+
+                    for (int j = 0; j < 1; j++)
+                    {
+                        FileSystem.GameComponent gComp = new FileSystem.GameComponent();
+                        gComp.Name = "GameComponent " + j;
+
+                        gComp.Type = typeof(MeshRenderer).AssemblyQualifiedName;
+                        gComp.Args = new [] { "cube.obj", "default" };
+                        gObj.Components.Add(gComp);
+                    }
+
+                    sceneFile.GameObjects.Add(gObj);
+                }
+
+                FileSystem.FileManager.SaveFile<FileSystem.SceneFile>("./res/test.scene", sceneFile);
+            }
+
+            {
+                var file = FileSystem.FileManager.GetFile<FileSystem.SceneFile>("./res/test.scene");
+
+                foreach (var gameObject in file.GameObjects)
+                {
+                    var _cube = new GameObject("Cube");
+                    _cube.Transform.Position = new Vector3(gameObject.X, gameObject.Y, gameObject.Z);
+
+                    foreach (var component in gameObject.Components)
+                    {
+                        var type = Type.GetType(component.Type);
+                        var activatedComponent = (GameComponent)Activator.CreateInstance(type, component.Args);
+                        _cube.AddComponent(activatedComponent);
+
+                    }
+
+                    AddObject(_cube);
+                }
+            }
 
 
-            _cube = new GameObject("Cube");
+            //var spotLightObj = new GameObject("Spot Light");
+            //var spotLight = new SpotLight(new Vector3(1, 1, 0), 5f, new Attenuation(0, 0, 0.01f),
+            //    MathHelper.DegreesToRadians(70), 0, 0.5f, 0.6f);
+            //spotLightObj.Transform.Position = new Vector3(30, 0, 30);
+            //spotLightObj.Transform.Rotate(new Vector3(0, 1, 0), MathHelper.DegreesToRadians(0));
 
-            _mainMaterial = new Material(Shader.GetShader("batchedShader"));
+            //spotLightObj.AddComponent(spotLight);
 
-            _mainMaterial.SetTexture("diffuse", Texture.GetTexture("bricks.png"));
+            //var particleObj = new GameObject("Particle");
 
-            _mainMaterial.SetTexture("normalMap", Texture.GetTexture("bricks_nrm.png"));
-
-            _mainMaterial.SetTexture("dispMap", Texture.GetTexture("bricks_disp.jpg"));
-
-            _mainMaterial.SetFloat("dispMapScale", 0.01f);
-
-            var baseBias = _mainMaterial.GetFloat("dispMapScale") / 2.0f;
-
-            _mainMaterial.SetFloat("dispMapBias", -baseBias + baseBias * 0);
-
-            _mainMaterial.SetFloat("specularIntensity", 0.5f);
-            _mainMaterial.SetFloat("specularPower", 32);
+            //particleObj.AddComponent(new ParticleSystem(200000, Texture.GetTexture("test2_cutout.png"), new Vector3(-200, 90, -200), new Vector3(200, 90, 200),
+            //    //new Vector4(1, 0.5f, 0, 1), new Vector4(1f, 0.7f, 0, 1), 2, new Vector3(0, 0 -9.825f, 0),
+            //    new Vector4(1, 1, 1, 1), new Vector4(1, 1, 1, 1), 2, new Vector3(0, 0 - 9.825f, 0),
+            //    new Vector3(0, 0.1f, 0), new Vector3(0, 0.5f, 0), 1, 2, 100, 100, 20, false, true, true));
 
 
-            _cube.AddComponent(new BoxCollider(1, 0.1f, 1, 0));
-
-            _cube.AddComponent(new MeshRenderer(Mesh.GetMesh("cube.obj"), _mainMaterial));
+            //_cube = new GameObject("Cube");
 
 
-            _cube.Transform.Position = new Vector3(0, -2, 0);
-            _cube.Transform.Scale = new Vector3(200, 1, 200);
+            //_cube.AddComponent(new BoxCollider(1, 0.1f, 1, 0));
 
-            var terrain = new GameObject("terrain");
-            var water = new GameObject("water");
-
-            terrain.AddComponent(new TerrainMesh("terrain1/terrain.jpg", 300, 300, 0.1f, "terrain1/tex1.jpg",
-                "default_normal.png", "terrain1/tex2.jpg", "terrain1/tex2Nrm.jpg", "terrain1/layer1.jpg",
-                "terrain1/tex2.jpg", "terrain1/tex2Nrm.jpg", "terrain1/layer1.jpg", 0.1f, 64));
+            //_cube.AddComponent(new MeshRenderer(Mesh.GetMesh("cube.obj"), _mainMaterial));
 
 
-            water.AddComponent(new WaterMesh(300, 300, new Vector4(0.7f, 1, 0.9f, 1), 0.05f, 0.02f, 0.2f, 12));
+            //_cube.Transform.Position = new Vector3(0, -2, 0);
+            //_cube.Transform.Scale = new Vector3(200, 1, 200);
 
-            water.Transform.Position = new Vector3(0, 20, 0);
+            //var terrain = new GameObject("terrain");
+            //var water = new GameObject("water");
 
-            AddObject(terrain);
-            AddObject(water);
-            //AddObject(_cube);
-            AddObject(_directionalLightObj);
-            //AddObject(particleObj);
+            //terrain.AddComponent(new TerrainMesh("terrain1/terrain.jpg", 300, 300, 0.1f, "terrain1/tex1.jpg",
+            //    "default_normal.png", "terrain1/tex2.jpg", "terrain1/tex2Nrm.jpg", "terrain1/layer1.jpg",
+            //    "terrain1/tex2.jpg", "terrain1/tex2Nrm.jpg", "terrain1/layer1.jpg", 0.1f, 64));
+
+
+            //water.AddComponent(new WaterMesh(300, 300, new Vector4(0.7f, 1, 0.9f, 1), 0.05f, 0.02f, 0.2f, 12));
+
+            //water.Transform.Position = new Vector3(0, 20, 0);
+
+            //AddObject(terrain);
+            //AddObject(water);
+            ////AddObject(_cube);
+            //AddObject(_directionalLightObj);
+            ////AddObject(particleObj);
 
             GetRootObject.Engine.RenderingEngine.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg",
                 "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
         }
 
-        public override void Update(float deltaTime) {
+        public override void Update(float deltaTime)
+        {
             base.Update(deltaTime);
 
             //_cube.Transform.Position += new Vector3(0.1f, 0,0);
 
             var flameColor = new Vector3(0, 1.0f, 1.0f);
 
-            if (Input.GetKeyDown(Key.E)) {
+            if (Input.GetKeyDown(Key.E))
+            {
                 StartMassiveSpawn();
             }
 
-            if (Input.GetKeyDown(Key.R)) {
+            if (Input.GetKeyDown(Key.R))
+            {
                 SingleSpawn();
             }
 
-            if (Input.GetKeyDown(Key.F)) {
+            if (Input.GetKeyDown(Key.F))
+            {
                 var audioSourceObject = new GameObject("audio source");
                 var audioSource = new AudioSource();
                 audioSourceObject.Transform.Position = new Vector3(CoreEngine.GetCoreEngine.RenderingEngine.MainCamera.Transform.GetTransformedPosition());
@@ -133,14 +192,17 @@ namespace Game {
                 audioSource.SetVolume(20);
             }
 
-            if (Input.GetKeyDown(Key.Q)) {
-                foreach (var spawnedObject in _spawnedObjects) {
+            if (Input.GetKeyDown(Key.Q))
+            {
+                foreach (var spawnedObject in _spawnedObjects)
+                {
                     spawnedObject.Destroy();
                 }
                 _spawnedObjects.Clear();
             }
 
-            if (Input.GetKeyDown(Key.P)) {
+            if (Input.GetKeyDown(Key.P))
+            {
 
                 var pointLight = new GameObject("Point Light");
                 var spotLight = new PointLight(flameColor, 5f, new Attenuation(0, 0, 0.1f));
@@ -154,12 +216,13 @@ namespace Game {
 
             double i = 0;
 
-            foreach (var spawnedObject in _spawnedObjects) {
+            foreach (var spawnedObject in _spawnedObjects)
+            {
                 Random r = new Random(DateTime.Now.Millisecond);
 
                 double speed = 2;
 
-                double x = r.NextDouble() / speed + (i + 10); 
+                double x = r.NextDouble() / speed + (i + 10);
                 double y = r.NextDouble() / speed + (i + 10);
                 double z = r.NextDouble() / speed + (i + 10);
 
@@ -169,11 +232,16 @@ namespace Game {
             }
         }
 
-        public void StartMassiveSpawn() {
-            for (int i = 0; i < 5; i++) {
-                for (int j = 0; j < 5; j++) {
-                    for (int k = 0; k < 5; k++) {
-                        var gObj = new GameObject("sphere:") {
+        public void StartMassiveSpawn()
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                for (int j = 0; j < 5; j++)
+                {
+                    for (int k = 0; k < 5; k++)
+                    {
+                        var gObj = new GameObject("sphere:")
+                        {
                             Transform = { Position = _camera.Transform.Position + (new Vector3(i, j, k) * 2.5f) }
                         };
 
@@ -189,9 +257,11 @@ namespace Game {
         }
 
 
-        public void SingleSpawn() {
+        public void SingleSpawn()
+        {
 
-            var gObj = new GameObject("sphere:") {
+            var gObj = new GameObject("sphere:")
+            {
                 Transform = { Position = _camera.Transform.Position }
             };
 
@@ -204,7 +274,8 @@ namespace Game {
         }
 
 
-        public void CreateCamera() {
+        public void CreateCamera()
+        {
             _camera = new GameObject("main camera")
                 .AddComponent(new FreeLook(true, true))
                 .AddComponent(new FreeMove())

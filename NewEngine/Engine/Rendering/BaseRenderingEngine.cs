@@ -10,7 +10,6 @@ using NewEngine.Engine.Rendering.Shading;
 
 namespace NewEngine.Engine.Rendering {
     public class BaseRenderingEngine : MappedValues {
-        protected static ICoreEngine MainEngine;
         protected Dictionary<string, int> SamplerMap;
 
         public BaseRenderingEngine() {

@@ -124,7 +124,6 @@
     <Compile Include="Engine\components\MeshRenderer.cs" />
     <Compile Include="Engine\components\Camera.cs" />
     <Compile Include="Engine\Core\Fps.cs" />
-    <Compile Include="Engine\Core\CoreEngine.cs" />
     <Compile Include="Engine\Rendering\ResourceManagament\MappedValues.cs" />
     <Compile Include="Engine\Rendering\ResourceManagament\MeshResource.cs" />
     <Compile Include="Engine\Rendering\ResourceManagament\TextureResource.cs" />

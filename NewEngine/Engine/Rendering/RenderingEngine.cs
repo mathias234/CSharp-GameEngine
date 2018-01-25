@@ -10,8 +10,13 @@ using NewEngine.Engine.Rendering.Shading;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-namespace NewEngine.Engine.Rendering {
-    public class RenderingEngine : BaseRenderingEngine {
+namespace NewEngine.Engine.Rendering
+{
+    public class RenderingEngine : BaseRenderingEngine
+    {
+        public static RenderingEngine Instance;
+        public static bool Focused;
+
         private Camera _altCamera;
         private GameObject _altCameraObject;
 
@@ -32,8 +37,28 @@ namespace NewEngine.Engine.Rendering {
         private Material _planeMaterial;
         private Texture _tempTarget;
 
-        public RenderingEngine(ICoreEngine coreEngine) {
-            MainEngine = coreEngine;
+        private int _width;
+        private int _height;
+
+        private Action _bindDefaultTarget;
+
+        public static int GetHeight()
+        {
+            return Instance._height;
+        }
+
+        public static int GetWidth()
+        {
+            return Instance._width;
+        }
+
+        public RenderingEngine(int width, int height, /* TODO: Better approach */ Action bindDefaultTarget)
+        {
+            _width = width;
+            _height = height;
+            _bindDefaultTarget = bindDefaultTarget;
+
+            Instance = this;
             _lights = new List<BaseLight>();
             SamplerMap = new Dictionary<string, int> {
                 {"diffuse", 0},
@@ -66,9 +91,9 @@ namespace NewEngine.Engine.Rendering {
 
             SetVector4("clipPlane", new Vector4(0, 0, 0, 15));
 
-            SetTexture("displayTexture", Texture.GetTexture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Nearest));
-            SetTexture("tempFilter", Texture.GetTexture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
-            SetTexture("tempFilter2", Texture.GetTexture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
+            SetTexture("displayTexture", Texture.GetTexture(IntPtr.Zero, (int)GetWidth(), (int)GetHeight(), TextureMinFilter.Nearest));
+            SetTexture("tempFilter", Texture.GetTexture(IntPtr.Zero, (int)GetWidth(), (int)GetHeight(), TextureMinFilter.Linear));
+            SetTexture("tempFilter2", Texture.GetTexture(IntPtr.Zero, (int)GetWidth(), (int)GetHeight(), TextureMinFilter.Linear));
 
 
             _skyboxShader = Shader.GetShader("skybox");
@@ -88,9 +113,6 @@ namespace NewEngine.Engine.Rendering {
 
             _skyboxMaterial = new Material(null);
             _skybox = Mesh.GetMesh("skybox.obj");
-
-            var width = (int)CoreEngine.GetWidth();
-            var height = (int)CoreEngine.GetHeight();
 
             _tempTarget = Texture.GetTexture(IntPtr.Zero, width, height, TextureMinFilter.Nearest);
 
@@ -112,21 +134,26 @@ namespace NewEngine.Engine.Rendering {
         public Matrix4 LightMatrix { get; private set; }
 
 
-        public void ResizeWindow() {
-            SetTexture("displayTexture", Texture.GetTexture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Nearest));
-            SetTexture("tempFilter", Texture.GetTexture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
-            SetTexture("tempFilter2", Texture.GetTexture(IntPtr.Zero, (int)CoreEngine.GetWidth(), (int)CoreEngine.GetHeight(), TextureMinFilter.Linear));
-            MainCamera.SetProjection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f),
-                CoreEngine.GetWidth() / CoreEngine.GetHeight(), 0.1f, 1000);
+        public void ResizeWindow()
+        {
+            SetTexture("displayTexture", Texture.GetTexture(IntPtr.Zero, (int)GetWidth(), (int)GetHeight(), TextureMinFilter.Nearest));
+            SetTexture("tempFilter", Texture.GetTexture(IntPtr.Zero, (int)GetWidth(), (int)GetHeight(), TextureMinFilter.Linear));
+            SetTexture("tempFilter2", Texture.GetTexture(IntPtr.Zero, (int)GetWidth(), (int)GetHeight(), TextureMinFilter.Linear));
+
+            if (MainCamera != null)
+                MainCamera.SetProjection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f),
+                    GetWidth() / GetHeight(), 0.1f, 1000);
         }
 
         // TODO: change this as i dont want people to override the RenderingEngine i rather want them to add their function using either an Action or Func <- not decided
         public override void UpdateUniformStruct(Transform transform, Material material, Shader shader,
-            string uniformName, string uniformType) {
+            string uniformName, string uniformType)
+        {
             LogManager.Error("Failed to update uniform: " + uniformName + ", not a valid type in Rendering Engine");
         }
 
-        public override void Render(float deltaTime) {
+        public override void Render(float deltaTime)
+        {
             RenderShadowMap(deltaTime);
 
             RenderObject(GetTexture("displayTexture"), deltaTime, "ambient", true);
@@ -136,7 +163,8 @@ namespace NewEngine.Engine.Rendering {
             _lights = new List<BaseLight>();
         }
 
-        private void DoPostProccess() {
+        private void DoPostProccess()
+        {
             SetVector3("inverseFilterTextureSize", new Vector3(1.0f / GetTexture("displayTexture").Width, 1.0f / GetTexture("displayTexture").Height, 0.0f));
 
             ApplyFilter("bright", GetTexture("displayTexture"), GetTexture("tempFilter2"));
@@ -154,11 +182,13 @@ namespace NewEngine.Engine.Rendering {
             // ApplyFilter(_fxaaFilter, _lights[1].ShadowInfo.ShadowMap, null);
         }
 
-        public void CreateBatch() {
+        public void CreateBatch()
+        {
 
         }
 
-        public void RenderObject(Texture mainRenderTarget, float deltaTime, string renderStage, bool drawUi) {
+        public void RenderObject(Texture mainRenderTarget, float deltaTime, string renderStage, bool drawUi)
+        {
             mainRenderTarget.BindAsRenderTarget();
 
             GL.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -168,10 +198,12 @@ namespace NewEngine.Engine.Rendering {
 
             var batchedObjects = CreateBatchFromList(_renderableComponents);
 
-            foreach (var batchedObject in batchedObjects) {
+            foreach (var batchedObject in batchedObjects)
+            {
                 batchedObject.Value.Render(null, "ambient", deltaTime, this, renderStage);
 
-                foreach (var light in _lights) {
+                foreach (var light in _lights)
+                {
                     ActiveLight = light;
                     GL.Enable(EnableCap.Blend);
                     GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.One);
@@ -190,13 +222,15 @@ namespace NewEngine.Engine.Rendering {
             }
 
             //for (int i = 0; i < _renderableComponents.Count; i++) {
-            foreach (var gameComponent in _renderableComponents) {
+            foreach (var gameComponent in _renderableComponents)
+            {
                 if (gameComponent is MeshRenderer) continue;
                 if (gameComponent == null) continue;
 
                 gameComponent.Render(null, "ambient", deltaTime, this, renderStage);
 
-                foreach (var light in _lights) {
+                foreach (var light in _lights)
+                {
                     ActiveLight = light;
                     GL.Enable(EnableCap.Blend);
                     GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.One);
@@ -217,18 +251,23 @@ namespace NewEngine.Engine.Rendering {
             GetTexture("displayTexture").BindAsRenderTarget();
         }
 
-        private ConcurrentDictionary<Material, BatchMeshRenderer> CreateBatchFromList(ConcurrentQueue<GameComponent> components) {
+        private ConcurrentDictionary<Material, BatchMeshRenderer> CreateBatchFromList(ConcurrentQueue<GameComponent> components)
+        {
             var meshRenderers = new ConcurrentDictionary<Material, BatchMeshRenderer>();
 
-            foreach (var gameComponent in components) {
+            foreach (var gameComponent in components)
+            {
                 if (gameComponent == null) continue;
 
-                if (gameComponent is MeshRenderer) {
+                if (gameComponent is MeshRenderer)
+                {
                     var mr = (MeshRenderer)gameComponent;
-                    if (meshRenderers.ContainsKey(mr.Material)) {
+                    if (meshRenderers.ContainsKey(mr.Material))
+                    {
                         meshRenderers[mr.Material].AddGameObject(mr.Mesh, mr.gameObject);
                     }
-                    else {
+                    else
+                    {
                         meshRenderers.TryAdd(mr.Material, new BatchMeshRenderer(mr.Material, mr.Mesh, mr.gameObject));
                     }
                 }
@@ -237,9 +276,12 @@ namespace NewEngine.Engine.Rendering {
             return meshRenderers;
         }
 
-        private void RenderShadowMap(float deltaTime) {
-            foreach (var light in _lights) {
-                if (light.ShadowInfo != null) {
+        private void RenderShadowMap(float deltaTime)
+        {
+            foreach (var light in _lights)
+            {
+                if (light.ShadowInfo != null)
+                {
                     light.ShadowInfo.ShadowMap.BindAsRenderTarget();
 
                     GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
@@ -265,7 +307,8 @@ namespace NewEngine.Engine.Rendering {
                     if (flipFaces) GL.CullFace(CullFaceMode.Front);
 
 
-                    foreach (var gameComponent in _renderableComponents) {
+                    foreach (var gameComponent in _renderableComponents)
+                    {
                         if (gameComponent == null)
                             continue;
 
@@ -282,7 +325,8 @@ namespace NewEngine.Engine.Rendering {
                         BlurShadowMap(light, shadowSoftness);
 
                 }
-                else {
+                else
+                {
                     LightMatrix = Matrix4.CreateScale(0, 0, 0);
                     SetFloat("shadowVarianceMin", 0.00002f);
                     SetFloat("shadowBleedingReduction", 0.0f);
@@ -290,7 +334,8 @@ namespace NewEngine.Engine.Rendering {
             }
         }
 
-        private void RenderSkybox() {
+        private void RenderSkybox()
+        {
             if (_skyboxMaterial.GetCubemapTexture("skybox") == null)
                 return;
 
@@ -302,13 +347,15 @@ namespace NewEngine.Engine.Rendering {
         }
 
         public void SetSkybox(string textureTopFilename, string textureBottomFilename, string textureFrontFilename,
-            string textureBackFilename, string textureLeftFilename, string textureRightFilename) {
+            string textureBackFilename, string textureLeftFilename, string textureRightFilename)
+        {
             var cubemap = CubemapTexture.GetCubemap(textureTopFilename, textureBottomFilename, textureFrontFilename,
                 textureBackFilename, textureLeftFilename, textureRightFilename);
             _skyboxMaterial.SetCubemapTexture("skybox", cubemap);
         }
 
-        public void BlurShadowMap(BaseLight light, float blurAmount) {
+        public void BlurShadowMap(BaseLight light, float blurAmount)
+        {
             var shadowMap = light.ShadowInfo.ShadowMap;
             var tempTarget = light.ShadowInfo.TempShadowMap;
 
@@ -319,15 +366,18 @@ namespace NewEngine.Engine.Rendering {
             ApplyFilter("gausBlur7x1", tempTarget, shadowMap);
         }
 
-        public void BlurTexture(Texture texture, float blurAmount, Vector2 axis) {
+        public void BlurTexture(Texture texture, float blurAmount, Vector2 axis)
+        {
             SetVector3("blurScale", new Vector3(0.0f, blurAmount / texture.Height, 0.0f));
 
             var temp = GetTexture("tempFilter");
 
-            if (axis == Vector2.UnitX) {
+            if (axis == Vector2.UnitX)
+            {
                 SetVector3("blurScale", new Vector3(blurAmount / texture.Width, 0.0f, 0.0f));
             }
-            else if (axis == Vector2.UnitY) {
+            else if (axis == Vector2.UnitY)
+            {
                 SetVector3("blurScale", new Vector3(0.0f, blurAmount / texture.Height, 0.0f));
             }
 
@@ -339,10 +389,11 @@ namespace NewEngine.Engine.Rendering {
             SetTexture("tempFilter", temp);
         }
 
-        public void ApplyFilter(string filter, Texture source, Texture dest) {
+        public void ApplyFilter(string filter, Texture source, Texture dest)
+        {
             if (source == dest) LogManager.Error("ApplyFilter: source texture cannot be the same as dest texture!");
             if (dest == null)
-                CoreEngine.BindAsRenderTarget();
+                _bindDefaultTarget?.Invoke();
             else
                 dest.BindAsRenderTarget();
 
@@ -366,38 +417,48 @@ namespace NewEngine.Engine.Rendering {
             SetTexture("filterTexture", null);
         }
 
-        public static string GetOpenGlVersion() {
+        public static string GetOpenGlVersion()
+        {
             return GL.GetString(StringName.Version);
         }
 
-        public static Vector3 AmbientLight {
-            set {
-                MainEngine.RenderingEngine.SetVector3("ambient", value);
+        public static Vector3 AmbientLight
+        {
+            set
+            {
+                RenderingEngine.Instance.SetVector3("ambient", value);
             }
-            get {
-                return MainEngine.RenderingEngine.GetVector3("ambient");
+            get
+            {
+                return RenderingEngine.Instance.GetVector3("ambient");
             }
         }
 
-        public void AddLight(BaseLight light) {
+        public void AddLight(BaseLight light)
+        {
             _lights.Add(light);
         }
 
-        public override void AddToEngine(GameComponent gameComponent) {
-            try {
+        public override void AddToEngine(GameComponent gameComponent)
+        {
+            try
+            {
                 _renderableComponents.Enqueue(gameComponent);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 LogManager.Error(e.Message);
             }
 
         }
 
-        public void RemoveLight(BaseLight light) {
+        public void RemoveLight(BaseLight light)
+        {
             _lights.Remove(light);
         }
 
-        public void AddCamera(Camera camera) {
+        public void AddCamera(Camera camera)
+        {
             MainCamera = camera;
         }
     }

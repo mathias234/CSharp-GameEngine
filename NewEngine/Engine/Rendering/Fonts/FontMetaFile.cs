@@ -34,7 +34,7 @@ namespace NewEngine.Engine.Rendering.Fonts {
         private Dictionary<string, string> _values = new Dictionary<string, string>();
 
         public FontMetaFile(string filename) {
-            _aspectRatio = (double) CoreEngine.GetWidth()/CoreEngine.GetHeight();
+            _aspectRatio = (double) RenderingEngine.GetWidth()/ RenderingEngine.GetHeight();
             OpenFile(filename);
             LoadPaddingData();
             LoadLineSizes();
