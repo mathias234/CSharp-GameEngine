@@ -76,7 +76,9 @@ namespace Player {
         }
 
         private void Run(object sender, FrameEventArgs e) {
-            Input.Update(Mouse);
+            _rootObject.UpdateAll((float)e.Time);
+
+            Input.Update();
 
             PhysicsEngine.Update((float) e.Time);
 

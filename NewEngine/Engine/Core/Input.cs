@@ -10,13 +10,10 @@ namespace NewEngine.Engine.Core {
         private static bool[] _lastKeys = new bool[NumKeycodes];
         private static bool[] _lastMouse = new bool[NumMouseButtons];
 
-        private static MouseDevice _mouseDevice;
-
         private static bool _lockMouse;
         private static Vector2 _lockMousePosition;
 
-        public static void Update(MouseDevice mouse) {
-            _mouseDevice = mouse;
+        public static void Update() {
 
             for (var i = 0; i < NumKeycodes; i++) {
                 _lastKeys[i] = GetKey((Key)i);
@@ -67,10 +64,6 @@ namespace NewEngine.Engine.Core {
 
         public static void LockMouse() {
             _lockMouse = !_lockMouse;
-        }
-
-        public static Vector2 GetWindowMousePosition() {
-            return _mouseDevice == null ? new Vector2(0, 0) : new Vector2(_mouseDevice.X, _mouseDevice.Y);
         }
 
         public static void SetMousePosition(Vector2 pos) {

@@ -17,9 +17,12 @@ namespace NewEngine.Engine.components {
         }
 
         public override void Update(float deltaTime) {
-            if (Input.GetKeyDown(Key.Tab)) {
-                _rotateCamera = !_rotateCamera;
-                Input.LockMouse();
+            if (Input.GetMouse(MouseButton.Right))
+            {
+                _rotateCamera = true;
+            }
+            else {
+                _rotateCamera = false;
             }
 
 

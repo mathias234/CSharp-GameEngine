@@ -34,7 +34,9 @@ namespace Editor
         int renderFrameWidth;
         int renderFrameHeight;
 
-        public bool Focused => throw new NotImplementedException();
+        private bool firstUpdate = true;
+
+        public bool Focused => true;
 
         private void AddObject(GameObject gobj)
         {
@@ -46,8 +48,6 @@ namespace Editor
         {
             InitializeComponent();
 
-            renderFrameWidth = (int)Host.Width;
-            renderFrameHeight = (int)Host.Height;
 
             _dispatcher = new NewEngine.Engine.Core.Dispatcher();
             _root = new GameObject("ROOT");
@@ -57,6 +57,11 @@ namespace Editor
             this.glControl = new GLControl();
             this.glControl.Dock = DockStyle.Fill;
             this.Host.Child = this.glControl;
+
+            OpenTK.Toolkit.Init();
+
+            renderFrameWidth = (int)glControl.Width;
+            renderFrameHeight = (int)glControl.Height;
 
             glControl.MakeCurrent();
 
@@ -81,7 +86,6 @@ namespace Editor
                                     "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
 
 
-
             this.glControl.Paint += GlControl_Paint;
         }
 
@@ -100,10 +104,15 @@ namespace Editor
 
         private void GlControl_Paint(object sender, System.Windows.Forms.PaintEventArgs e)
         {
-            renderFrameWidth = (int)Host.Width;
-            renderFrameHeight = (int)Host.Height;
+            var deltaTime = DateTime.Now.Subtract(this.lastMeasureTime);
+            this.lastMeasureTime = DateTime.Now;
 
-            _camera.Transform.Position += new Vector3(0, 0, 0.05f);
+            RenderingEngine.Focused = Focused;
+
+            Input.Update();
+
+            _root.UpdateAll(deltaTime.Milliseconds);
+
 
             _dispatcher.Update();
 
@@ -111,24 +120,24 @@ namespace Editor
 
             this.glControl.Invalidate();
 
-            if (DateTime.Now.Subtract(this.lastMeasureTime) > TimeSpan.FromSeconds(1))
-            {
-                this.Title = this.frames + "fps";
-                this.frames = 0;
-                this.lastMeasureTime = DateTime.Now;
-            }
 
-            this.glControl.MakeCurrent();
 
             /* DRAW */
 
-            RenderingEngine.Instance.Render(DateTime.Now.Subtract(this.lastMeasureTime).Milliseconds);
+            RenderingEngine.Instance.Render(deltaTime.Milliseconds);
 
             /* END DRAW */
 
             SwapBuffers();
 
             this.frames++;
+
+            // Everything is now setup so we need to update size
+            if (firstUpdate)
+            {
+                UpdateSize(glControl.Width, glControl.Height);
+                firstUpdate = false;
+            }
         }
 
         public void SwapBuffers()
@@ -136,10 +145,31 @@ namespace Editor
             this.glControl.SwapBuffers();
         }
 
+        private void UpdateSize(int width, int height)
+        {
+            renderFrameWidth = (int)glControl.Width;
+            renderFrameHeight = (int)glControl.Height;
+
+            GL.Viewport(0, 0, width, height);
+            RenderingEngine.ResizeWindow(width, height);
+        }
+
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            GL.Viewport(0, 0, renderFrameWidth, renderFrameHeight);
-            RenderingEngine.ResizeWindow(renderFrameWidth, renderFrameHeight);
+            UpdateSize(glControl.Width, glControl.Height);
+        }
+
+        private void Window_GotFocus(object sender, RoutedEventArgs e)
+        {
+            UpdateSize(glControl.Width, glControl.Height);
+        }
+
+        private void SpawnButton_Click(object sender, RoutedEventArgs e)
+        {
+            GameObject obj = new GameObject("TEST");
+            obj.AddComponent(new MeshRenderer("cube.obj", "null"));
+            obj.Transform.Position = _camera.Transform.Position;
+            AddObject(obj);
         }
     }
 }

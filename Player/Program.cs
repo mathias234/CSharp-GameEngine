@@ -28,6 +28,11 @@ namespace Player
         static void Start(float deltaTime) {
             CreateCamera();
 
+            GameObject obj = new GameObject("TEST");
+            obj.AddComponent(new MeshRenderer("cube.obj", "null"));
+
+            player.AddObject(obj);
+
             RenderingEngine.Instance.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg",
                                                 "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
         }

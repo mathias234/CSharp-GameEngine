@@ -5,7 +5,48 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Editor"
         mc:Ignorable="d"
-        Title="MainWindow" Height="843.807" Width="1226.057" SizeChanged="Window_SizeChanged">
+        Title="MainWindow" Height="843.807" Width="1226.057" SizeChanged="Window_SizeChanged" GotFocus="Window_GotFocus">
 
-    <WindowsFormsHost x:Name="Host" Margin="0,114,172,99" Width="800" HorizontalAlignment="Right" Height="600"/>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="50"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Grid.ColumnSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50" />
+                <RowDefinition Height="50" />
+                <RowDefinition Height="50" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="50" />
+            </Grid.ColumnDefinitions>
+            
+            <Button x:Name="Button2" Content="Bt2" Grid.Column="1" Grid.Row="0"/>
+            <Button x:Name="Button3" Content="Bt3" Grid.Column="2" Grid.Row="0"/>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50" />
+                <RowDefinition Height="50" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="50" />
+            </Grid.ColumnDefinitions>
+            
+            <Button x:Name="Button0" Content="Save" Grid.Column="0" Grid.Row="0"/>
+            <Button x:Name="SpawnButton" Content="Spawn" Grid.Column="0" Grid.Row="1" Click="SpawnButton_Click"/>
+        </Grid>
+
+        <WindowsFormsHost Grid.Row="1" Grid.Column="2" x:Name="Host" Width="Auto" Height="Auto"/>
+    </Grid>
 </Window>

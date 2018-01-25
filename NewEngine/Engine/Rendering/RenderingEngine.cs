@@ -143,9 +143,20 @@ namespace NewEngine.Engine.Rendering
             SetTexture("tempFilter", Texture.GetTexture(IntPtr.Zero, (int)GetWidth(), (int)GetHeight(), TextureMinFilter.Linear));
             SetTexture("tempFilter2", Texture.GetTexture(IntPtr.Zero, (int)GetWidth(), (int)GetHeight(), TextureMinFilter.Linear));
 
-            if (MainCamera != null)
-                MainCamera.SetProjection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f),
-                    GetWidth() / GetHeight(), 0.1f, 1000);
+            if (MainCamera != null) {
+                try
+                {
+                    MainCamera.SetProjection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f),
+                                   (float)GetWidth() / (float)GetHeight(), 0.1f, 1000);
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine("RenderingEngine.cs:[ResizeWindow]" + (float)GetWidth() / (float)GetHeight() + e.Message );
+                    MainCamera.SetProjection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f),
+                                  800/600, 0.1f, 1000);
+                }
+           
+            }
         }
 
         // TODO: change this as i dont want people to override the RenderingEngine i rather want them to add their function using either an Action or Func <- not decided

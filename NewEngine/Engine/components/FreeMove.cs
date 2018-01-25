@@ -13,8 +13,9 @@ namespace NewEngine.Engine.components {
         public override void Update(float deltaTime) {
             Vector3 input = new Vector3(0);
 
-            if (Input.GetKey(Key.W))
+            if (Input.GetKey(Key.W)) {
                 input -= new Vector3(0, 0, 1);
+            }
             if (Input.GetKey(Key.S))
                 input += new Vector3(0, 0, 1);
 
@@ -26,7 +27,6 @@ namespace NewEngine.Engine.components {
             Vector3 move = (Transform.Forward * input.Z + Transform.Right * input.X) * Speed;
 
             Transform.Position += move;
-
         }
     }
 }
