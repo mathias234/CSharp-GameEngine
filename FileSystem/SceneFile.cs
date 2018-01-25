@@ -5,10 +5,15 @@ using System.Text;
 
 namespace FileSystem
 {
-    [FileExtension(".scene")]
-    public class SceneFile : ISerializableFile
+    [FileExtension(".cnk")]
+    public class ChunkFile : ISerializableFile
     {
         public List<GameObject> GameObjects { get; set; }
+
+        public ChunkFile()
+        {
+            GameObjects = new List<GameObject>();
+        }
 
         public void Deserialize(BinaryReader reader)
         {
@@ -83,6 +88,11 @@ namespace FileSystem
         public string Name { get; set; }
         public string Type { get; set; }
         public object[] Args { get; set; }
+
+        public GameComponent()
+        {
+            Args = new object[0];
+        }
 
         public void Deserialize(BinaryReader reader)
         {

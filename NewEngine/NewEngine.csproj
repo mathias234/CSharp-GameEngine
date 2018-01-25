@@ -78,7 +78,9 @@
     <Compile Include="Engine\components\LookAtComponent.cs" />
     <Compile Include="Engine\components\ShadowInfo.cs" />
     <Compile Include="Engine\components\TerrainMesh.cs" />
+    <Compile Include="Engine\Core\DrawableChunk.cs" />
     <Compile Include="Engine\Core\Dispatcher.cs" />
+    <Compile Include="Engine\Core\DrawableZone.cs" />
     <Compile Include="Engine\ICoreEngine.cs" />
     <Compile Include="Engine\Rendering\BaseRenderingEngine.cs" />
     <Compile Include="Engine\Rendering\Fonts\TextMaster.cs" />

@@ -37,14 +37,17 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="50" />
                 <RowDefinition Height="50" />
+                <RowDefinition Height="50" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="50" />
                 <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="50" />
             </Grid.ColumnDefinitions>
-            
-            <Button x:Name="Button0" Content="Save" Grid.Column="0" Grid.Row="0"/>
-            <Button x:Name="SpawnButton" Content="Spawn" Grid.Column="0" Grid.Row="1" Click="SpawnButton_Click"/>
+
+            <Button x:Name="New" Content="New" Grid.Column="0" Grid.Row="0" Click="New_Click"/>
+            <Button x:Name="Button0" Content="Save" Grid.Column="0" Grid.Row="1"/>
+            <Button x:Name="SpawnButton" Content="Spawn" Grid.Column="0" Grid.Row="2" Click="SpawnButton_Click"/>
         </Grid>
 
         <WindowsFormsHost Grid.Row="1" Grid.Column="2" x:Name="Host" Width="Auto" Height="Auto"/>

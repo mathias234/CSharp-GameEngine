@@ -171,5 +171,10 @@ namespace Editor
             obj.Transform.Position = _camera.Transform.Position;
             AddObject(obj);
         }
+
+        private void New_Click(object sender, RoutedEventArgs e)
+        {
+            DrawableZone.CreateNewZone(0, 5, 5);
+        }
     }
 }

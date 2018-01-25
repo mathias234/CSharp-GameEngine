@@ -37,8 +37,6 @@ namespace Player {
 
             _start += start;
 
-            // Initialize the filesystem
-            FileManager.Init();
         }
 
         public static ICoreEngine GetCoreEngine { get; private set; }
