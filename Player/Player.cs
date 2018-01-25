@@ -95,7 +95,7 @@ namespace Player {
 
         private void ResizeWindow(object sender, EventArgs e) {
             GL.Viewport(ClientRectangle);
-            RenderingEngine.ResizeWindow();
+            RenderingEngine.ResizeWindow(Width, Height);
             _width = Width;
             _height = Height;
         }

@@ -5,8 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Editor"
         mc:Ignorable="d"
-        Title="MainWindow" Height="552.872" Width="704.112" SizeChanged="Window_SizeChanged">
-    <Grid>
-        <WindowsFormsHost x:Name="Host" Initialized="Host_Initialized"/>
-    </Grid>
+        Title="MainWindow" Height="843.807" Width="1226.057" SizeChanged="Window_SizeChanged">
+
+    <WindowsFormsHost x:Name="Host" Margin="0,114,172,99" Width="800" HorizontalAlignment="Right" Height="600"/>
 </Window>

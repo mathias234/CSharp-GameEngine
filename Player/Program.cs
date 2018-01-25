@@ -27,6 +27,9 @@ namespace Player
 
         static void Start(float deltaTime) {
             CreateCamera();
+
+            RenderingEngine.Instance.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg",
+                                                "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
         }
 
         static void CreateCamera()
@@ -40,8 +43,7 @@ namespace Player
             _camera.Transform.Rotate(new Vector3(1, 0, 0), -0.4f);
 
             player.AddObject(_camera);
-            RenderingEngine.Instance.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg",
-    "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
+
         }
     }
 }

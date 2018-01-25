@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystem", "FileSystem\Fi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Player", "Player\Player.csproj", "{F4DE2E0A-D24A-40F7-A717-CFFBF57C24B3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Editor", "Editor\Editor.csproj", "{42353A15-FB89-4FDB-BB78-42260260981D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -105,6 +107,26 @@ Global
 		{F4DE2E0A-D24A-40F7-A717-CFFBF57C24B3}.Release|x64.Build.0 = Release|Any CPU
 		{F4DE2E0A-D24A-40F7-A717-CFFBF57C24B3}.Release|x86.ActiveCfg = Release|Any CPU
 		{F4DE2E0A-D24A-40F7-A717-CFFBF57C24B3}.Release|x86.Build.0 = Release|Any CPU
+		{42353A15-FB89-4FDB-BB78-42260260981D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42353A15-FB89-4FDB-BB78-42260260981D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42353A15-FB89-4FDB-BB78-42260260981D}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{42353A15-FB89-4FDB-BB78-42260260981D}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{42353A15-FB89-4FDB-BB78-42260260981D}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{42353A15-FB89-4FDB-BB78-42260260981D}.Debug|Win32.Build.0 = Debug|Any CPU
+		{42353A15-FB89-4FDB-BB78-42260260981D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{42353A15-FB89-4FDB-BB78-42260260981D}.Debug|x64.Build.0 = Debug|Any CPU
+		{42353A15-FB89-4FDB-BB78-42260260981D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{42353A15-FB89-4FDB-BB78-42260260981D}.Debug|x86.Build.0 = Debug|Any CPU
+		{42353A15-FB89-4FDB-BB78-42260260981D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42353A15-FB89-4FDB-BB78-42260260981D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42353A15-FB89-4FDB-BB78-42260260981D}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{42353A15-FB89-4FDB-BB78-42260260981D}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{42353A15-FB89-4FDB-BB78-42260260981D}.Release|Win32.ActiveCfg = Release|Any CPU
+		{42353A15-FB89-4FDB-BB78-42260260981D}.Release|Win32.Build.0 = Release|Any CPU
+		{42353A15-FB89-4FDB-BB78-42260260981D}.Release|x64.ActiveCfg = Release|Any CPU
+		{42353A15-FB89-4FDB-BB78-42260260981D}.Release|x64.Build.0 = Release|Any CPU
+		{42353A15-FB89-4FDB-BB78-42260260981D}.Release|x86.ActiveCfg = Release|Any CPU
+		{42353A15-FB89-4FDB-BB78-42260260981D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

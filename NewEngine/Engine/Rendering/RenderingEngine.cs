@@ -134,8 +134,11 @@ namespace NewEngine.Engine.Rendering
         public Matrix4 LightMatrix { get; private set; }
 
 
-        public void ResizeWindow()
+        public void ResizeWindow(int newWidth, int newHeight)
         {
+            _width = newWidth;
+            _height = newHeight;
+
             SetTexture("displayTexture", Texture.GetTexture(IntPtr.Zero, (int)GetWidth(), (int)GetHeight(), TextureMinFilter.Nearest));
             SetTexture("tempFilter", Texture.GetTexture(IntPtr.Zero, (int)GetWidth(), (int)GetHeight(), TextureMinFilter.Linear));
             SetTexture("tempFilter2", Texture.GetTexture(IntPtr.Zero, (int)GetWidth(), (int)GetHeight(), TextureMinFilter.Linear));
@@ -336,6 +339,9 @@ namespace NewEngine.Engine.Rendering
 
         private void RenderSkybox()
         {
+            if (MainCamera == null)
+                return;
+
             if (_skyboxMaterial.GetCubemapTexture("skybox") == null)
                 return;
 

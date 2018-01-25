@@ -26,7 +26,6 @@ namespace NewEngine.Engine.components {
             return Matrix4.CreateOrthographic(RenderingEngine.GetWidth(), RenderingEngine.GetHeight(), 0.1f, 1000.0f);
         }
 
-
         public override void AddToEngine(ICoreEngine engine) {
             engine.RenderingEngine.AddCamera(this);
         }
