@@ -9,14 +9,35 @@ namespace FileSystem
     public class ChunkFile : ISerializableFile
     {
         public List<GameObject> GameObjects { get; set; }
+        public float[] TerrainHeightmap { get; set; }
 
         public ChunkFile()
         {
             GameObjects = new List<GameObject>();
         }
 
+        public ChunkFile(int chunkX, int chunkY, int chunkSizeX, int chunkSizeY)
+        {
+            GameObjects = new List<GameObject>();
+
+            chunkSizeX++;
+            chunkSizeY++;
+
+            TerrainHeightmap = new float[(chunkSizeX) * (chunkSizeY)];
+
+            chunkSizeX--;
+            chunkSizeY--;
+        }
+
         public void Deserialize(BinaryReader reader)
         {
+            var heightmapCount = reader.ReadInt32();
+            TerrainHeightmap = new float[heightmapCount];
+            for (int i = 0; i < heightmapCount; i++)
+            {
+                TerrainHeightmap[i] = reader.ReadSingle();
+            }
+
             var objectsCount = reader.ReadInt32();
 
             GameObjects = new List<GameObject>();
@@ -31,6 +52,12 @@ namespace FileSystem
 
         public void Serialize(BinaryWriter writer)
         {
+            writer.Write(TerrainHeightmap.Length);
+            for (int i = 0; i < TerrainHeightmap.Length; i++)
+            {
+                writer.Write(TerrainHeightmap[i]);
+            }
+
             writer.Write(GameObjects.Count);
             foreach (var gameObj in GameObjects)
             {

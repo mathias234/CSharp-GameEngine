@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using NewEngine.Engine.Rendering.GUI;
+using NewEngine.Engine.Physics;
 
 namespace Editor
 {
@@ -96,8 +97,23 @@ namespace Editor
 
             RenderingEngine.Focused = Focused;
 
-            Input.Update();
+            /* Update Loop */
+
+            if (Input.GetKey(OpenTK.Input.Key.Q))
+            {
+                RayCastResult result;
+                PhysicsEngine.Raycast(new Ray(_camera.Transform.Position, -_camera.Transform.Forward), 500000, out result);
+
+                _loadedZone.DrawOnTerrain(DrawBrush.Circle, result.HitData.Location.X, result.HitData.Location.Z, 5, 0.1f);
+            }
+
             _camera.UpdateAll(deltaTime.Milliseconds);
+
+            /* End Update Loop */
+
+            Input.Update();
+
+            PhysicsEngine.Update(deltaTime.Milliseconds);
 
 
             _dispatcher.Update();
@@ -105,14 +121,14 @@ namespace Editor
             this.glControl.Invalidate();
 
 
-
             /* DRAW */
 
             RenderingEngine.Instance.Render(deltaTime.Milliseconds);
 
             if(_loadedZone != null)
-                _loadedZone.Draw(_camera.Transform.Position.X / 16, _camera.Transform.Position.Z / 16, 5, this);
+                _loadedZone.Draw(_camera.Transform.Position.X / DrawableChunk.ChunkSizeX, _camera.Transform.Position.Z / DrawableChunk.ChunkSizeY, 2, this);
 
+   
             _camera.AddToEngine(this);
 
             /* END DRAW */
@@ -166,7 +182,7 @@ namespace Editor
 
         private void New_Click(object sender, RoutedEventArgs e)
         {
-            DrawableZone.CreateNewZone(0, 50, 50);
+            DrawableZone.CreateNewZone(0, 20, 20);
             _loadedZone = new DrawableZone(0);
         }
 
@@ -178,6 +194,11 @@ namespace Editor
         private void Load_Click(object sender, RoutedEventArgs e)
         {
             _loadedZone = new DrawableZone(0);
+        }
+
+        private void Wireframe_Click(object sender, RoutedEventArgs e)
+        {
+            RenderingEngine.Wireframe = !RenderingEngine.Wireframe;
         }
     }
 }

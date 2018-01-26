@@ -13,11 +13,17 @@ namespace NewEngine.Engine.Core
     /// </summary>
     public class DrawableChunk
     {
+        public static int ChunkSizeX = 64;
+        public static int ChunkSizeY = 64;
+        public bool Loaded;
+
+        private FileSystem.ChunkFile _chunkFile;
+
         private List<GameObject> _gameObjects;
+        private GameObject _chunkTerrain;
         private int _zoneId;
         private int _chunkX;
         private int _chunkY;
-        public bool Loaded;
 
         public DrawableChunk(int zoneId, int x, int y)
         {
@@ -25,34 +31,32 @@ namespace NewEngine.Engine.Core
             _chunkX = x;
             _chunkY = y;
 
-            var chunk = FileSystem.FileManager.GetFile<FileSystem.ChunkFile>("./res/zone_" + zoneId + "/chunk_" + x + "_" + y);
+            _chunkFile = FileSystem.FileManager.GetFile<FileSystem.ChunkFile>("./res/zone_" + zoneId + "/chunk_" + x + "_" + y);
 
-            if (chunk == null)
+            if (_chunkFile == null)
                 return;
 
             _gameObjects = new List<GameObject>();
 
             var rootPos = new Vector3(
-                     _chunkX * DrawableZone.ChunkSizeX,
+                     _chunkX * ChunkSizeX,
                         0,
-                     _chunkY * DrawableZone.ChunkSizeY);
+                     _chunkY * ChunkSizeY);
 
 
-            var chunkPlane = new GameObject("chunk plane");
+            _chunkTerrain = new GameObject("chunk plane");
 
-            chunkPlane.Transform.Position = new OpenTK.Vector3(
-                (DrawableZone.ChunkSizeX / 2) + rootPos.X, 
-                0, 
-                (DrawableZone.ChunkSizeY / 2) + rootPos.Z);
+            _chunkTerrain.Transform.Position = new OpenTK.Vector3(
+                (ChunkSizeX / 2) + rootPos.X,
+                0,
+                (ChunkSizeY / 2) + rootPos.Z);
 
-            chunkPlane.AddComponent(new MeshRenderer("cube.obj", "null"));
+            _chunkTerrain.AddComponent(new TerrainMesh(_chunkFile.TerrainHeightmap, ChunkSizeX, ChunkSizeY, _chunkTerrain.Transform.Position));
+            //chunkTerrain.Transform.Rotation = new Quaternion(0, 180, 0);
 
-            chunkPlane.Transform.Scale = new Vector3((DrawableZone.ChunkSizeX / 2), 0.5f, (DrawableZone.ChunkSizeY / 2));
-            _gameObjects.Add(chunkPlane);
-
-            foreach (var chunkObj in chunk.GameObjects)
+            foreach (var chunkObj in _chunkFile.GameObjects)
             {
-   
+
                 var gObj = new GameObject(chunkObj.Name);
                 gObj.Transform.Position = new OpenTK.Vector3(chunkObj.X + rootPos.X, chunkObj.Y, chunkObj.Z + rootPos.X);
 
@@ -64,7 +68,14 @@ namespace NewEngine.Engine.Core
             Loaded = true;
         }
 
-        public void AddObject(GameObject obj) {
+        public void DrawOnTerrain(DrawBrush brush, float posX, float posY, int size, float strength)
+        {
+            _chunkTerrain.GetComponent<TerrainMesh>().DrawOnTerrain(brush, posX, posY, size, strength);
+        }
+
+
+        public void AddObject(GameObject obj)
+        {
 
             _gameObjects.Add(obj);
         }
@@ -73,6 +84,7 @@ namespace NewEngine.Engine.Core
         {
             // transform the objects back to their positions
 
+            _chunkTerrain.AddToEngine(engine);
 
             foreach (var gameObject in _gameObjects)
             {
@@ -81,29 +93,30 @@ namespace NewEngine.Engine.Core
 
         }
 
-        public void Save() {
-            var chunkFile = new FileSystem.ChunkFile();
+        public void Save()
+        {
+            _chunkFile.TerrainHeightmap = _chunkTerrain.GetComponent<TerrainMesh>().GetHeightmap();
 
             foreach (var child in _gameObjects)
             {
                 FileSystem.GameObject gObj = new FileSystem.GameObject();
 
                 gObj.Name = child.Name;
-                gObj.X = child.Transform.Position.X % DrawableZone.ChunkSizeX;
+                gObj.X = child.Transform.Position.X % ChunkSizeX;
                 gObj.Y = child.Transform.Position.Y;
-                gObj.Z = child.Transform.Position.Z % DrawableZone.ChunkSizeY;
+                gObj.Z = child.Transform.Position.Z % ChunkSizeY;
 
                 Console.WriteLine("Saving obj at " + child.Transform.Position);
 
-                chunkFile.GameObjects.Add(gObj);
+                _chunkFile.GameObjects.Add(gObj);
 
             }
-            FileSystem.FileManager.SaveFile<FileSystem.ChunkFile>("./res/zone_" + _zoneId + "/chunk_" + _chunkX + "_" + _chunkY, chunkFile);
+            FileSystem.FileManager.SaveFile<FileSystem.ChunkFile>("./res/zone_" + _zoneId + "/chunk_" + _chunkX + "_" + _chunkY, _chunkFile);
         }
 
         public static void CreateNew(int zoneId, int x, int y)
         {
-            var chunkFile = new FileSystem.ChunkFile();
+            var chunkFile = new FileSystem.ChunkFile(x, y, ChunkSizeX, ChunkSizeY);
 
             FileSystem.FileManager.SaveFile<FileSystem.ChunkFile>("./res/zone_" + zoneId + "/chunk_" + x + "_" + y, chunkFile);
         }

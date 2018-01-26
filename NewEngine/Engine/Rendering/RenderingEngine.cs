@@ -16,6 +16,7 @@ namespace NewEngine.Engine.Rendering
     {
         public static RenderingEngine Instance;
         public static bool Focused;
+        public static bool Wireframe;
 
         private Camera _altCamera;
         private GameObject _altCameraObject;
@@ -143,19 +144,20 @@ namespace NewEngine.Engine.Rendering
             SetTexture("tempFilter", Texture.GetTexture(IntPtr.Zero, (int)GetWidth(), (int)GetHeight(), TextureMinFilter.Linear));
             SetTexture("tempFilter2", Texture.GetTexture(IntPtr.Zero, (int)GetWidth(), (int)GetHeight(), TextureMinFilter.Linear));
 
-            if (MainCamera != null) {
+            if (MainCamera != null)
+            {
                 try
                 {
                     MainCamera.SetProjection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f),
                                    (float)GetWidth() / (float)GetHeight(), 0.1f, 1000);
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
-                    Console.WriteLine("RenderingEngine.cs:[ResizeWindow]" + (float)GetWidth() / (float)GetHeight() + e.Message );
+                    Console.WriteLine("RenderingEngine.cs:[ResizeWindow]" + (float)GetWidth() / (float)GetHeight() + e.Message);
                     MainCamera.SetProjection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f),
-                                  800/600, 0.1f, 1000);
+                                  800 / 600, 0.1f, 1000);
                 }
-           
+
             }
         }
 
@@ -205,10 +207,16 @@ namespace NewEngine.Engine.Rendering
         {
             mainRenderTarget.BindAsRenderTarget();
 
-            GL.ClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+            GL.ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             RenderSkybox();
+
+            if (Wireframe)
+                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+            else
+                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
             var batchedObjects = CreateBatchFromList(_renderableComponents);
 
@@ -261,6 +269,8 @@ namespace NewEngine.Engine.Rendering
                     GL.Disable(EnableCap.Blend);
                 }
             }
+
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
             GetTexture("displayTexture").BindAsRenderTarget();
         }

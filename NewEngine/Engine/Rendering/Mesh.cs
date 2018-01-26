@@ -39,7 +39,7 @@ namespace NewEngine.Engine.Rendering {
 
             _resource = new MeshResource();
 
-            AddVertices(vertices, indices, true);
+            UpdateMesh(vertices, indices, true);
         }
 
 
@@ -57,7 +57,7 @@ namespace NewEngine.Engine.Rendering {
 
             _resource = new MeshResource();
 
-            AddVertices(vertices, indices, calcNormals);
+            UpdateMesh(vertices, indices, calcNormals);
         }
 
         public static Mesh GetMesh(Vertex[] vertices, int[] indices, bool calcNormals) {
@@ -79,7 +79,7 @@ namespace NewEngine.Engine.Rendering {
 
         private bool readyToDraw = false;
 
-        private void AddVertices(Vertex[] vertices, int[] indices, bool calcNormals) {
+        public void UpdateMesh(Vertex[] vertices, int[] indices, bool calcNormals) {
             if (calcNormals) {
                 CalculateNormals(vertices, indices);
             }
@@ -250,7 +250,7 @@ namespace NewEngine.Engine.Rendering {
                     Indices = Util.FromNullableIntArray(model.Indices.ToArray());
 
 
-                    AddVertices(Vertices, Indices, false);
+                    UpdateMesh(Vertices, Indices, false);
                     break;
                 case "fbx":
                     //var fbxModel = new FbxModel(Path.Combine("./res", "models", filename));
