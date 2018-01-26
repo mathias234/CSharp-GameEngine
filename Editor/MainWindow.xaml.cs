@@ -24,8 +24,6 @@ namespace Editor
 
         NewEngine.Engine.Core.Dispatcher _dispatcher;
 
-        private GameObject _root;
-
         private GameObject _camera;
 
         public RenderingEngine RenderingEngine { get; set; }
@@ -38,11 +36,7 @@ namespace Editor
 
         public bool Focused => true;
 
-        private void AddObject(GameObject gobj)
-        {
-            gobj.Parent = _root;
-            _root.AddChild(gobj);
-        }
+        private DrawableZone _loadedZone;
 
         public MainWindow()
         {
@@ -50,7 +44,7 @@ namespace Editor
 
 
             _dispatcher = new NewEngine.Engine.Core.Dispatcher();
-            _root = new GameObject("ROOT");
+
 
             this.lastMeasureTime = DateTime.Now;
             this.frames = 0;
@@ -77,11 +71,6 @@ namespace Editor
             CreateCamera();
 
 
-            GameObject obj = new GameObject("TEST");
-            obj.AddComponent(new MeshRenderer("cube.obj", "null"));
-
-            AddObject(obj);
-
             RenderingEngine.Instance.SetSkybox("skybox/top.jpg", "skybox/bottom.jpg", "skybox/front.jpg",
                                     "skybox/back.jpg", "skybox/left.jpg", "skybox/right.jpg");
 
@@ -98,8 +87,6 @@ namespace Editor
                 .AddComponent(new AudioListener());
 
             //_camera.Transform.Rotate(new Vector3(1, 0, 0), -0.4f);
-
-            AddObject(_camera);
         }
 
         private void GlControl_Paint(object sender, System.Windows.Forms.PaintEventArgs e)
@@ -110,13 +97,10 @@ namespace Editor
             RenderingEngine.Focused = Focused;
 
             Input.Update();
-
-            _root.UpdateAll(deltaTime.Milliseconds);
+            _camera.UpdateAll(deltaTime.Milliseconds);
 
 
             _dispatcher.Update();
-
-            _root.AddToEngine(this);
 
             this.glControl.Invalidate();
 
@@ -125,6 +109,11 @@ namespace Editor
             /* DRAW */
 
             RenderingEngine.Instance.Render(deltaTime.Milliseconds);
+
+            if(_loadedZone != null)
+                _loadedZone.Draw(_camera.Transform.Position.X / 16, _camera.Transform.Position.Z / 16, 5, this);
+
+            _camera.AddToEngine(this);
 
             /* END DRAW */
 
@@ -169,12 +158,26 @@ namespace Editor
             GameObject obj = new GameObject("TEST");
             obj.AddComponent(new MeshRenderer("cube.obj", "null"));
             obj.Transform.Position = _camera.Transform.Position;
-            AddObject(obj);
+
+            if(_loadedZone != null)
+                _loadedZone.AddObject(obj);
         }
+
 
         private void New_Click(object sender, RoutedEventArgs e)
         {
-            DrawableZone.CreateNewZone(0, 5, 5);
+            DrawableZone.CreateNewZone(0, 50, 50);
+            _loadedZone = new DrawableZone(0);
+        }
+
+        private void Save_Click(object sender, RoutedEventArgs e)
+        {
+            _loadedZone.Save();
+        }
+
+        private void Load_Click(object sender, RoutedEventArgs e)
+        {
+            _loadedZone = new DrawableZone(0);
         }
     }
 }

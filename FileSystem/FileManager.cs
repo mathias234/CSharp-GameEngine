@@ -35,7 +35,7 @@ namespace FileSystem
             if (extTypeCache == null)
                 Init();
 
-            var ext = extTypeCache.FirstOrDefault((val) => val.Value == typeof(T));
+            var ext = extTypeCache.FirstOrDefault((val) => val.Value == typeof(T)).Key;
 
             filename += ext;
 

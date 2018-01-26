@@ -49,6 +49,11 @@ namespace FileSystem
 
         public List<GameComponent> Components { get; set; }
 
+        public GameObject()
+        {
+            Components = new List<GameComponent>();
+        }
+
         public void Deserialize(BinaryReader reader)
         {
             Name = reader.ReadString();

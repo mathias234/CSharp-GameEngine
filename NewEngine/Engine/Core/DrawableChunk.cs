@@ -1,4 +1,6 @@
-﻿using System;
+﻿using NewEngine.Engine.components;
+using OpenTK;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,10 +13,11 @@ namespace NewEngine.Engine.Core
     /// </summary>
     public class DrawableChunk
     {
-        private GameObject _chunkRoot;
+        private List<GameObject> _gameObjects;
         private int _zoneId;
         private int _chunkX;
         private int _chunkY;
+        public bool Loaded;
 
         public DrawableChunk(int zoneId, int x, int y)
         {
@@ -23,34 +26,74 @@ namespace NewEngine.Engine.Core
             _chunkY = y;
 
             var chunk = FileSystem.FileManager.GetFile<FileSystem.ChunkFile>("./res/zone_" + zoneId + "/chunk_" + x + "_" + y);
+
+            if (chunk == null)
+                return;
+
+            _gameObjects = new List<GameObject>();
+
+            var rootPos = new Vector3(
+                     _chunkX * DrawableZone.ChunkSizeX,
+                        0,
+                     _chunkY * DrawableZone.ChunkSizeY);
+
+
+            var chunkPlane = new GameObject("chunk plane");
+
+            chunkPlane.Transform.Position = new OpenTK.Vector3(
+                (DrawableZone.ChunkSizeX / 2) + rootPos.X, 
+                0, 
+                (DrawableZone.ChunkSizeY / 2) + rootPos.Z);
+
+            chunkPlane.AddComponent(new MeshRenderer("cube.obj", "null"));
+
+            chunkPlane.Transform.Scale = new Vector3((DrawableZone.ChunkSizeX / 2), 0.5f, (DrawableZone.ChunkSizeY / 2));
+            _gameObjects.Add(chunkPlane);
+
             foreach (var chunkObj in chunk.GameObjects)
             {
+   
                 var gObj = new GameObject(chunkObj.Name);
-                gObj.Transform.Position = new OpenTK.Vector3(chunkObj.X, chunkObj.Y, chunkObj.Z);
-                _chunkRoot.AddChild(gObj);
+                gObj.Transform.Position = new OpenTK.Vector3(chunkObj.X + rootPos.X, chunkObj.Y, chunkObj.Z + rootPos.X);
+
+                gObj.AddComponent(new MeshRenderer("cube.obj", "null"));
+
+                _gameObjects.Add(gObj);
             }
+
+            Loaded = true;
         }
 
         public void AddObject(GameObject obj) {
-            _chunkRoot.AddChild(obj);
+
+            _gameObjects.Add(obj);
         }
 
         public void Draw(ICoreEngine engine)
         {
-            _chunkRoot.AddToEngine(engine);
+            // transform the objects back to their positions
+
+
+            foreach (var gameObject in _gameObjects)
+            {
+                gameObject.AddToEngine(engine);
+            }
+
         }
 
         public void Save() {
             var chunkFile = new FileSystem.ChunkFile();
 
-            foreach (var child in _chunkRoot.GetChildren())
+            foreach (var child in _gameObjects)
             {
                 FileSystem.GameObject gObj = new FileSystem.GameObject();
 
                 gObj.Name = child.Name;
-                gObj.X = child.Transform.Position.X;
+                gObj.X = child.Transform.Position.X % DrawableZone.ChunkSizeX;
                 gObj.Y = child.Transform.Position.Y;
-                gObj.Z = child.Transform.Position.Z;
+                gObj.Z = child.Transform.Position.Z % DrawableZone.ChunkSizeY;
+
+                Console.WriteLine("Saving obj at " + child.Transform.Position);
 
                 chunkFile.GameObjects.Add(gObj);
 
