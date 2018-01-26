@@ -99,10 +99,12 @@ namespace Editor
 
             /* Update Loop */
 
+            RayCastResult result;
+            PhysicsEngine.Raycast(new Ray(_camera.Transform.Position, -_camera.Transform.Forward), 500000, out result);
+
             if (Input.GetKey(OpenTK.Input.Key.Q))
             {
-                RayCastResult result;
-                PhysicsEngine.Raycast(new Ray(_camera.Transform.Position, -_camera.Transform.Forward), 500000, out result);
+           
 
                 _loadedZone.DrawOnTerrain(DrawBrush.Circle, result.HitData.Location.X, result.HitData.Location.Z, 5, 0.1f);
             }
@@ -120,6 +122,12 @@ namespace Editor
 
             this.glControl.Invalidate();
 
+            if (result != null && result.HitData.Location != new Vector3(0,0,0))
+                TerrainMesh.BrushCirclePosition = new Vector2(result.HitData.Location.X, result.HitData.Location.Z);
+            else {
+                // Place the brush far away
+                TerrainMesh.BrushCirclePosition = new Vector2(-float.MaxValue, -float.MaxValue);
+            }
 
             /* DRAW */
 

@@ -47,6 +47,8 @@ namespace NewEngine.Engine.components
         private Vector3 _worldPos;
         private Terrain _terrainCollider;
 
+        public static Vector2 BrushCirclePosition;
+
         public TerrainMesh(float[] heights, int width, int height, Vector3 worldPos)
         {
             _worldPos = worldPos;
@@ -271,6 +273,8 @@ namespace NewEngine.Engine.components
                 return;
 
             _material.Shader.Bind(shaderType);
+            _material.SetVector2("circlePosition", BrushCirclePosition);
+            _material.SetVector3("circleColor", new Vector3(0, 1, 0));
             _material.Shader.UpdateUniforms(Transform, _material, renderingEngine, shaderType);
             _mesh.Draw();
         }
