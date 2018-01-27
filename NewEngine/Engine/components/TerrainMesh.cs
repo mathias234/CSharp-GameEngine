@@ -21,7 +21,7 @@ namespace NewEngine.Engine.components
         private float _dispOffset;
         private float _dispScale;
 
-        private float[] _heights;
+        private float[,] _heights;
         private float _heigtmapStrength;
         private int _imageHeight;
 
@@ -51,7 +51,7 @@ namespace NewEngine.Engine.components
 
         public static float BrushCircleRadius = 20;
 
-        public TerrainMesh(float[] heights, int width, int height, Vector3 worldPos)
+        public TerrainMesh(float[,] heights, int width, int height, Vector3 worldPos)
         {
             _worldPos = worldPos;
             _heights = heights;
@@ -103,13 +103,13 @@ namespace NewEngine.Engine.components
             var lbmap = new LockBitmap(image);
             lbmap.LockBits();
 
-            _heights = new float[image.Height * image.Width];
+            _heights = new float[image.Height, image.Width];
 
-            for (var j = 0; j < image.Height; j++)
+            for (var x = 0; x < image.Height; x++)
             {
-                for (var i = 0; i < image.Width; i++)
+                for (var y = 0; y < image.Width; y++)
                 {
-                    _heights[i + j * image.Width] = lbmap.GetPixel(i, j).R;
+                    _heights[y, x] = lbmap.GetPixel(y, x).R;
                 }
             }
 
@@ -123,33 +123,16 @@ namespace NewEngine.Engine.components
             UpdateMesh();
         }
 
-        public float[] GetHeightmap()
+        public float[,] GetHeightmap()
         {
             return _heights;
         }
 
-        public void DrawOnTerrain(DrawBrush brush, float posX, float posY, int size, float strength)
+        public void DrawOnTerrain(float posX, float posY, int size, float strength)
         {
             BrushCircleRadius = size;
-            Console.WriteLine(posX + ":" + posY);
-            int idx = 0;
-            for (var x = 0; x < _imageWidth + 1; x++)
-            {
-                for (var y = 0; y < _imageHeight + 1; y++)
-                {
-                    var distance = new Vector3(posX, 0, posY).Distance(new Vector3(x, 0, y));
-                    if (distance <= size)
-                    {
 
-                        float falloff = size - (float)distance;
-                        _heights[idx] += falloff * strength;
-                    }
-
-                    idx++;
-                }
-            }
-
-            UpdateMesh();
+            _heights[(int)posX, (int)posY] += strength;
         }
 
         /// <summary>
@@ -165,28 +148,28 @@ namespace NewEngine.Engine.components
 
             int idx = 0;
             int indicesIdx = 0;
-            for (var i = 0; i < _imageWidth; i++)
+            for (var x = 0; x < _imageWidth; x++)
             {
-                for (var j = 0; j < _imageHeight; j++)
+                for (var y = 0; y < _imageHeight; y++)
                 {
                     verts[idx] = (
                         new Vertex(
                             new Vector3(
-                                 j - _imageHeight / 2.0f,
-                                _heights[i + j * _imageWidth],
-                                i - _imageWidth / 2.0f),
+                                 x - _imageHeight / 2.0f,
+                                _heights[x, y],
+                                y - _imageWidth / 2.0f),
 
-                            new Vector2(i, j)));
+                            new Vector2(x, y)));
 
                     idx++;
 
-                    if (i == 0 || j == 0) continue;
-                    tris[indicesIdx] = (_imageWidth * i + j); //Top right
-                    tris[indicesIdx + 1] = (_imageWidth * i + j - 1); //Bottom right
-                    tris[indicesIdx + 2] = (_imageWidth * (i - 1) + j - 1); //Bottom left - First triangle
-                    tris[indicesIdx + 3] = (_imageWidth * (i - 1) + j - 1); //Bottom left 
-                    tris[indicesIdx + 4] = (_imageWidth * (i - 1) + j); //Top left
-                    tris[indicesIdx + 5] = (_imageWidth * i + j); //Top right - Second triangle
+                    if (x == 0 || y == 0) continue;
+                    tris[indicesIdx] = (_imageWidth * x + y); //Top right
+                    tris[indicesIdx + 1] = (_imageWidth * x + y - 1); //Bottom right
+                    tris[indicesIdx + 2] = (_imageWidth * (x - 1) + y - 1); //Bottom left - First triangle
+                    tris[indicesIdx + 3] = (_imageWidth * (x - 1) + y - 1); //Bottom left 
+                    tris[indicesIdx + 4] = (_imageWidth * (x - 1) + y); //Top left
+                    tris[indicesIdx + 5] = (_imageWidth * x + y); //Top right - Second triangle
 
                     indicesIdx += 6;
                 }
@@ -197,18 +180,6 @@ namespace NewEngine.Engine.components
                 // Update Mesh
                 _mesh.UpdateMesh(verts, tris, true);
 
-                float[,] heights3d = new float[_imageWidth, _imageHeight];
-
-                int g = 0;
-                for (var i = 0; i < _imageWidth; i++)
-                {
-                    for (var j = 0; j < _imageHeight; j++)
-                    {
-                        heights3d[i, j] = _heights[g];
-                        g++;
-                    }
-                }
-
 
                 var transform = new BEPUutilities.AffineTransform(
                     new BEPUutilities.Vector3(
@@ -218,26 +189,13 @@ namespace NewEngine.Engine.components
                         ));
 
 
-                _terrainCollider.Shape.Heights = heights3d;
+                _terrainCollider.Shape.Heights = _heights;
 
             }
             else
             {
                 _mesh = Mesh.GetMesh(verts, tris, true);
 
-                float[,] heights3d = new float[_imageWidth, _imageHeight];
-
-                int g = 0;
-                for (var i = 0; i < _imageWidth; i++)
-                {
-                    for (var j = 0; j < _imageHeight; j++)
-                    {
-                        heights3d[i, j] = _heights[g];
-                        g++;
-                    }
-                }
-
-
                 var transform = new BEPUutilities.AffineTransform(
                     new BEPUutilities.Vector3(
                        _worldPos.X - _imageWidth / 2,
@@ -246,7 +204,7 @@ namespace NewEngine.Engine.components
                         ));
 
 
-                _terrainCollider = new Terrain(heights3d, transform);
+                _terrainCollider = new Terrain(_heights, transform);
 
 
                 PhysicsEngine.AddToPhysicsEngine(_terrainCollider);

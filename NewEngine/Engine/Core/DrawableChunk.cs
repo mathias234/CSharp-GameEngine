@@ -68,11 +68,14 @@ namespace NewEngine.Engine.Core
             Loaded = true;
         }
 
-        public void DrawOnTerrain(DrawBrush brush, float posX, float posY, int size, float strength)
+        public void DrawOnTerrain(float posX, float posY, int size, float strength)
         {
-            _chunkTerrain.GetComponent<TerrainMesh>().DrawOnTerrain(brush, posX, posY, size, strength);
+            _chunkTerrain.GetComponent<TerrainMesh>().DrawOnTerrain(posX, posY, size, strength);
         }
 
+        public void UpdateTerrain() {
+            _chunkTerrain.GetComponent<TerrainMesh>().UpdateMesh();
+        }
 
         public void AddObject(GameObject obj)
         {

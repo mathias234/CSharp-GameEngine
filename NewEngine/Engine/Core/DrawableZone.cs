@@ -63,14 +63,50 @@ namespace NewEngine.Engine.Core
 
         public void DrawOnTerrain(DrawBrush brush, float posX, float posY, int size, float strength)
         {
-            int x = (int)(posX / DrawableChunk.ChunkSizeX);
-            int y = (int)(posY / DrawableChunk.ChunkSizeY);
-
-            float posInChunkX = (posX % DrawableChunk.ChunkSizeX);
-            float posInChunkY = (posY % DrawableChunk.ChunkSizeY);
+            List<Vector2> updatedChunks = new List<Vector2>();
 
 
-            GetDrawableChunk(x, y)?.DrawOnTerrain(brush, posInChunkX, posInChunkY, size, strength);
+            var minX = MathHelper.Clamp(posX - size, 0, int.MaxValue);
+            var maxX = MathHelper.Clamp(posX + size, 0, int.MaxValue);
+
+            var minY = MathHelper.Clamp(posY - size, 0, int.MaxValue);
+            var maxY = MathHelper.Clamp(posY + size, 0, int.MaxValue);
+
+
+            for (var x = minX; x < maxX; x++)
+            {
+                for (var y = minY; y < maxY; y++)
+                {
+                    var distance = new Vector3(posX, 0, posY).Distance(new Vector3(x, 0, y));
+                    if (distance <= size)
+                    {
+                        int chunkX = (int)(x / (DrawableChunk.ChunkSizeX + 1));
+                        int chunkY = (int)(y / (DrawableChunk.ChunkSizeY + 1));
+
+                        float posInChunkX = (x % (DrawableChunk.ChunkSizeX + 1));
+                        float posInChunkY = (y % (DrawableChunk.ChunkSizeY + 1));
+
+                        float falloff = size - (float)distance;
+
+                        if(!updatedChunks.Contains(new Vector2(chunkX, chunkY)))
+                            updatedChunks.Add(new Vector2(chunkX, chunkY));
+
+                        GetDrawableChunk(chunkX, chunkY)?.DrawOnTerrain(posInChunkX, posInChunkY, size, falloff * strength);
+                    }
+                }
+            }
+
+            foreach (var chunk in updatedChunks)
+            {
+                // TODO: Stitch chunks
+            }
+
+
+            foreach (var chunk in updatedChunks)
+            {
+                GetDrawableChunk((int)chunk.X, (int)chunk.Y).UpdateTerrain();
+            }
+
         }
 
         public void Save()

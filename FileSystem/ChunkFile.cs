@@ -9,7 +9,10 @@ namespace FileSystem
     public class ChunkFile : ISerializableFile
     {
         public List<GameObject> GameObjects { get; set; }
-        public float[] TerrainHeightmap { get; set; }
+        public float[,] TerrainHeightmap { get; set; }
+
+        private int _chunkSizeX;
+        private int _chunkSizeY;
 
         public ChunkFile()
         {
@@ -23,7 +26,10 @@ namespace FileSystem
             chunkSizeX++;
             chunkSizeY++;
 
-            TerrainHeightmap = new float[(chunkSizeX) * (chunkSizeY)];
+            _chunkSizeX = chunkSizeX;
+            _chunkSizeY = chunkSizeY;
+
+            TerrainHeightmap = new float[(chunkSizeX), (chunkSizeY)];
 
             chunkSizeX--;
             chunkSizeY--;
@@ -31,11 +37,18 @@ namespace FileSystem
 
         public void Deserialize(BinaryReader reader)
         {
-            var heightmapCount = reader.ReadInt32();
-            TerrainHeightmap = new float[heightmapCount];
-            for (int i = 0; i < heightmapCount; i++)
+
+            _chunkSizeX = reader.ReadInt32();
+            _chunkSizeY = reader.ReadInt32();
+            TerrainHeightmap = new float[_chunkSizeX, _chunkSizeY];
+
+
+            for (int x = 0; x < _chunkSizeX; x++)
             {
-                TerrainHeightmap[i] = reader.ReadSingle();
+                for (int y = 0; y < _chunkSizeY; y++)
+                {
+                    TerrainHeightmap[x,y] = reader.ReadSingle();
+                }
             }
 
             var objectsCount = reader.ReadInt32();
@@ -52,10 +65,16 @@ namespace FileSystem
 
         public void Serialize(BinaryWriter writer)
         {
-            writer.Write(TerrainHeightmap.Length);
-            for (int i = 0; i < TerrainHeightmap.Length; i++)
+            writer.Write(_chunkSizeX);
+            writer.Write(_chunkSizeY);
+
+
+            for (int x = 0; x < _chunkSizeX; x++)
             {
-                writer.Write(TerrainHeightmap[i]);
+                for (int y = 0; y < _chunkSizeY; y++)
+                {
+                    writer.Write(TerrainHeightmap[x, y]);
+                }
             }
 
             writer.Write(GameObjects.Count);

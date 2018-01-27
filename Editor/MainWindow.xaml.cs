@@ -28,6 +28,7 @@ namespace Editor
 
         private GameObject _camera;
         private GameObject _directionalLightObj;
+        private GameObject _test;
 
         public RenderingEngine RenderingEngine { get; set; }
         public GUIRenderer GUIRenderingEngine { get; set; }
@@ -87,6 +88,9 @@ namespace Editor
 
         void CreateCamera()
         {
+            _test = new GameObject("test");
+            _test.AddComponent(new MeshRenderer("cube.obj", "null"));
+
             _camera = new GameObject("main camera")
                 .AddComponent(new FreeLook(true, true))
                 .AddComponent(new FreeMove())
@@ -105,6 +109,8 @@ namespace Editor
             return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
         }
 
+        private float cubeDistance = 1;
+
         private void GlControl_Paint(object sender, System.Windows.Forms.PaintEventArgs e)
         {
             var deltaTime = DateTime.Now.Subtract(this.lastMeasureTime);
@@ -112,23 +118,34 @@ namespace Editor
 
             RenderingEngine.Focused = Focused;
 
+            float mouseX = Mouse.GetCursorState().X - (float)Host.PointToScreen(new Point(0, 0)).X;
+            float mouseY = Mouse.GetCursorState().Y - (float)Host.PointToScreen(new Point(0, 0)).Y;
+
+            //if (Input.GetKey(Key.Q))
+            //{
+            //    cubeDistance += 0.05f;
+            //}
+
+            //if (Input.GetKey(Key.E))
+            //{
+            //    cubeDistance -= 0.05f;
+            //}
+
+            var unprojectedMouse = Unproject(new Vector3(mouseX, mouseY, 0));
+
+            //var newPosition = _camera.Transform.Position + (unprojectedMouse - _camera.Transform.Position).Normalized() * cubeDistance;
+
+            //_test.Transform.Position = newPosition;
+
+
             /* Update Loop */
 
             if (useBrush)
             {
-                float mouseX = Mouse.GetCursorState().X - (float)Host.PointToScreen(new Point(0, 0)).X;
-                float mouseY = Mouse.GetCursorState().Y - (float)Host.PointToScreen(new Point(0, 0)).Y;
-
-
-                var origin = (Unproject(new Vector3(mouseX, mouseY, 0)) + _camera.Transform.Position);
-
-                Title = mouseX + ":" + mouseY + "_" + origin;
-
-
                 RayCastResult result;
-                PhysicsEngine.Raycast(new Ray(origin, -_camera.Transform.Forward), 500000, out result);
+                PhysicsEngine.Raycast(new Ray(_camera.Transform.Position, (unprojectedMouse - _camera.Transform.Position).Normalized()), 500000, out result);
 
-                if (Input.GetKey(OpenTK.Input.Key.Q))
+                if (Input.GetMouse(MouseButton.Left))
                 {
                     _loadedZone.DrawOnTerrain(DrawBrush.Circle, result.HitData.Location.X, result.HitData.Location.Z, 5, 0.1f);
                 }
@@ -169,6 +186,7 @@ namespace Editor
 
             _camera.AddToEngine(this);
             _directionalLightObj.AddToEngine(this);
+            _test.AddToEngine(this);
 
             /* END DRAW */
 
@@ -249,8 +267,10 @@ namespace Editor
         {
 
             Vector3 worldCoord = new Vector3();
+            int[] viewport = new int[4];
+            GL.GetInteger(GetPName.Viewport, viewport);
 
-            Glu.UnProject(mouse, ref worldCoord);
+            Glu.UnProject(mouse, _camera.GetComponent<Camera>().GetView(), _camera.GetComponent<Camera>().Projection, viewport, ref worldCoord);
             return worldCoord;
         }
 
