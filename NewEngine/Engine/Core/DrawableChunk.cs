@@ -68,9 +68,19 @@ namespace NewEngine.Engine.Core
             Loaded = true;
         }
 
-        public void DrawOnTerrain(float posX, float posY, int size, float strength)
+        public float[,] GetHeights() {
+            return _chunkTerrain.GetComponent<TerrainMesh>().GetHeightmap();
+
+        }
+
+        public void SetHeight(float posX, float posY, float value)
         {
-            _chunkTerrain.GetComponent<TerrainMesh>().DrawOnTerrain(posX, posY, size, strength);
+            _chunkTerrain.GetComponent<TerrainMesh>().SetHeight(posX, posY, value);
+        }
+
+        public void DrawOnTerrain(float posX, float posY, float strength)
+        {
+            _chunkTerrain.GetComponent<TerrainMesh>().DrawOnTerrain(posX, posY, strength);
         }
 
         public void UpdateTerrain() {

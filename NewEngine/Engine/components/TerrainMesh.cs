@@ -48,6 +48,7 @@ namespace NewEngine.Engine.components
         private Terrain _terrainCollider;
 
         public static Vector2 BrushCirclePosition;
+        public static Vector3 BrushCircleColor;
 
         public static float BrushCircleRadius = 20;
 
@@ -128,11 +129,13 @@ namespace NewEngine.Engine.components
             return _heights;
         }
 
-        public void DrawOnTerrain(float posX, float posY, int size, float strength)
+        public void DrawOnTerrain(float posX, float posY, float strength)
         {
-            BrushCircleRadius = size;
-
             _heights[(int)posX, (int)posY] += strength;
+        }
+
+        public void SetHeight(float posX, float posY, float value) {
+            _heights[(int)posX, (int)posY] = value;
         }
 
         /// <summary>
@@ -235,7 +238,7 @@ namespace NewEngine.Engine.components
 
             _material.Shader.Bind(shaderType);
             _material.SetVector2("circlePosition", BrushCirclePosition);
-            _material.SetVector3("circleColor", new Vector3(0, 1, 0));
+            _material.SetVector3("circleColor", BrushCircleColor);
             _material.SetFloat("circleRadius", BrushCircleRadius);
             _material.Shader.UpdateUniforms(Transform, _material, renderingEngine, shaderType);
             _mesh.Draw();

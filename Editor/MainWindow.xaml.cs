@@ -28,7 +28,6 @@ namespace Editor
 
         private GameObject _camera;
         private GameObject _directionalLightObj;
-        private GameObject _test;
 
         public RenderingEngine RenderingEngine { get; set; }
         public GUIRenderer GUIRenderingEngine { get; set; }
@@ -45,6 +44,7 @@ namespace Editor
 
         // *** CONTROLS ***
         private bool useBrush;
+        private float brushSize = 5;
 
         public MainWindow()
         {
@@ -88,9 +88,6 @@ namespace Editor
 
         void CreateCamera()
         {
-            _test = new GameObject("test");
-            _test.AddComponent(new MeshRenderer("cube.obj", "null"));
-
             _camera = new GameObject("main camera")
                 .AddComponent(new FreeLook(true, true))
                 .AddComponent(new FreeMove())
@@ -131,7 +128,6 @@ namespace Editor
             //    cubeDistance -= 0.05f;
             //}
 
-            var unprojectedMouse = Unproject(new Vector3(mouseX, mouseY, 0));
 
             //var newPosition = _camera.Transform.Position + (unprojectedMouse - _camera.Transform.Position).Normalized() * cubeDistance;
 
@@ -140,14 +136,40 @@ namespace Editor
 
             /* Update Loop */
 
+            _camera.UpdateAll(deltaTime.Milliseconds);
+
+
             if (useBrush)
             {
+                var strength = 0.1f;
+
+                var color = new Vector3(0, 1, 0);
+                if (Input.GetKey(Key.ControlLeft))
+                {
+                    color = new Vector3(1, 0, 0);
+                    strength *= -1;
+                }
+
+                if (Input.GetKey(Key.Q)) {
+                    brushSize += 0.05f;
+                }
+                if (Input.GetKey(Key.E))
+                {
+                    brushSize -= 0.05f;
+                }
+
+                TerrainMesh.BrushCircleColor = color;
+                TerrainMesh.BrushCircleRadius = brushSize;
+
+                var unprojectedMouse = Unproject(new Vector3(mouseX, mouseY, 0));
+
+
                 RayCastResult result;
                 PhysicsEngine.Raycast(new Ray(_camera.Transform.Position, (unprojectedMouse - _camera.Transform.Position).Normalized()), 500000, out result);
 
                 if (Input.GetMouse(MouseButton.Left))
                 {
-                    _loadedZone.DrawOnTerrain(DrawBrush.Circle, result.HitData.Location.X, result.HitData.Location.Z, 5, 0.1f);
+                    _loadedZone.DrawOnTerrain(DrawBrush.Circle, result.HitData.Location.X, result.HitData.Location.Z, brushSize, strength);
                 }
 
 
@@ -164,16 +186,10 @@ namespace Editor
                 TerrainMesh.BrushCirclePosition = new Vector2(-float.MaxValue, -float.MaxValue);
             }
 
-
-            _camera.UpdateAll(deltaTime.Milliseconds);
-
             /* End Update Loop */
 
             Input.Update();
-
             PhysicsEngine.Update(deltaTime.Milliseconds);
-
-
             _dispatcher.Update();
 
             /* DRAW */
@@ -186,7 +202,6 @@ namespace Editor
 
             _camera.AddToEngine(this);
             _directionalLightObj.AddToEngine(this);
-            _test.AddToEngine(this);
 
             /* END DRAW */
 
@@ -276,6 +291,7 @@ namespace Editor
 
         private void Brush_Click(object sender, RoutedEventArgs e)
         {
+            TerrainMesh.BrushCircleRadius = brushSize;
             useBrush = !useBrush;
         }
     }

@@ -26,7 +26,8 @@ namespace NewEngine.Engine.Core
             ZoneId = zoneId;
         }
 
-        public DrawableChunk GetDrawableChunk(int x, int y) {
+        public DrawableChunk GetDrawableChunk(int x, int y)
+        {
             if (cachedChunks.ContainsKey(new Vector2(x, y)))
             {
                 return cachedChunks[new Vector2(x, y)];
@@ -61,7 +62,7 @@ namespace NewEngine.Engine.Core
         }
 
 
-        public void DrawOnTerrain(DrawBrush brush, float posX, float posY, int size, float strength)
+        public void DrawOnTerrain(DrawBrush brush, float posX, float posY, float size, float strength)
         {
             List<Vector2> updatedChunks = new List<Vector2>();
 
@@ -88,17 +89,39 @@ namespace NewEngine.Engine.Core
 
                         float falloff = size - (float)distance;
 
-                        if(!updatedChunks.Contains(new Vector2(chunkX, chunkY)))
+                        if (!updatedChunks.Contains(new Vector2(chunkX, chunkY)))
                             updatedChunks.Add(new Vector2(chunkX, chunkY));
 
-                        GetDrawableChunk(chunkX, chunkY)?.DrawOnTerrain(posInChunkX, posInChunkY, size, falloff * strength);
+                        GetDrawableChunk(chunkX, chunkY)?.DrawOnTerrain(posInChunkX, posInChunkY, falloff * strength);
                     }
                 }
             }
 
+            // Stitch terrains
             foreach (var chunk in updatedChunks)
             {
-                // TODO: Stitch chunks
+
+                // Find neighbouring chunks
+
+                int mainX = (int)chunk.X;
+                int mainY = (int)chunk.Y;
+
+                if (GetDrawableChunk(mainX + 1, mainY) != null)
+                {
+                    for (int i = 0; i < DrawableChunk.ChunkSizeX + 1; i++)
+                    {
+                        GetDrawableChunk((int)chunk.X, (int)chunk.Y)?.SetHeight(DrawableChunk.ChunkSizeX, i,
+                            GetDrawableChunk(mainX + 1, mainY).GetHeights()[0, i]);
+                    }
+                }
+                if (GetDrawableChunk(mainX, mainY + 1) != null)
+                {
+                    for (int i = 0; i < DrawableChunk.ChunkSizeY + 1; i++)
+                    {
+                        GetDrawableChunk((int)chunk.X, (int)chunk.Y)?.SetHeight(i, DrawableChunk.ChunkSizeY, 
+                            GetDrawableChunk(mainX, mainY + 1).GetHeights()[i, 0]);
+                    }
+                }
             }
 
 
@@ -109,8 +132,49 @@ namespace NewEngine.Engine.Core
 
         }
 
+        // should only be used during saving/loading
+        // Drawing has its own stiching function similar to this
+        // but it only updates the terrains that were changed
+        public void StitchAll()
+        {
+            for (int x = 0; x < ZoneSizeX; x++)
+            {
+                for (int y = 0; y < ZoneSizeY; y++)
+                {
+                    int mainX = x;
+                    int mainY = y;
+
+                    if (GetDrawableChunk(mainX + 1, mainY) != null)
+                    {
+                        for (int i = 0; i < DrawableChunk.ChunkSizeX + 1; i++)
+                        {
+
+                            GetDrawableChunk(mainX, mainY)?.SetHeight(DrawableChunk.ChunkSizeX, i,
+                                GetDrawableChunk(mainX + 1, mainY).GetHeights()[0, i]);
+                        }
+                    }
+                    if (GetDrawableChunk(mainX, mainY + 1) != null)
+                    {
+                        for (int i = 0; i < DrawableChunk.ChunkSizeY + 1; i++)
+                        {
+
+                            GetDrawableChunk(mainX, mainY)?.SetHeight(i, DrawableChunk.ChunkSizeY,
+                                GetDrawableChunk(mainX, mainY + 1).GetHeights()[i, 0]);
+                        }
+                    }
+                }
+            }
+
+            foreach (var chunk in cachedChunks)
+            {
+                chunk.Value.UpdateTerrain();
+            }
+        }
+
         public void Save()
         {
+            StitchAll();
+
             foreach (var chunk in cachedChunks)
             {
                 chunk.Value.Save();
