@@ -49,6 +49,8 @@ namespace NewEngine.Engine.components
 
         public static Vector2 BrushCirclePosition;
 
+        public static float BrushCircleRadius = 20;
+
         public TerrainMesh(float[] heights, int width, int height, Vector3 worldPos)
         {
             _worldPos = worldPos;
@@ -128,6 +130,7 @@ namespace NewEngine.Engine.components
 
         public void DrawOnTerrain(DrawBrush brush, float posX, float posY, int size, float strength)
         {
+            BrushCircleRadius = size;
             Console.WriteLine(posX + ":" + posY);
             int idx = 0;
             for (var x = 0; x < _imageWidth + 1; x++)
@@ -275,6 +278,7 @@ namespace NewEngine.Engine.components
             _material.Shader.Bind(shaderType);
             _material.SetVector2("circlePosition", BrushCirclePosition);
             _material.SetVector3("circleColor", new Vector3(0, 1, 0));
+            _material.SetFloat("circleRadius", BrushCircleRadius);
             _material.Shader.UpdateUniforms(Transform, _material, renderingEngine, shaderType);
             _mesh.Draw();
         }

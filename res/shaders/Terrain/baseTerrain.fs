@@ -18,6 +18,7 @@ uniform sampler2D layer2;
 uniform sampler2D dispMap;
 uniform vec2 circlePosition;
 uniform vec3 circleColor;
+uniform float circleRadius;
 
 uniform float dispMapScale;
 uniform float dispMapBias;
@@ -35,9 +36,7 @@ void main()
 	fragColor = calcTerrain(texCoords, diffuse, tex2, layer1, tex3, layer2) * vec4(R_ambient, 1);
 	
 	// circle
-	
-	float circleRadius = 5.0;
-				
+					
 	float distance = length(worldPos0.xz - circlePosition);
 	float falloff = circleRadius - distance;
 

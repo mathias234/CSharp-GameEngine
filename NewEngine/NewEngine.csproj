@@ -145,6 +145,7 @@
     <Compile Include="Engine\Rendering\Vertex.cs" />
     <Compile Include="Engine\Core\Input.cs" />
     <Compile Include="Engine\Core\Game.cs" />
+    <Compile Include="Glu.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

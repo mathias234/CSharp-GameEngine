@@ -30,7 +30,7 @@
             </Grid.ColumnDefinitions>
             
             <Button x:Name="Wireframe" Content="Wireframe" Grid.Column="1" Grid.Row="0" Click="Wireframe_Click"/>
-            <Button x:Name="Button3" Content="Bt3" Grid.Column="2" Grid.Row="0"/>
+            <Button x:Name="Brush" Content="Brush" Grid.Column="2" Grid.Row="0" Click="Brush_Click"/>
         </Grid>
 
         <Grid Grid.Row="1">

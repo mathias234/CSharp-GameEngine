@@ -4,22 +4,28 @@ using OpenTK;
 
 namespace NewEngine.Engine.components {
     public class Camera : GameComponent {
-        private Matrix4 _projection;
+        public Matrix4 Projection { get; set; }
 
         public Camera(Matrix4 projection) {
-            _projection = projection;
+            Projection = projection;
 
         }
 
-        public Matrix4 SetProjection {
-            set { _projection = value; } 
+
+        public Matrix4 GetView()
+        {
+            Matrix4 cameraRotation = Transform.GetTransformedRotation().ConjugateExt().ToRotationMatrix();
+            Matrix4 cameraTranslation = Matrix4.CreateTranslation(Transform.GetTransformedPosition() * -1);
+
+            return cameraTranslation * cameraRotation;
         }
+
 
         public Matrix4 GetViewProjection() {
             Matrix4 cameraRotation = Transform.GetTransformedRotation().ConjugateExt().ToRotationMatrix();
             Matrix4 cameraTranslation = Matrix4.CreateTranslation(Transform.GetTransformedPosition() * -1);
 
-            return cameraTranslation * cameraRotation *  _projection;
+            return cameraTranslation * cameraRotation *  Projection;
         }
 
         public Matrix4 GetOrtographicProjection() {

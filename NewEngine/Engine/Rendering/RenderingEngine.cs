@@ -148,13 +148,13 @@ namespace NewEngine.Engine.Rendering
             {
                 try
                 {
-                    MainCamera.SetProjection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f),
+                    MainCamera.Projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f),
                                    (float)GetWidth() / (float)GetHeight(), 0.1f, 1000);
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine("RenderingEngine.cs:[ResizeWindow]" + (float)GetWidth() / (float)GetHeight() + e.Message);
-                    MainCamera.SetProjection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f),
+                    MainCamera.Projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(70.0f),
                                   800 / 600, 0.1f, 1000);
                 }
 
@@ -312,7 +312,7 @@ namespace NewEngine.Engine.Rendering
                     GL.ClearColor(1.0f, 1.0f, 0.0f, 0.0f);
 
 
-                    _altCamera.SetProjection = light.ShadowInfo.Projection;
+                    _altCamera.Projection = light.ShadowInfo.Projection;
                     ShadowCameraTransform shadowCameraTransform = light.CalcShadowCameraTransform(MainCamera.Transform);
 
                     _altCamera.Transform.Position = shadowCameraTransform.pos;
@@ -427,7 +427,7 @@ namespace NewEngine.Engine.Rendering
             SetTexture("filterTexture", source);
 
             _altCameraObject.Transform.Rotation = Quaternion.Identity;
-            _altCamera.SetProjection = Matrix4.Identity;
+            _altCamera.Projection = Matrix4.Identity;
             _altCameraObject.Transform.Position = new Vector3(0, 0, 0);
 
             Camera temp = MainCamera;
