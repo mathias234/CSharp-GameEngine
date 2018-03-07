@@ -27,6 +27,7 @@ namespace Editor
         NewEngine.Engine.Core.Dispatcher _dispatcher;
 
         private GameObject _camera;
+        private GameObject _cube;
         private GameObject _directionalLightObj;
 
         public RenderingEngine RenderingEngine { get; set; }
@@ -88,6 +89,9 @@ namespace Editor
 
         void CreateCamera()
         {
+            _cube = new GameObject("CUBE");
+            _cube.AddComponent(new MeshRenderer("cube.obj", ""));
+
             _camera = new GameObject("main camera")
                 .AddComponent(new FreeLook(true, true))
                 .AddComponent(new FreeMove())
@@ -106,8 +110,6 @@ namespace Editor
             return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
         }
 
-        private float cubeDistance = 1;
-
         private void GlControl_Paint(object sender, System.Windows.Forms.PaintEventArgs e)
         {
             var deltaTime = DateTime.Now.Subtract(this.lastMeasureTime);
@@ -117,22 +119,6 @@ namespace Editor
 
             float mouseX = Mouse.GetCursorState().X - (float)Host.PointToScreen(new Point(0, 0)).X;
             float mouseY = Mouse.GetCursorState().Y - (float)Host.PointToScreen(new Point(0, 0)).Y;
-
-            //if (Input.GetKey(Key.Q))
-            //{
-            //    cubeDistance += 0.05f;
-            //}
-
-            //if (Input.GetKey(Key.E))
-            //{
-            //    cubeDistance -= 0.05f;
-            //}
-
-
-            //var newPosition = _camera.Transform.Position + (unprojectedMouse - _camera.Transform.Position).Normalized() * cubeDistance;
-
-            //_test.Transform.Position = newPosition;
-
 
             /* Update Loop */
 
@@ -201,6 +187,7 @@ namespace Editor
 
 
             _camera.AddToEngine(this);
+            _cube.AddToEngine(this);
             _directionalLightObj.AddToEngine(this);
 
             /* END DRAW */

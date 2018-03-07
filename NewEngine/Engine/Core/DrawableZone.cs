@@ -179,6 +179,8 @@ namespace NewEngine.Engine.Core
             {
                 chunk.Value.Save();
             }
+
+            GC.Collect();
         }
 
         public void AddObject(GameObject gObj)
