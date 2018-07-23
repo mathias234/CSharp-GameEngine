@@ -12,6 +12,10 @@ using System.Windows.Threading;
 using NewEngine.Engine.Rendering.GUI;
 using NewEngine.Engine.Physics;
 using OpenTK.Input;
+using System.Windows.Media;
+using System.Windows.Controls;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace Editor
 {
@@ -43,6 +47,19 @@ namespace Editor
         private DrawableZone _loadedZone;
 
 
+        private Brush _gridColor;
+        public Brush GridColor {
+            get { return _gridColor; }
+            set
+            {
+                if (_gridColor != value)
+                {
+                    _gridColor = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         // *** CONTROLS ***
         private bool useBrush;
         private float brushSize = 5;
@@ -52,8 +69,9 @@ namespace Editor
             InitializeComponent();
 
 
-            _dispatcher = new NewEngine.Engine.Core.Dispatcher();
 
+
+            _dispatcher = new NewEngine.Engine.Core.Dispatcher();
 
             this.lastMeasureTime = DateTime.Now;
             this.frames = 0;
@@ -90,7 +108,7 @@ namespace Editor
         void CreateCamera()
         {
             _cube = new GameObject("CUBE");
-            _cube.AddComponent(new MeshRenderer("cube.obj", ""));
+            //_cube.AddComponent(new MeshRenderer("cube.obj", ""));
 
             _camera = new GameObject("main camera")
                 .AddComponent(new FreeLook(true, true))
@@ -280,6 +298,12 @@ namespace Editor
         {
             TerrainMesh.BrushCircleRadius = brushSize;
             useBrush = !useBrush;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

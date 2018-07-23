@@ -5,17 +5,41 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Editor"
         mc:Ignorable="d"
-        Title="MainWindow" Height="843.807" Width="1226.057" SizeChanged="Window_SizeChanged" GotFocus="Window_GotFocus">
-
-    <Grid>
+        Title="MainWindow" Height="843.807" Width="1226.057" SizeChanged="Window_SizeChanged" GotFocus="Window_GotFocus" Background="Red">
+    
+    
+    <Window.Resources>
+        <Style x:Key="CommonStyle" TargetType="FrameworkElement">
+            <Setter Property="Margin" Value="2" />
+        </Style>
+        <Style TargetType="StackPanel" BasedOn="{StaticResource CommonStyle}">
+            <Setter Property="Background" Value="#FF303030" />
+        </Style>
+        <Style TargetType="Grid" BasedOn="{StaticResource CommonStyle}">
+            <Setter Property="Background" Value="#FF303030" />
+        </Style>
+        <Style TargetType="Button" BasedOn="{StaticResource CommonStyle}">
+            <Setter Property="Background" Value="#FF181818" />
+            <Setter Property="BorderBrush" Value="#FF161616" />
+            <Setter Property="Foreground" Value="LightGray" />
+        </Style>
+        <Style TargetType="StatusBar" BasedOn="{StaticResource CommonStyle}">
+            <Setter Property="Background" Value="#FF303030" />
+            <Setter Property="Foreground" Value="LightGray" />
+        </Style>
+    </Window.Resources>
+    
+    <Grid Margin="0,0,0,0">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="50"/>
+            <ColumnDefinition Width="54"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="50" />
+            <RowDefinition Height="54" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="25" />
         </Grid.RowDefinitions>
+
 
         <Grid Grid.Row="0" Grid.ColumnSpan="2">
             <Grid.RowDefinitions>
@@ -28,7 +52,8 @@
                 <ColumnDefinition Width="50" />
                 <ColumnDefinition Width="50" />
             </Grid.ColumnDefinitions>
-            
+
+
             <Button x:Name="Wireframe" Content="Wireframe" Grid.Column="1" Grid.Row="0" Click="Wireframe_Click"/>
             <Button x:Name="Brush" Content="Brush" Grid.Column="2" Grid.Row="0" Click="Brush_Click"/>
         </Grid>
@@ -54,5 +79,6 @@
         </Grid>
 
         <WindowsFormsHost Grid.Row="1" Grid.Column="2" x:Name="Host" Width="Auto" Height="Auto"/>
+        <StatusBar Height="Auto" Width="Auto" Grid.Row="2" Grid.ColumnSpan="2"/>
     </Grid>
 </Window>

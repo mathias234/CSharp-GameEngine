@@ -95,9 +95,10 @@ G:\dev\CSharp-GameEngine\NewEngine\bin\Debug\BEPUik.xml
 G:\dev\CSharp-GameEngine\NewEngine\bin\Debug\BEPUphysics.xml
 G:\dev\CSharp-GameEngine\NewEngine\bin\Debug\BEPUutilities.xml
 G:\dev\CSharp-GameEngine\NewEngine\bin\Debug\OpenTK.xml
-G:\dev\CSharp-GameEngine\NewEngine\obj\Debug\NewEngine.csprojResolveAssemblyReference.cache
 G:\dev\CSharp-GameEngine\NewEngine\obj\Debug\NewEngine.csproj.CoreCompileInputs.cache
 G:\dev\CSharp-GameEngine\NewEngine\obj\Debug\NewEngine.dll
 G:\dev\CSharp-GameEngine\NewEngine\obj\Debug\NewEngine.pdb
 G:\dev\CSharp-GameEngine\NewEngine\bin\Debug\FileSystem.dll
 G:\dev\CSharp-GameEngine\NewEngine\bin\Debug\FileSystem.pdb
+G:\dev\CSharp-GameEngine\NewEngine\obj\Debug\NewEngine.csprojAssemblyReference.cache
+G:\dev\CSharp-GameEngine\NewEngine\obj\Debug\NewEngine.csproj.CopyComplete
